@@ -6,7 +6,7 @@
 
 body {
     font-family: 'Arial', sans-serif;
-    background: #0f0f0f;
+    background: linear-gradient(145deg, #7a1515, #1a1a1a) ;
     color: #fff;
     min-height: 100vh;
     display: flex;
@@ -37,8 +37,9 @@ body {
 }
 
 .logo-text {
-    font-size: 5rem;
-    font-weight: 200;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 6rem;
+    font-weight: 100;
     letter-spacing: 0.5em;
     color: #ffffff;
     text-transform: uppercase;
@@ -104,16 +105,18 @@ input:focus {
 }
 
 .login-btn {
-    width: 100%;
+    display: block;
+    width: 75%;
     padding: 16px;
     background: #ffffff;
     color: #000000;
     border: none;
-    border-radius: 8px;
+    margin: 10px auto;
+    border-radius: 65px;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.20em;
     cursor: pointer;
     transition: all 0.3s ease;
     margin-top: 10px;
@@ -143,19 +146,20 @@ input:focus {
 }
 
 .create-account-btn {
-    width: 100%;
+    display: block;
+    width: 75%;
     padding: 16px;
     background: transparent;
     color: #ffffff;
     border: 2px solid #ffffff;
-    border-radius: 8px;
+    border-radius: 15px;
+    margin: auto;
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.15em;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: inline-block;
     text-align: center;
     text-decoration: none;
 }
@@ -215,4 +219,12 @@ input:focus {
     .login-box {
         padding: 40px 35px;
     }
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: #666;
+  margin: 25px 0;
+  opacity: 0.6;
 }
