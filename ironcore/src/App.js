@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
-import Register from "./pages/Register"; // ✅ make sure this file exists
+import Register from "./pages/Register";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (
@@ -14,7 +15,10 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Register page */}
-        <Route path="/register" element={<Register />} /> {/* ✅ add this */}
+        <Route path="/register" element={<Register />} />
+
+        {/* Landing page after login */}
+        <Route path="/landing" element={<LandingPage />} /> {/* ✅ Added this */}
       </Routes>
     </Router>
   );
