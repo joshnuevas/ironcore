@@ -116,3 +116,61 @@
   transform: translateY(-3px);
   box-shadow: 0 10px 25px rgba(249, 115, 22, 0.25);
 }
+
+
+/* ============ Page Load Animations ============ */
+
+/* Section fade-up animation (for the overall trainers section) */
+.fadeInSection {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeInSection 0.8s ease-out forwards;
+}
+
+@keyframes fadeInSection {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Individual trainer card animation (fade-in with delay) */
+.fadeInCard {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInCard 0.8s ease-out forwards;
+}
+
+@keyframes fadeInCard {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Title and subtitle animations (similar to LandingPage quote) */
+.slideInLeft {
+  opacity: 0;
+  transform: translateX(-50px);
+  animation: slideInLeft 0.8s ease-out forwards;
+}
+
+@keyframes slideInLeft {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slideInRight {
+  opacity: 0;
+  transform: translateX(50px);
+  animation: slideInRight 0.8s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

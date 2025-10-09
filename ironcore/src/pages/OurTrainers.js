@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Dumbbell } from "lucide-react";
-import landingStyles from "./LandingPage.module.css"; // <-- navbar styles reused exactly
-import styles from "./OurTrainers.module.css"; // <-- trainers-specific styles
+import landingStyles from "./LandingPage.module.css"; // reuse landing animations and navbar
+import styles from "./OurTrainers.module.css";
 import { useNavigate } from "react-router-dom";
 
 const trainers = [
@@ -40,7 +40,6 @@ const OurTrainers = ({ onLogout }) => {
 
   const handleNavClick = (item) => {
     setActiveNav(item);
-    // keep nav visually identical and also navigate so "connected via nav"
     const map = {
       HOME: "/landing",
       "ABOUT US": "/about",
@@ -49,7 +48,6 @@ const OurTrainers = ({ onLogout }) => {
       MEMBERSHIP: "/membership",
     };
     if (map[item]) navigate(map[item]);
-    console.log(`Navigating to ${item}`);
   };
 
   const handleLogout = () => setShowLogoutModal(true);
@@ -62,7 +60,14 @@ const OurTrainers = ({ onLogout }) => {
 
   return (
     <div className={styles.pageWrapper}>
-      {/* NAVBAR (copied exactly from LandingPage) */}
+      {/* 🔸 Background animation reused from LandingPage */}
+      <div className={landingStyles.backgroundOverlay}>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
+      </div>
+
+      {/* 🔸 Navbar (copied from LandingPage) */}
       <nav className={landingStyles.navbar}>
         <div className={landingStyles.navContainer}>
           <div className={landingStyles.logoSection}>
@@ -94,9 +99,8 @@ const OurTrainers = ({ onLogout }) => {
         </div>
       </nav>
 
-      {/* Main trainers content */}
-      {/* add top padding so the fixed navbar doesn't cover content */}
-      <div className={styles.trainersContainer} style={{ paddingTop: "6.5rem" }}>
+      {/* 🔸 Main Trainers Content */}
+      <div className={`${styles.trainersContainer} ${styles.fadeInSection}`} style={{ paddingTop: "6.5rem" }}>
         <div className={styles.headerSection}>
           <h1 className={styles.title}>OUR TRAINERS</h1>
           <p className={styles.subtitle}>Meet our elite team from Palo, Leyte</p>
@@ -104,7 +108,8 @@ const OurTrainers = ({ onLogout }) => {
 
         <div className={styles.trainersGrid}>
           {trainers.map((trainer, index) => (
-            <div key={index} className={styles.card}>
+            <div key={index} className={`${styles.card} ${styles.fadeInCard}`} style={{ animationDelay: `${index * 0.2}s` }}>
+
               <div
                 className={styles.image}
                 style={{ backgroundImage: `url(${trainer.image})` }}
@@ -133,7 +138,7 @@ const OurTrainers = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* Logout Modal (re-uses LandingPage.module.css modal classes so it looks identical) */}
+      {/* 🔸 Logout Modal */}
       {showLogoutModal && (
         <div className={landingStyles.modalOverlay}>
           <div className={landingStyles.modalContent}>
