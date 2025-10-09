@@ -12,6 +12,27 @@ const LandingPage = ({ onLogout }) => {
 
   const handleNavClick = (item) => {
     setActiveNav(item);
+
+    switch (item) {
+      case 'HOME':
+        navigate('/landing');
+        break;
+      case 'ABOUT US':
+        navigate('/about');
+        break;
+      case 'OUR TRAINERS':
+        navigate('/trainers');
+        break;
+      case 'CLASSES':
+        alert('Classes page coming soon!');
+        break;
+      case 'MEMBERSHIP':
+        alert('Membership info coming soon!');
+        break;
+      default:
+        break;
+    }
+
     console.log(`Navigating to ${item}`);
   };
 
@@ -21,7 +42,7 @@ const LandingPage = ({ onLogout }) => {
   };
 
   const handleLogout = () => {
-    setShowLogoutModal(true); // show modal instead of default confirm
+    setShowLogoutModal(true);
   };
 
   const confirmLogout = () => {
