@@ -16,8 +16,8 @@ const LandingPage = ({ onLogout }) => {
   };
 
   const handleContact = () => {
-    console.log('Contact button clicked');
-    alert('Contact form coming soon!');
+    console.log('Contact button clicked, navigating to /contact')
+    navigate('/contact');
   };
 
   const handleLogout = () => {
