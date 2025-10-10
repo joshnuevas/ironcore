@@ -5,6 +5,9 @@ import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
 import MembershipPage from "./pages/MembershipPage";
+import AboutUs from "./pages/AboutUs"; // ✅ add
+import OurTrainers from "./pages/OurTrainers"; // ✅ add
+
 
 function App() {
   return (
@@ -27,6 +30,12 @@ function App() {
 
         {/* Membership page - NEW ROUTE */}
         <Route path="/membership" element={<MembershipPage />} />
+
+        <Route path="/about" element={<AboutUs />} /> {/* ✅ added */}
+        
+        <Route path="/trainers" element={<OurTrainers />} /> {/* ✅ added */}
+
+        
       </Routes>
     </Router>
   );
