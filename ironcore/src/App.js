@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
+import ContactPage from "./pages/ContactPage";
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
 
         {/* Landing page after login */}
         <Route path="/landing" element={<LandingPage />} /> {/* ✅ Added this */}
+
+        {/* Contact page (Protected Route) - NEW ROUTE */}
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </Router>
   );
