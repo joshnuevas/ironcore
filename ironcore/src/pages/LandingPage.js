@@ -10,10 +10,15 @@ const LandingPage = ({ onLogout }) => {
 
   const navItems = ['HOME', 'ABOUT US', 'OUR TRAINERS', 'CLASSES', 'MEMBERSHIP'];
 
-  const handleNavClick = (item) => {
-    setActiveNav(item);
-    console.log(`Navigating to ${item}`);
-  };
+const handleNavClick = (item) => {
+  setActiveNav(item);
+  if (item === 'HOME') {
+    navigate('/landing');
+  } else if (item === 'MEMBERSHIP') {
+    navigate('/membership');
+  }
+  console.log(`Navigating to ${item}`);
+};
 
   const handleContact = () => {
     console.log('Contact button clicked, navigating to /contact')

@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
+import MembershipPage from "./pages/MembershipPage";
 
 function App() {
   return (
@@ -23,6 +24,9 @@ function App() {
 
         {/* Contact page (Protected Route) - NEW ROUTE */}
         <Route path="/contact" element={<ContactPage />} />
+
+        {/* Membership page - NEW ROUTE */}
+        <Route path="/membership" element={<MembershipPage />} />
       </Routes>
     </Router>
   );
