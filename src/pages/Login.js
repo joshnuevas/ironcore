@@ -12,24 +12,35 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const validUser = { email: "admin@ironcore.com", password: "password123" };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
     setSuccess(false);
 
-    // Simulate API call
-    setTimeout(() => {
-      if (email === validUser.email && password === validUser.password) {
-        setIsLoading(false);
-        setSuccess(true); // show success popup
+    try {
+      // --- Connect to your backend login endpoint ---
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.text();
+
+      if (response.ok) {
+        // Login success
+        setSuccess(true);
+        setEmail('');
+        setPassword('');
       } else {
-        setError('Invalid email or password. Please try again.');
-        setIsLoading(false);
+        setError(result || 'Invalid email or password.');
       }
-    }, 1500);
+    } catch (err) {
+      setError('Unable to connect to the server.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleContinue = () => {
@@ -38,6 +49,7 @@ const Login = () => {
 
   return (
     <div className={styles.loginContainer}>
+      {/* Background animation */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
@@ -119,7 +131,13 @@ const Login = () => {
           <div className={styles.signupSection}>
             <p className={styles.signupText}>
               Don't have an account?{' '}
-              <button type="button" className={styles.signupLink} onClick={() => navigate('/register')}>Sign up</button>
+              <button
+                type="button"
+                className={styles.signupLink}
+                onClick={() => navigate('/register')}
+              >
+                Sign up
+              </button>
             </p>
           </div>
         </div>

@@ -1,46 +1,70 @@
 import React, { useState } from 'react';
 import { Dumbbell, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import styles from './Register.module.css';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setIsLoading(true);
 
-    // Simulate registration
-    setTimeout(() => {
-      if (!username || !email || !password || !confirmPassword) {
-        setError('Please fill in all fields.');
-      } else if (password !== confirmPassword) {
-        setError('Passwords do not match.');
-      } else {
-        setSuccess('Account created successfully! You can now log in.');
+    // --- Validation ---
+    if (!username || !email || !password || !confirmPassword) {
+      setError('Please fill in all fields.');
+      setIsLoading(false);
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      // --- Send to backend ---
+      const response = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const message = await response.text();
+
+      if (response.ok) {
+        setSuccess('Account created successfully!');
         setUsername('');
         setEmail('');
         setPassword('');
         setConfirmPassword('');
+
+        // Optional: redirect to login after delay
+        setTimeout(() => navigate('/login'), 1500);
+      } else {
+        setError(message || 'Registration failed. Please try again.');
       }
+    } catch (err) {
+      setError('Unable to connect to the server.');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
     <div className={styles.registerContainer}>
-      {/* Animated background */}
+      {/* Background animation */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
@@ -68,9 +92,7 @@ const Register = () => {
 
             {/* Username */}
             <div className={styles.formGroup}>
-              <label htmlFor="username" className={styles.formLabel}>
-                Username
-              </label>
+              <label htmlFor="username" className={styles.formLabel}>Username</label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <User className={styles.icon} />
@@ -89,9 +111,7 @@ const Register = () => {
 
             {/* Email */}
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.formLabel}>
-                Email Address
-              </label>
+              <label htmlFor="email" className={styles.formLabel}>Email Address</label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <Mail className={styles.icon} />
@@ -110,9 +130,7 @@ const Register = () => {
 
             {/* Password */}
             <div className={styles.formGroup}>
-              <label htmlFor="password" className={styles.formLabel}>
-                Password
-              </label>
+              <label htmlFor="password" className={styles.formLabel}>Password</label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <Lock className={styles.icon} />
@@ -131,20 +149,14 @@ const Register = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className={styles.passwordToggle}
                 >
-                  {showPassword ? (
-                    <EyeOff className={styles.icon} />
-                  ) : (
-                    <Eye className={styles.icon} />
-                  )}
+                  {showPassword ? <EyeOff className={styles.icon} /> : <Eye className={styles.icon} />}
                 </button>
               </div>
             </div>
 
             {/* Confirm Password */}
             <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword" className={styles.formLabel}>
-                Confirm Password
-              </label>
+              <label htmlFor="confirmPassword" className={styles.formLabel}>Confirm Password</label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <Lock className={styles.icon} />
@@ -163,37 +175,26 @@ const Register = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className={styles.passwordToggle}
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff className={styles.icon} />
-                  ) : (
-                    <Eye className={styles.icon} />
-                  )}
+                  {showConfirmPassword ? <EyeOff className={styles.icon} /> : <Eye className={styles.icon} />}
                 </button>
               </div>
             </div>
 
             {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={styles.submitButton}
-            >
+            <button type="submit" disabled={isLoading} className={styles.submitButton}>
               {isLoading ? (
                 <span className={styles.loadingContent}>
                   <svg className={styles.spinner} viewBox="0 0 24 24">
                     <circle
                       className={styles.spinnerCircle}
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                      fill="none"
+                      cx="12" cy="12" r="10"
+                      stroke="currentColor" strokeWidth="4" fill="none"
                     ></circle>
                     <path
                       className={styles.spinnerPath}
                       fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0
+                      c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
                   Creating account...
@@ -211,15 +212,15 @@ const Register = () => {
             <div className={styles.dividerLine}></div>
           </div>
 
-          {/* Link to login */}
+          {/* Login Link */}
           <div className={styles.loginSection}>
             <p className={styles.loginText}>
               Already have an account?{' '}
               <button
                 type="button"
                 className={styles.loginLink}
-                onClick={() => navigate("/login")}
-               >
+                onClick={() => navigate('/login')}
+              >
                 Log in
               </button>
             </p>
