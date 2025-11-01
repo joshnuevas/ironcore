@@ -9,10 +9,12 @@ import {
   Shield,
 } from "lucide-react";
 import styles from "./AboutUs.module.css";
+import { useNavigate } from "react-router-dom"; // ✅ Add navigation hook
 
-const AboutUs = ({ onLogout, onNavigate }) => {
+const AboutUs = ({ onLogout }) => {
   const [activeNav, setActiveNav] = useState("ABOUT US");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate(); // ✅ Navigation instance
 
   const navItems = [
     "HOME",
@@ -22,29 +24,27 @@ const AboutUs = ({ onLogout, onNavigate }) => {
     "MEMBERSHIP",
   ];
 
-  // ✅ Updated: Full navigation handling
+  // ✅ Updated navigation handling using react-router
   const handleNavClick = (item) => {
     setActiveNav(item);
-    if (onNavigate) {
-      switch (item) {
-        case "HOME":
-          onNavigate("landing");
-          break;
-        case "ABOUT US":
-          onNavigate("about");
-          break;
-        case "OUR TRAINERS":
-          onNavigate("trainers");
-          break;
-        case "CLASSES":
-          onNavigate("classes");
-          break;
-        case "MEMBERSHIP":
-          onNavigate("membership");
-          break;
-        default:
-          console.log(`Navigating to ${item}`);
-      }
+    switch (item) {
+      case "HOME":
+        navigate("/landing");
+        break;
+      case "ABOUT US":
+        navigate("/about");
+        break;
+      case "OUR TRAINERS":
+        navigate("/trainers");
+        break;
+      case "CLASSES":
+        navigate("/classes"); // Placeholder
+        break;
+      case "MEMBERSHIP":
+        navigate("/membership");
+        break;
+      default:
+        break;
     }
   };
 
@@ -55,7 +55,7 @@ const AboutUs = ({ onLogout, onNavigate }) => {
   const confirmLogout = () => {
     setShowLogoutModal(false);
     if (onLogout) onLogout();
-    if (onNavigate) onNavigate("login");
+    navigate("/login");
   };
 
   const cancelLogout = () => {
@@ -147,8 +147,7 @@ const AboutUs = ({ onLogout, onNavigate }) => {
               <span className={styles.titleAccent}>IRONCORE</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              Where strength meets community, and dedication becomes
-              transformation
+              Where strength meets community, and dedication becomes transformation
             </p>
           </div>
         </section>
@@ -161,13 +160,12 @@ const AboutUs = ({ onLogout, onNavigate }) => {
             </div>
             <h2 className={styles.sectionTitle}>OUR MISSION</h2>
             <p className={styles.missionText}>
-              At IRONCORE, we believe fitness is more than just physical
-              transformation. It's about building mental resilience, fostering
-              genuine connections, and creating a lifestyle that empowers you to
-              be your strongest self. We're committed to providing world-class
-              facilities, expert guidance, and an inclusive environment where
-              everyone from beginners to elite athletes can thrive and achieve
-              their goals.
+              At IRONCORE, we believe fitness is more than just physical transformation. 
+              It's about building mental resilience, fostering genuine connections, 
+              and creating a lifestyle that empowers you to be your strongest self. 
+              We're committed to providing world-class facilities, expert guidance, 
+              and an inclusive environment where everyone from beginners to elite athletes 
+              can thrive and achieve their goals.
             </p>
           </div>
         </section>
@@ -207,14 +205,11 @@ const AboutUs = ({ onLogout, onNavigate }) => {
             <h2 className={styles.sectionTitle}>OUR STORY</h2>
             <p className={styles.storyText}>
               Founded in 2015, IRONCORE began with a simple vision: create a
-              space where people could push their limits without judgment. What
-              started as a single location with a handful of passionate trainers
-              has grown into a thriving community of over 5,000 members. Through
-              dedication, innovation, and an unwavering commitment to
+              space where people could push their limits without judgment. 
+              What started as a single location with a handful of passionate 
+              trainers has grown into a thriving community of over 5,000 members. 
+              Through dedication, innovation, and an unwavering commitment to 
               excellence, we've become more than just a gym—we're a movement.
-              Every day, we witness incredible transformations, celebrate
-              personal victories, and build lasting friendships. This is what
-              drives us forward.
             </p>
           </div>
         </section>
@@ -225,7 +220,12 @@ const AboutUs = ({ onLogout, onNavigate }) => {
           <p className={styles.ctaText}>
             Join the IRONCORE family and discover what you're truly capable of.
           </p>
-          <button className={styles.ctaButton}>GET STARTED TODAY</button>
+          <button
+            className={styles.ctaButton}
+            onClick={() => navigate("/membership")} // ✅ CTA redirects to Membership
+          >
+            GET STARTED TODAY
+          </button>
         </section>
       </div>
 

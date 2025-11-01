@@ -18,21 +18,34 @@ const LandingPage = ({ onLogout }) => {
 
   const handleNavClick = (item) => {
     setActiveNav(item);
-    if (item === "HOME") {
-      navigate("/landing");
-    } else if (item === "MEMBERSHIP") {
-      navigate("/membership");
+    switch (item) {
+      case "HOME":
+        navigate("/landing");
+        break;
+      case "ABOUT US":
+        navigate("/about");
+        break;
+      case "OUR TRAINERS":
+        navigate("/trainers");
+        break;
+      case "CLASSES":
+        // You can create a ClassesPage later — for now, navigate to a placeholder
+        navigate("/classes");
+        break;
+      case "MEMBERSHIP":
+        navigate("/membership");
+        break;
+      default:
+        break;
     }
-    console.log(`Navigating to ${item}`);
   };
 
   const handleContact = () => {
-    console.log("Contact button clicked, navigating to /contact");
     navigate("/contact");
   };
 
   const handleLogout = () => {
-    setShowLogoutModal(true); // show modal instead of default confirm
+    setShowLogoutModal(true);
   };
 
   const confirmLogout = () => {

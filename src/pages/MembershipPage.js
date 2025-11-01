@@ -16,12 +16,25 @@ const MembershipPage = () => {
   ];
 
   const handleNavClick = (item) => {
-    if (item === "HOME") {
-      navigate("/landing");
-    } else if (item === "MEMBERSHIP") {
-      navigate("/membership");
+    switch (item) {
+      case "HOME":
+        navigate("/landing");
+        break;
+      case "ABOUT US":
+        navigate("/about");
+        break;
+      case "OUR TRAINERS":
+        navigate("/trainers");
+        break;
+      case "CLASSES":
+        navigate("/classes");
+        break;
+      case "MEMBERSHIP":
+        navigate("/membership");
+        break;
+      default:
+        break;
     }
-    console.log(`Navigating to ${item}`);
   };
 
   const handleBack = () => {
@@ -75,12 +88,14 @@ const MembershipPage = () => {
 
   return (
     <div className={styles.membershipContainer}>
+      {/* Background */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
 
+      {/* Navbar */}
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
           <div className={styles.logoSection}>
@@ -112,6 +127,7 @@ const MembershipPage = () => {
         </div>
       </nav>
 
+      {/* Page Content */}
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
