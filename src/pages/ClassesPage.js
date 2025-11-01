@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Dumbbell, Zap, Music, Bike, Flower2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import styles from "./ClassesPage.module.css";
 
-const ClassesPage = () => {
+const ClassesPage = ({ onLogout }) => {
   const [activeNav, setActiveNav] = useState("CLASSES");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const navigate = useNavigate();
 
   const navItems = [
     "HOME",
@@ -47,7 +49,25 @@ const ClassesPage = () => {
 
   const handleNavClick = (item) => {
     setActiveNav(item);
-    console.log("Navigating to:", item);
+    switch (item) {
+      case "HOME":
+        navigate("/landing");
+        break;
+      case "ABOUT US":
+        navigate("/about");
+        break;
+      case "OUR TRAINERS":
+        navigate("/trainers");
+        break;
+      case "CLASSES":
+        navigate("/classes");
+        break;
+      case "MEMBERSHIP":
+        navigate("/membership");
+        break;
+      default:
+        break;
+    }
   };
 
   const handleLogout = () => {
@@ -56,7 +76,8 @@ const ClassesPage = () => {
 
   const confirmLogout = () => {
     setShowLogoutModal(false);
-    console.log("Logged out");
+    if (onLogout) onLogout();
+    navigate("/login");
   };
 
   const cancelLogout = () => {
