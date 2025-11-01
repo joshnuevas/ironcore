@@ -83,7 +83,7 @@ const MembershipPage = ({ onLogout }) => {
     },
     {
       name: "PLATINUM",
-      price: "₱2,000",
+      price: "₱2,099",
       period: "/Month",
       icon: "👑",
       features: [
@@ -179,6 +179,7 @@ const MembershipPage = ({ onLogout }) => {
                 </ul>
 
                 <button
+                  onClick={() => navigate("/transaction", { state: { plan } })}
                   className={`${styles.joinButton} ${
                     !plan.popular ? styles.joinButtonOutline : ""
                   }`}

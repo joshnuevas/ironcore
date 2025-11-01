@@ -8,7 +8,7 @@ import MembershipPage from "./pages/MembershipPage";
 import AboutUs from "./pages/AboutUs";
 import OurTrainers from "./pages/OurTrainers"; 
 import ClassesPage from "./pages/ClassesPage"; 
-
+import TransactionPage from "./pages/TransactionPage";
 
 function App() {
   return (
@@ -37,6 +37,9 @@ function App() {
         <Route path="/trainers" element={<OurTrainers />} /> {/* ✅ added */}
 
         <Route path="/classes" element={<ClassesPage />} />
+
+        <Route path="/transaction" element={<TransactionPage />} />
+        
       </Routes>
     </Router>
   );
