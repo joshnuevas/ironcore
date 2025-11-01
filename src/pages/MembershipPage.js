@@ -37,8 +37,14 @@ const MembershipPage = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate("/landing");
+  // ✅ Handle Logout
+  const handleLogout = () => {
+    // Optional: clear session data
+    localStorage.removeItem("user");
+    sessionStorage.removeItem("session");
+
+    // Redirect to login page
+    navigate("/login");
   };
 
   const plans = [
@@ -121,8 +127,9 @@ const MembershipPage = () => {
             ))}
           </div>
 
-          <button onClick={handleBack} className={styles.backButton}>
-            BACK
+          {/* 🔹 Replaced BACK with LOGOUT */}
+          <button onClick={handleLogout} className={styles.logoutButton}>
+            LOGOUT
           </button>
         </div>
       </nav>
