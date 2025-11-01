@@ -5,8 +5,9 @@ import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
 import MembershipPage from "./pages/MembershipPage";
-import AboutUs from "./pages/AboutUs"; // ✅ add
-import OurTrainers from "./pages/OurTrainers"; // ✅ add
+import AboutUs from "./pages/AboutUs";
+import OurTrainers from "./pages/OurTrainers"; 
+import ClassesPage from "./pages/ClassesPage"; 
 
 
 function App() {
@@ -35,7 +36,7 @@ function App() {
         
         <Route path="/trainers" element={<OurTrainers />} /> {/* ✅ added */}
 
-        
+        <Route path="/classes" element={<ClassesPage />} />
       </Routes>
     </Router>
   );
