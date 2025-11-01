@@ -1,28 +1,34 @@
-import React, { useState } from 'react';
-import { Dumbbell } from 'lucide-react';
-import styles from './LandingPage.module.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Dumbbell } from "lucide-react";
+import styles from "./LandingPage.module.css";
+import { useNavigate } from "react-router-dom";
 
 const LandingPage = ({ onLogout }) => {
-  const [activeNav, setActiveNav] = useState('HOME');
+  const [activeNav, setActiveNav] = useState("HOME");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
-  const navItems = ['HOME', 'ABOUT US', 'OUR TRAINERS', 'CLASSES', 'MEMBERSHIP'];
+  const navItems = [
+    "HOME",
+    "ABOUT US",
+    "OUR TRAINERS",
+    "CLASSES",
+    "MEMBERSHIP",
+  ];
 
-const handleNavClick = (item) => {
-  setActiveNav(item);
-  if (item === 'HOME') {
-    navigate('/landing');
-  } else if (item === 'MEMBERSHIP') {
-    navigate('/membership');
-  }
-  console.log(`Navigating to ${item}`);
-};
+  const handleNavClick = (item) => {
+    setActiveNav(item);
+    if (item === "HOME") {
+      navigate("/landing");
+    } else if (item === "MEMBERSHIP") {
+      navigate("/membership");
+    }
+    console.log(`Navigating to ${item}`);
+  };
 
   const handleContact = () => {
-    console.log('Contact button clicked, navigating to /contact')
-    navigate('/contact');
+    console.log("Contact button clicked, navigating to /contact");
+    navigate("/contact");
   };
 
   const handleLogout = () => {
@@ -32,7 +38,7 @@ const handleNavClick = (item) => {
   const confirmLogout = () => {
     setShowLogoutModal(false);
     if (onLogout) onLogout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const cancelLogout = () => {
@@ -65,7 +71,9 @@ const handleNavClick = (item) => {
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
-                className={`${styles.navLink} ${activeNav === item ? styles.navLinkActive : ''}`}
+                className={`${styles.navLink} ${
+                  activeNav === item ? styles.navLinkActive : ""
+                }`}
               >
                 {item}
               </button>

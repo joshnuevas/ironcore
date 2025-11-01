@@ -36,7 +36,13 @@ const OurTrainers = ({ onLogout }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
-  const navItems = ["HOME", "ABOUT US", "OUR TRAINERS", "CLASSES", "MEMBERSHIP"];
+  const navItems = [
+    "HOME",
+    "ABOUT US",
+    "OUR TRAINERS",
+    "CLASSES",
+    "MEMBERSHIP",
+  ];
 
   const handleNavClick = (item) => {
     setActiveNav(item);
@@ -62,9 +68,15 @@ const OurTrainers = ({ onLogout }) => {
     <div className={styles.pageWrapper}>
       {/* 🔸 Background animation reused from LandingPage */}
       <div className={landingStyles.backgroundOverlay}>
-        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
-        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
-        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
+        <div
+          className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}
+        ></div>
+        <div
+          className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}
+        ></div>
+        <div
+          className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}
+        ></div>
       </div>
 
       {/* 🔸 Navbar (copied from LandingPage) */}
@@ -100,16 +112,24 @@ const OurTrainers = ({ onLogout }) => {
       </nav>
 
       {/* 🔸 Main Trainers Content */}
-      <div className={`${styles.trainersContainer} ${styles.fadeInSection}`} style={{ paddingTop: "6.5rem" }}>
+      <div
+        className={`${styles.trainersContainer} ${styles.fadeInSection}`}
+        style={{ paddingTop: "6.5rem" }}
+      >
         <div className={styles.headerSection}>
           <h1 className={styles.title}>OUR TRAINERS</h1>
-          <p className={styles.subtitle}>Meet our elite team from Palo, Leyte</p>
+          <p className={styles.subtitle}>
+            Meet our elite team from Palo, Leyte
+          </p>
         </div>
 
         <div className={styles.trainersGrid}>
           {trainers.map((trainer, index) => (
-            <div key={index} className={`${styles.card} ${styles.fadeInCard}`} style={{ animationDelay: `${index * 0.2}s` }}>
-
+            <div
+              key={index}
+              className={`${styles.card} ${styles.fadeInCard}`}
+              style={{ animationDelay: `${index * 0.2}s` }}
+            >
               <div
                 className={styles.image}
                 style={{ backgroundImage: `url(${trainer.image})` }}
@@ -145,10 +165,16 @@ const OurTrainers = ({ onLogout }) => {
             <h2>Confirm Logout</h2>
             <p>Are you sure you want to logout?</p>
             <div className={landingStyles.modalButtons}>
-              <button onClick={confirmLogout} className={landingStyles.modalConfirm}>
+              <button
+                onClick={confirmLogout}
+                className={landingStyles.modalConfirm}
+              >
                 Logout
               </button>
-              <button onClick={cancelLogout} className={landingStyles.modalCancel}>
+              <button
+                onClick={cancelLogout}
+                className={landingStyles.modalCancel}
+              >
                 Cancel
               </button>
             </div>
