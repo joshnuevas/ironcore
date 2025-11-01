@@ -1,28 +1,38 @@
-import React, { useState } from 'react';
-import { Dumbbell, MapPin, Mail, Phone, Send } from 'lucide-react';
-import styles from './ContactPage.module.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Dumbbell, MapPin, Mail, Phone, Send } from "lucide-react";
+import styles from "./ContactPage.module.css";
+import { useNavigate } from "react-router-dom";
 
 const ContactPage = ({ onLogout }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
   const [submissionStatus, setSubmissionStatus] = useState(null); // null, 'success', 'error'
   const navigate = useNavigate();
 
   // Mock navigation for the menu (needs to be implemented via App.js or context if this component were used in place of LandingPage)
-  const navItems = ['HOME', 'ABOUT US', 'OUR TRAINERS', 'CLASSES', 'MEMBERSHIP'];
+  const navItems = [
+    "HOME",
+    "ABOUT US",
+    "OUR TRAINERS",
+    "CLASSES",
+    "MEMBERSHIP",
+  ];
   const handleNavClick = (item) => {
     // Navigate back to landing for HOME, otherwise just log a message
-    if (item === 'HOME') {
-      navigate('/landing');
+    if (item === "HOME") {
+      navigate("/landing");
     } else {
       console.log(`Navigating to mock page: ${item}`);
     }
   };
 
   const handleLogout = () => {
-    console.log('Logout attempted from Contact Page');
+    console.log("Logout attempted from Contact Page");
     if (onLogout) onLogout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const handleChange = (e) => {
@@ -31,14 +41,14 @@ const ContactPage = ({ onLogout }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSubmissionStatus('submitting');
+    setSubmissionStatus("submitting");
 
     // Simulate API call delay
     setTimeout(() => {
-      console.log('Form Submitted:', formData);
+      console.log("Form Submitted:", formData);
       // Reset form and show success message
-      setFormData({ name: '', email: '', message: '' });
-      setSubmissionStatus('success');
+      setFormData({ name: "", email: "", message: "" });
+      setSubmissionStatus("success");
 
       // Clear success message after 3 seconds
       setTimeout(() => setSubmissionStatus(null), 3000);
@@ -57,7 +67,10 @@ const ContactPage = ({ onLogout }) => {
       {/* Navbar (Duplicated from LandingPage for visual consistency, should ideally be a shared component) */}
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
-          <div className={styles.logoSection} onClick={() => navigate('/landing')}>
+          <div
+            className={styles.logoSection}
+            onClick={() => navigate("/landing")}
+          >
             <div className={styles.logoIcon}>
               <Dumbbell className={styles.dumbbellIcon} />
             </div>
@@ -72,7 +85,9 @@ const ContactPage = ({ onLogout }) => {
                 key={item}
                 onClick={() => handleNavClick(item)}
                 // Highlight 'CONTACT' if it were in the menu, but for now, highlight HOME
-                className={`${styles.navLink} ${item === 'HOME' ? styles.navLinkActive : ''}`} 
+                className={`${styles.navLink} ${
+                  item === "HOME" ? styles.navLinkActive : ""
+                }`}
               >
                 {item}
               </button>
@@ -89,12 +104,16 @@ const ContactPage = ({ onLogout }) => {
       <div className={styles.contentWrapper}>
         <div className={styles.contactCard}>
           <h1 className={styles.contactTitle}>GET IN TOUCH</h1>
-          <p className={styles.contactSubtitle}>We're ready to help you hit your fitness goals.</p>
+          <p className={styles.contactSubtitle}>
+            We're ready to help you hit your fitness goals.
+          </p>
 
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
               <MapPin size={28} className={styles.infoIcon} />
-              <p className={styles.infoText}>123 Muscle Ave, Metacity, CA 90210</p>
+              <p className={styles.infoText}>
+                123 Muscle Ave, Metacity, CA 90210
+              </p>
             </div>
             <div className={styles.infoItem}>
               <Phone size={28} className={styles.infoIcon} />
@@ -134,16 +153,20 @@ const ContactPage = ({ onLogout }) => {
               rows="5"
               className={styles.formTextarea}
             />
-            <button type="submit" className={styles.submitButton} disabled={submissionStatus === 'submitting'}>
-              {submissionStatus === 'submitting' ? (
-                'SENDING...'
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={submissionStatus === "submitting"}
+            >
+              {submissionStatus === "submitting" ? (
+                "SENDING..."
               ) : (
                 <>
                   <Send size={18} /> SEND MESSAGE
                 </>
               )}
             </button>
-            {submissionStatus === 'success' && (
+            {submissionStatus === "success" && (
               <p className={styles.successMessage}>
                 Message sent successfully! We will be in touch soon.
               </p>
