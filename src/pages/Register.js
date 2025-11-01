@@ -1,62 +1,62 @@
-import React, { useState } from 'react';
-import { Dumbbell, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
-import styles from './Register.module.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Dumbbell, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import styles from "./Register.module.css";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     setIsLoading(true);
 
     // --- Validation ---
     if (!username || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
+      setError("Please fill in all fields.");
       setIsLoading(false);
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match.");
       setIsLoading(false);
       return;
     }
 
     try {
       // --- Send to backend ---
-      const response = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
 
       const message = await response.text();
 
       if (response.ok) {
-        setSuccess('Account created successfully!');
-        setUsername('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
+        setSuccess("Account created successfully!");
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
 
         // Optional: redirect to login after delay
-        setTimeout(() => navigate('/login'), 1500);
+        setTimeout(() => navigate("/login"), 1500);
       } else {
-        setError(message || 'Registration failed. Please try again.');
+        setError(message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      setError('Unable to connect to the server.');
+      setError("Unable to connect to the server.");
     } finally {
       setIsLoading(false);
     }
@@ -92,7 +92,9 @@ const Register = () => {
 
             {/* Username */}
             <div className={styles.formGroup}>
-              <label htmlFor="username" className={styles.formLabel}>Username</label>
+              <label htmlFor="username" className={styles.formLabel}>
+                Username
+              </label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <User className={styles.icon} />
@@ -111,7 +113,9 @@ const Register = () => {
 
             {/* Email */}
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.formLabel}>Email Address</label>
+              <label htmlFor="email" className={styles.formLabel}>
+                Email Address
+              </label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <Mail className={styles.icon} />
@@ -130,14 +134,16 @@ const Register = () => {
 
             {/* Password */}
             <div className={styles.formGroup}>
-              <label htmlFor="password" className={styles.formLabel}>Password</label>
+              <label htmlFor="password" className={styles.formLabel}>
+                Password
+              </label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <Lock className={styles.icon} />
                 </div>
                 <input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`${styles.formInput} ${styles.passwordInput}`}
@@ -149,21 +155,27 @@ const Register = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className={styles.passwordToggle}
                 >
-                  {showPassword ? <EyeOff className={styles.icon} /> : <Eye className={styles.icon} />}
+                  {showPassword ? (
+                    <EyeOff className={styles.icon} />
+                  ) : (
+                    <Eye className={styles.icon} />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Confirm Password */}
             <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword" className={styles.formLabel}>Confirm Password</label>
+              <label htmlFor="confirmPassword" className={styles.formLabel}>
+                Confirm Password
+              </label>
               <div className={styles.inputWrapper}>
                 <div className={styles.inputIcon}>
                   <Lock className={styles.icon} />
                 </div>
                 <input
                   id="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
+                  type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={`${styles.formInput} ${styles.passwordInput}`}
@@ -175,20 +187,32 @@ const Register = () => {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className={styles.passwordToggle}
                 >
-                  {showConfirmPassword ? <EyeOff className={styles.icon} /> : <Eye className={styles.icon} />}
+                  {showConfirmPassword ? (
+                    <EyeOff className={styles.icon} />
+                  ) : (
+                    <Eye className={styles.icon} />
+                  )}
                 </button>
               </div>
             </div>
 
             {/* Submit */}
-            <button type="submit" disabled={isLoading} className={styles.submitButton}>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={styles.submitButton}
+            >
               {isLoading ? (
                 <span className={styles.loadingContent}>
                   <svg className={styles.spinner} viewBox="0 0 24 24">
                     <circle
                       className={styles.spinnerCircle}
-                      cx="12" cy="12" r="10"
-                      stroke="currentColor" strokeWidth="4" fill="none"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
                     ></circle>
                     <path
                       className={styles.spinnerPath}
@@ -200,7 +224,7 @@ const Register = () => {
                   Creating account...
                 </span>
               ) : (
-                'Sign Up'
+                "Sign Up"
               )}
             </button>
           </form>
@@ -215,11 +239,11 @@ const Register = () => {
           {/* Login Link */}
           <div className={styles.loginSection}>
             <p className={styles.loginText}>
-              Already have an account?{' '}
+              Already have an account?{" "}
               <button
                 type="button"
                 className={styles.loginLink}
-                onClick={() => navigate('/login')}
+                onClick={() => navigate("/login")}
               >
                 Log in
               </button>
