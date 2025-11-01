@@ -48,15 +48,31 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.08; transform: scale(1); }
-  50% { opacity: 0.15; transform: scale(1.15); }
+  0%,
+  100% {
+    opacity: 0.08;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.15);
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  25% { transform: translate(40px, -40px) scale(1.05); }
-  50% { transform: translate(0, -60px) scale(1.15); }
-  75% { transform: translate(-40px, -40px) scale(1.05); }
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(40px, -40px) scale(1.05);
+  }
+  50% {
+    transform: translate(0, -60px) scale(1.15);
+  }
+  75% {
+    transform: translate(-40px, -40px) scale(1.05);
+  }
 }
 
 /* Navbar */
@@ -74,8 +90,14 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-100%); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .navContainer {
@@ -108,37 +130,89 @@
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3); }
-  50% { box-shadow: 0 8px 20px 0 rgba(249, 115, 22, 0.5); }
+  0%,
+  100% {
+    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
+  }
+  50% {
+    box-shadow: 0 8px 20px 0 rgba(249, 115, 22, 0.5);
+  }
 }
 
-.dumbbellIcon { width: 1.5rem; height: 1.5rem; color: white; }
-.logoText { font-size: 1.5rem; font-weight: bold; color: white; letter-spacing: -0.025em; }
-.logoAccent { color: #f97316; }
+.dumbbellIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}
+.logoText {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  letter-spacing: -0.025em;
+}
+.logoAccent {
+  color: #f97316;
+}
 
 /* Nav Links */
-.navLinks { display: flex; align-items: center; gap: 0.5rem; flex: 1; justify-content: center; }
-.navLink {
-  padding: 0.625rem 1.25rem; color: #d1d5db; background: none; border: none;
-  cursor: pointer; font-size: 0.875rem; font-weight: 600; letter-spacing: 0.05em;
-  transition: all 0.3s; border-radius: 0.5rem; position: relative;
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
 }
-.navLink:hover { color: #f97316; background-color: rgba(249, 115, 22, 0.1); }
-.navLinkActive { color: #f97316; background-color: rgba(249, 115, 22, 0.15); }
+.navLink {
+  padding: 0.625rem 1.25rem;
+  color: #d1d5db;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+  border-radius: 0.5rem;
+  position: relative;
+}
+.navLink:hover {
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.1);
+}
+.navLinkActive {
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.15);
+}
 .navLinkActive::after {
-  content: ''; position: absolute; bottom: 0.25rem; left: 50%; transform: translateX(-50%);
-  width: 1.5rem; height: 2px; background: linear-gradient(to right, #f97316, #dc2626); border-radius: 2px;
+  content: "";
+  position: absolute;
+  bottom: 0.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1.5rem;
+  height: 2px;
+  background: linear-gradient(to right, #f97316, #dc2626);
+  border-radius: 2px;
 }
 
 /* Back Button */
 .backButton {
-  padding: 0.625rem 1.5rem; background: transparent; border: 2px solid #f97316;
-  color: #f97316; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 700;
-  letter-spacing: 0.05em; cursor: pointer; transition: all 0.3s;
+  padding: 0.625rem 1.5rem;
+  background: transparent;
+  border: 2px solid #f97316;
+  color: #f97316;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 .backButton:hover {
   background: linear-gradient(to right, #f97316, #dc2626);
-  color: white; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4); transform: translateY(-2px);
+  color: white;
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+  transform: translateY(-2px);
 }
 
 /* Content Section */
@@ -163,8 +237,14 @@
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .title {
@@ -331,9 +411,19 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .title { font-size: 2.5rem; }
-  .subtitle { font-size: 1rem; }
-  .navLinks { display: none; }
-  .plansGrid { grid-template-columns: 1fr; }
-  .planCardPopular { transform: scale(1); }
+  .title {
+    font-size: 2.5rem;
+  }
+  .subtitle {
+    font-size: 1rem;
+  }
+  .navLinks {
+    display: none;
+  }
+  .plansGrid {
+    grid-template-columns: 1fr;
+  }
+  .planCardPopular {
+    transform: scale(1);
+  }
 }
