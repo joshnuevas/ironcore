@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
-import { Dumbbell, Eye, EyeOff, Mail, Lock } from 'lucide-react';
-import styles from './Login.module.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { Dumbbell, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import styles from "./Login.module.css";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
     setSuccess(false);
 
     try {
       // --- Connect to your backend login endpoint ---
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -31,20 +31,20 @@ const Login = () => {
       if (response.ok) {
         // Login success
         setSuccess(true);
-        setEmail('');
-        setPassword('');
+        setEmail("");
+        setPassword("");
       } else {
-        setError(result || 'Invalid email or password.');
+        setError(result || "Invalid email or password.");
       }
     } catch (err) {
-      setError('Unable to connect to the server.');
+      setError("Unable to connect to the server.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleContinue = () => {
-    navigate('/landing');
+    navigate("/landing");
   };
 
   return (
@@ -64,16 +64,22 @@ const Login = () => {
             <h1 className={styles.brandTitle}>
               IRON<span className={styles.brandAccent}>CORE</span>
             </h1>
-            <p className={styles.welcomeText}>Welcome back! Sign in to continue</p>
+            <p className={styles.welcomeText}>
+              Welcome back! Sign in to continue
+            </p>
           </div>
 
           <form className={styles.loginForm} onSubmit={handleSubmit}>
             {error && <div className={styles.errorMessage}>{error}</div>}
 
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.formLabel}>Email Address</label>
+              <label htmlFor="email" className={styles.formLabel}>
+                Email Address
+              </label>
               <div className={styles.inputWrapper}>
-                <div className={styles.inputIcon}><Mail className={styles.icon} /></div>
+                <div className={styles.inputIcon}>
+                  <Mail className={styles.icon} />
+                </div>
                 <input
                   id="email"
                   type="email"
@@ -87,12 +93,16 @@ const Login = () => {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="password" className={styles.formLabel}>Password</label>
+              <label htmlFor="password" className={styles.formLabel}>
+                Password
+              </label>
               <div className={styles.inputWrapper}>
-                <div className={styles.inputIcon}><Lock className={styles.icon} /></div>
+                <div className={styles.inputIcon}>
+                  <Lock className={styles.icon} />
+                </div>
                 <input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`${styles.formInput} ${styles.passwordInput}`}
@@ -104,21 +114,37 @@ const Login = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className={styles.passwordToggle}
                 >
-                  {showPassword ? <EyeOff className={styles.icon} /> : <Eye className={styles.icon} />}
+                  {showPassword ? (
+                    <EyeOff className={styles.icon} />
+                  ) : (
+                    <Eye className={styles.icon} />
+                  )}
                 </button>
               </div>
             </div>
 
             <div className={styles.formOptions}>
               <div className={styles.rememberMe}>
-                <input id="remember" type="checkbox" className={styles.checkbox} />
-                <label htmlFor="remember" className={styles.checkboxLabel}>Remember me</label>
+                <input
+                  id="remember"
+                  type="checkbox"
+                  className={styles.checkbox}
+                />
+                <label htmlFor="remember" className={styles.checkboxLabel}>
+                  Remember me
+                </label>
               </div>
-              <button type="button" className={styles.forgotPassword}>Forgot password?</button>
+              <button type="button" className={styles.forgotPassword}>
+                Forgot password?
+              </button>
             </div>
 
-            <button type="submit" disabled={isLoading} className={styles.submitButton}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={styles.submitButton}
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
@@ -130,11 +156,11 @@ const Login = () => {
 
           <div className={styles.signupSection}>
             <p className={styles.signupText}>
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <button
                 type="button"
                 className={styles.signupLink}
-                onClick={() => navigate('/register')}
+                onClick={() => navigate("/register")}
               >
                 Sign up
               </button>
@@ -153,7 +179,9 @@ const Login = () => {
           <div className={styles.modalContent}>
             <h2>🎉 Login Successful!</h2>
             <p>Welcome to IronCore.</p>
-            <button className={styles.continueButton} onClick={handleContinue}>Continue</button>
+            <button className={styles.continueButton} onClick={handleContinue}>
+              Continue
+            </button>
           </div>
         </div>
       )}
