@@ -1,32 +1,46 @@
-import React, { useState } from 'react';
-import { Dumbbell, Target, Users, Award, TrendingUp, Heart, Shield } from 'lucide-react';
-import styles from './AboutUs.module.css';
+import React, { useState } from "react";
+import {
+  Dumbbell,
+  Target,
+  Users,
+  Award,
+  TrendingUp,
+  Heart,
+  Shield,
+} from "lucide-react";
+import styles from "./AboutUs.module.css";
 
 const AboutUs = ({ onLogout, onNavigate }) => {
-  const [activeNav, setActiveNav] = useState('ABOUT US');
+  const [activeNav, setActiveNav] = useState("ABOUT US");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const navItems = ['HOME', 'ABOUT US', 'OUR TRAINERS', 'CLASSES', 'MEMBERSHIP'];
+  const navItems = [
+    "HOME",
+    "ABOUT US",
+    "OUR TRAINERS",
+    "CLASSES",
+    "MEMBERSHIP",
+  ];
 
   // ✅ Updated: Full navigation handling
   const handleNavClick = (item) => {
     setActiveNav(item);
     if (onNavigate) {
       switch (item) {
-        case 'HOME':
-          onNavigate('landing');
+        case "HOME":
+          onNavigate("landing");
           break;
-        case 'ABOUT US':
-          onNavigate('about');
+        case "ABOUT US":
+          onNavigate("about");
           break;
-        case 'OUR TRAINERS':
-          onNavigate('trainers');
+        case "OUR TRAINERS":
+          onNavigate("trainers");
           break;
-        case 'CLASSES':
-          onNavigate('classes');
+        case "CLASSES":
+          onNavigate("classes");
           break;
-        case 'MEMBERSHIP':
-          onNavigate('membership');
+        case "MEMBERSHIP":
+          onNavigate("membership");
           break;
         default:
           console.log(`Navigating to ${item}`);
@@ -41,7 +55,7 @@ const AboutUs = ({ onLogout, onNavigate }) => {
   const confirmLogout = () => {
     setShowLogoutModal(false);
     if (onLogout) onLogout();
-    if (onNavigate) onNavigate('login');
+    if (onNavigate) onNavigate("login");
   };
 
   const cancelLogout = () => {
@@ -51,31 +65,35 @@ const AboutUs = ({ onLogout, onNavigate }) => {
   const values = [
     {
       icon: <Target size={32} />,
-      title: 'Excellence',
-      description: 'We push boundaries and strive for excellence in everything we do, from our training programs to our community culture.'
+      title: "Excellence",
+      description:
+        "We push boundaries and strive for excellence in everything we do, from our training programs to our community culture.",
     },
     {
       icon: <Users size={32} />,
-      title: 'Community',
-      description: 'Building a supportive family where everyone motivates each other to reach their full potential and beyond.'
+      title: "Community",
+      description:
+        "Building a supportive family where everyone motivates each other to reach their full potential and beyond.",
     },
     {
       icon: <Heart size={32} />,
-      title: 'Passion',
-      description: 'Our dedication to fitness and wellness drives us to create transformative experiences for every member.'
+      title: "Passion",
+      description:
+        "Our dedication to fitness and wellness drives us to create transformative experiences for every member.",
     },
     {
       icon: <Shield size={32} />,
-      title: 'Integrity',
-      description: 'We maintain the highest standards of professionalism, honesty, and accountability in all our interactions.'
-    }
+      title: "Integrity",
+      description:
+        "We maintain the highest standards of professionalism, honesty, and accountability in all our interactions.",
+    },
   ];
 
   const stats = [
-    { number: '5000+', label: 'Active Members' },
-    { number: '50+', label: 'Expert Trainers' },
-    { number: '100+', label: 'Classes Weekly' },
-    { number: '10+', label: 'Years Strong' }
+    { number: "5000+", label: "Active Members" },
+    { number: "50+", label: "Expert Trainers" },
+    { number: "100+", label: "Classes Weekly" },
+    { number: "10+", label: "Years Strong" },
   ];
 
   return (
@@ -104,7 +122,9 @@ const AboutUs = ({ onLogout, onNavigate }) => {
               <button
                 key={item}
                 onClick={() => handleNavClick(item)}
-                className={`${styles.navLink} ${activeNav === item ? styles.navLinkActive : ''}`}
+                className={`${styles.navLink} ${
+                  activeNav === item ? styles.navLinkActive : ""
+                }`}
               >
                 {item}
               </button>
@@ -127,7 +147,8 @@ const AboutUs = ({ onLogout, onNavigate }) => {
               <span className={styles.titleAccent}>IRONCORE</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              Where strength meets community, and dedication becomes transformation
+              Where strength meets community, and dedication becomes
+              transformation
             </p>
           </div>
         </section>
@@ -140,10 +161,13 @@ const AboutUs = ({ onLogout, onNavigate }) => {
             </div>
             <h2 className={styles.sectionTitle}>OUR MISSION</h2>
             <p className={styles.missionText}>
-              At IRONCORE, we believe fitness is more than just physical transformation. It's about building mental resilience,
-              fostering genuine connections, and creating a lifestyle that empowers you to be your strongest self. We're committed
-              to providing world-class facilities, expert guidance, and an inclusive environment where everyone from beginners to
-              elite athletes can thrive and achieve their goals.
+              At IRONCORE, we believe fitness is more than just physical
+              transformation. It's about building mental resilience, fostering
+              genuine connections, and creating a lifestyle that empowers you to
+              be your strongest self. We're committed to providing world-class
+              facilities, expert guidance, and an inclusive environment where
+              everyone from beginners to elite athletes can thrive and achieve
+              their goals.
             </p>
           </div>
         </section>
@@ -182,11 +206,15 @@ const AboutUs = ({ onLogout, onNavigate }) => {
             </div>
             <h2 className={styles.sectionTitle}>OUR STORY</h2>
             <p className={styles.storyText}>
-              Founded in 2015, IRONCORE began with a simple vision: create a space where people could push their limits
-              without judgment. What started as a single location with a handful of passionate trainers has grown into a
-              thriving community of over 5,000 members. Through dedication, innovation, and an unwavering commitment to
-              excellence, we've become more than just a gym—we're a movement. Every day, we witness incredible transformations,
-              celebrate personal victories, and build lasting friendships. This is what drives us forward.
+              Founded in 2015, IRONCORE began with a simple vision: create a
+              space where people could push their limits without judgment. What
+              started as a single location with a handful of passionate trainers
+              has grown into a thriving community of over 5,000 members. Through
+              dedication, innovation, and an unwavering commitment to
+              excellence, we've become more than just a gym—we're a movement.
+              Every day, we witness incredible transformations, celebrate
+              personal victories, and build lasting friendships. This is what
+              drives us forward.
             </p>
           </div>
         </section>
@@ -194,7 +222,9 @@ const AboutUs = ({ onLogout, onNavigate }) => {
         {/* CTA Section */}
         <section className={styles.ctaSection}>
           <h2 className={styles.ctaTitle}>Ready to Start Your Journey?</h2>
-          <p className={styles.ctaText}>Join the IRONCORE family and discover what you're truly capable of.</p>
+          <p className={styles.ctaText}>
+            Join the IRONCORE family and discover what you're truly capable of.
+          </p>
           <button className={styles.ctaButton}>GET STARTED TODAY</button>
         </section>
       </div>
