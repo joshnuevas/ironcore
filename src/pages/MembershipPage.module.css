@@ -195,25 +195,7 @@
   border-radius: 2px;
 }
 
-/* Back Button */
-.backButton {
-  padding: 0.625rem 1.5rem;
-  background: transparent;
-  border: 2px solid #f97316;
-  color: #f97316;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.backButton:hover {
-  background: linear-gradient(to right, #f97316, #dc2626);
-  color: white;
-  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
-  transform: translateY(-2px);
-}
+
 
 /* Content Section */
 .contentSection {
@@ -426,4 +408,107 @@
   .planCardPopular {
     transform: scale(1);
   }
+}
+
+/* Logout Modal */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modalContent {
+  background: #111827;
+  padding: 2rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  color: white;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modalContent h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.modalContent p {
+  margin-bottom: 2rem;
+  color: #9ca3af;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modalConfirm {
+  padding: 0.75rem 2rem;
+  background: linear-gradient(to right, #f97316, #dc2626);
+  border: none;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.modalConfirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+}
+
+.modalCancel {
+  padding: 0.75rem 2rem;
+  background: transparent;
+  border: 2px solid #f97316;
+  border-radius: 0.5rem;
+  color: #f97316;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.modalCancel:hover {
+  background: #f97316;
+  color: white;
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Logout Button */
+.logoutButton {
+  padding: 0.625rem 1.5rem;
+  background: transparent;
+  border: 2px solid #f97316;
+  color: #f97316;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.logoutButton:hover {
+  background: linear-gradient(to right, #f97316, #dc2626);
+  color: white;
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+  transform: translateY(-2px);
 }

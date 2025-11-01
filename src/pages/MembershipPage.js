@@ -3,8 +3,9 @@ import { Dumbbell, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./MembershipPage.module.css";
 
-const MembershipPage = () => {
+const MembershipPage = ({ onLogout }) => {
   const [activeNav] = useState("MEMBERSHIP");
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   const navItems = [
@@ -37,14 +38,18 @@ const MembershipPage = () => {
     }
   };
 
-  // ✅ Handle Logout
   const handleLogout = () => {
-    // Optional: clear session data
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("session");
+    setShowLogoutModal(true);
+  };
 
-    // Redirect to login page
+  const confirmLogout = () => {
+    setShowLogoutModal(false);
+    if (onLogout) onLogout();
     navigate("/login");
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutModal(false);
   };
 
   const plans = [
@@ -127,7 +132,6 @@ const MembershipPage = () => {
             ))}
           </div>
 
-          {/* 🔹 Replaced BACK with LOGOUT */}
           <button onClick={handleLogout} className={styles.logoutButton}>
             LOGOUT
           </button>
@@ -186,6 +190,24 @@ const MembershipPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2>Confirm Logout</h2>
+            <p>Are you sure you want to logout?</p>
+            <div className={styles.modalButtons}>
+              <button onClick={confirmLogout} className={styles.modalConfirm}>
+                Logout
+              </button>
+              <button onClick={cancelLogout} className={styles.modalCancel}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -11,7 +11,7 @@ const trainers = [
     rating: 4,
     image: "/images/theking.jpg",
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. It has survived not only five centuries but also the leap into electronic typesetting.",
+      "Known for his no-nonsense training approach, The King has over 8 years of experience in strength and conditioning. He specializes in powerlifting, body recomposition, and helping athletes reach peak physical performance.",
   },
   {
     name: "Pacman",
@@ -19,7 +19,7 @@ const trainers = [
     rating: 5,
     image: "/images/pacman.jpg",
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. It has survived not only five centuries but also the leap into electronic typesetting.",
+      "A certified boxing and cardio instructor, Pacman brings unmatched energy to every session. With over a decade in fitness, he focuses on endurance training, fat loss, and building mental toughness through high-intensity workouts.",
   },
   {
     name: "Ashton Hall",
@@ -27,7 +27,7 @@ const trainers = [
     rating: 5,
     image: "/images/ashton.jpg",
     description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. It has survived not only five centuries but also the leap into electronic typesetting.",
+      "Ashton is a functional movement specialist and certified personal trainer with 6 years of experience. His calm yet focused coaching style emphasizes form, mobility, and balanced strength development tailored to every individual.",
   },
 ];
 
@@ -79,7 +79,7 @@ const OurTrainers = ({ onLogout }) => {
         ></div>
       </div>
 
-      {/* 🔸 Navbar (copied from LandingPage) */}
+      {/* 🔸 Navbar */}
       <nav className={landingStyles.navbar}>
         <div className={landingStyles.navContainer}>
           <div className={landingStyles.logoSection}>
