@@ -204,7 +204,7 @@ const AboutUs = ({ onLogout }) => {
             </div>
             <h2 className={styles.sectionTitle}>OUR STORY</h2>
             <p className={styles.storyText}>
-              Founded in 2015, IRONCORE began with a simple vision: create a
+              Founded in 2025, IRONCORE began with a simple vision: create a
               space where people could push their limits without judgment. 
               What started as a single location with a handful of passionate 
               trainers has grown into a thriving community of over 5,000 members. 

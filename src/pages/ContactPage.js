@@ -9,28 +9,22 @@ const ContactPage = ({ onLogout }) => {
     email: "",
     message: "",
   });
-  const [submissionStatus, setSubmissionStatus] = useState(null); // null, 'success', 'error'
+  const [submissionStatus, setSubmissionStatus] = useState(null);
   const navigate = useNavigate();
 
-  // Mock navigation for the menu (needs to be implemented via App.js or context if this component were used in place of LandingPage)
   const navItems = [
-    "HOME",
-    "ABOUT US",
-    "OUR TRAINERS",
-    "CLASSES",
-    "MEMBERSHIP",
+    { name: "HOME", path: "/landing" },
+    { name: "ABOUT US", path: "/about" },
+    { name: "OUR TRAINERS", path: "/trainers" },
+    { name: "CLASSES", path: "/classes" },
+    { name: "MEMBERSHIP", path: "/membership" },
   ];
-  const handleNavClick = (item) => {
-    // Navigate back to landing for HOME, otherwise just log a message
-    if (item === "HOME") {
-      navigate("/landing");
-    } else {
-      console.log(`Navigating to mock page: ${item}`);
-    }
+
+  const handleNavClick = (path) => {
+    navigate(path);
   };
 
   const handleLogout = () => {
-    console.log("Logout attempted from Contact Page");
     if (onLogout) onLogout();
     navigate("/login");
   };
@@ -43,28 +37,22 @@ const ContactPage = ({ onLogout }) => {
     e.preventDefault();
     setSubmissionStatus("submitting");
 
-    // Simulate API call delay
     setTimeout(() => {
       console.log("Form Submitted:", formData);
-      // Reset form and show success message
       setFormData({ name: "", email: "", message: "" });
       setSubmissionStatus("success");
-
-      // Clear success message after 3 seconds
       setTimeout(() => setSubmissionStatus(null), 3000);
     }, 1500);
   };
 
   return (
     <div className={styles.contactContainer}>
-      {/* Animated background elements (Reusing the LandingPage theme) */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
 
-      {/* Navbar (Duplicated from LandingPage for visual consistency, should ideally be a shared component) */}
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
           <div
@@ -82,14 +70,13 @@ const ContactPage = ({ onLogout }) => {
           <div className={styles.navLinks}>
             {navItems.map((item) => (
               <button
-                key={item}
-                onClick={() => handleNavClick(item)}
-                // Highlight 'CONTACT' if it were in the menu, but for now, highlight HOME
+                key={item.name}
+                onClick={() => handleNavClick(item.path)}
                 className={`${styles.navLink} ${
-                  item === "HOME" ? styles.navLinkActive : ""
+                  item.name === "HOME" ? styles.navLinkActive : ""
                 }`}
               >
-                {item}
+                {item.name}
               </button>
             ))}
           </div>
@@ -100,7 +87,6 @@ const ContactPage = ({ onLogout }) => {
         </div>
       </nav>
 
-      {/* Contact Section */}
       <div className={styles.contentWrapper}>
         <div className={styles.contactCard}>
           <h1 className={styles.contactTitle}>GET IN TOUCH</h1>
