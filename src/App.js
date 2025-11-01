@@ -9,6 +9,7 @@ import AboutUs from "./pages/AboutUs";
 import OurTrainers from "./pages/OurTrainers"; 
 import ClassesPage from "./pages/ClassesPage"; 
 import TransactionPage from "./pages/TransactionPage";
+import BookTrainer from "./pages/BookTrainer";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="/classes" element={<ClassesPage />} />
 
         <Route path="/transaction" element={<TransactionPage />} />
+        <Route path="/book-trainer" element={<BookTrainer />} />
         
       </Routes>
     </Router>

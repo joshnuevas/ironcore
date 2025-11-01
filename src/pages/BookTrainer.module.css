@@ -1,0 +1,456 @@
+/* BookTrainer page styling */
+
+.pageWrapper {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #111827, #1f2937, #000000);
+  color: white;
+}
+
+.bookingContainer {
+  padding: 8rem 2.5rem 6rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.backButton {
+  background: rgba(17, 24, 39, 0.8);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 0.75rem;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 2.5rem;
+}
+
+.backButton:hover {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: #f97316;
+  transform: translateX(-5px);
+}
+
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* Trainer Card */
+.trainerCard {
+  background: rgba(17, 24, 39, 0.8);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  position: sticky;
+  top: 7rem;
+}
+
+.trainerImage {
+  height: 400px;
+  background-size: cover;
+  background-position: center;
+}
+
+.trainerInfo {
+  padding: 2rem;
+}
+
+.trainerName {
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(to right, white, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+}
+
+.trainerRating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.ratingText {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.trainerLocation {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #9ca3af;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.trainerDesc {
+  color: #d1d5db;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+
+/* Booking Card */
+.bookingCard {
+  background: rgba(17, 24, 39, 0.8);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.bookingTitle {
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(to right, white, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 2rem;
+}
+
+.bookingForm {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Session Type Selection */
+.sessionTypes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.sessionBtn {
+  background: rgba(31, 41, 55, 0.8);
+  border: 2px solid rgba(107, 114, 128, 0.3);
+  border-radius: 1rem;
+  padding: 1.25rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.sessionBtn:hover {
+  border-color: rgba(249, 115, 22, 0.5);
+  transform: translateY(-3px);
+}
+
+.sessionBtnActive {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: #f97316;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+}
+
+.sessionOption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.sessionName {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.sessionPrice {
+  color: #f97316;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Date Input */
+.dateInput {
+  background: rgba(31, 41, 55, 0.8);
+  border: 2px solid rgba(107, 114, 128, 0.3);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Time Grid */
+.timeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.timeSlot {
+  background: rgba(31, 41, 55, 0.8);
+  border: 2px solid rgba(107, 114, 128, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.9rem 0.5rem;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.timeSlot:hover {
+  border-color: rgba(249, 115, 22, 0.5);
+  transform: translateY(-2px);
+}
+
+.timeSlotActive {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: #f97316;
+  box-shadow: 0 0 15px rgba(249, 115, 22, 0.3);
+}
+
+/* Price Summary */
+.priceSummary {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: rgba(249, 115, 22, 0.1);
+  border: 2px solid rgba(249, 115, 22, 0.3);
+  border-radius: 1rem;
+  margin-top: 1rem;
+}
+
+.priceLabel {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #d1d5db;
+}
+
+.priceAmount {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #f97316;
+}
+
+/* Submit Button */
+.submitButton {
+  background: linear-gradient(to right, #f97316, #dc2626);
+  border: none;
+  border-radius: 1rem;
+  color: white;
+  font-weight: 800;
+  padding: 1.25rem 2rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.submitButton:hover {
+  background: linear-gradient(to right, #ea580c, #b91c1c);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(249, 115, 22, 0.4);
+}
+
+/* Modals */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.modalContent {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  border: 2px solid rgba(249, 115, 22, 0.3);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.modalTitle {
+  font-size: 1.75rem;
+  font-weight: 900;
+  background: linear-gradient(to right, white, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1.5rem;
+}
+
+.modalDetails {
+  background: rgba(31, 41, 55, 0.6);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.modalDetails p {
+  color: #d1d5db;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.modalDetails p:last-child {
+  margin-bottom: 0;
+}
+
+.modalDetails strong {
+  color: white;
+  font-weight: 700;
+}
+
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+}
+
+.modalConfirm,
+.modalCancel {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modalConfirm {
+  background: linear-gradient(to right, #f97316, #dc2626);
+  color: white;
+}
+
+.modalConfirm:hover {
+  background: linear-gradient(to right, #ea580c, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+}
+
+.modalCancel {
+  background: rgba(107, 114, 128, 0.3);
+  color: white;
+}
+
+.modalCancel:hover {
+  background: rgba(107, 114, 128, 0.5);
+}
+
+/* Animations */
+.fadeInSection {
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.fadeInLeft {
+  opacity: 0;
+  transform: translateX(-50px);
+  animation: slideInLeft 0.8s ease-out forwards;
+}
+
+@keyframes slideInLeft {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fadeInRight {
+  opacity: 0;
+  transform: translateX(50px);
+  animation: slideInRight 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+@keyframes slideInRight {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .trainerCard {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .bookingContainer {
+    padding: 7rem 1.5rem 4rem;
+  }
+
+  .sessionTypes {
+    grid-template-columns: 1fr;
+  }
+
+  .timeGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bookingCard {
+    padding: 1.75rem;
+  }
+
+  .trainerImage {
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .timeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .priceAmount {
+    font-size: 1.5rem;
+  }
+}
