@@ -148,7 +148,9 @@ const OurTrainers = ({ onLogout }) => {
                 <p className={styles.desc}>{trainer.description}</p>
                 <button
                   className={styles.bookButton}
-                  onClick={() => alert(`Booking ${trainer.name} — demo`)}
+                  onClick={() =>
+                    navigate("/book-trainer", { state: { trainer } })
+                  }
                 >
                   BOOK NOW
                 </button>
