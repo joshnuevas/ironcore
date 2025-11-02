@@ -64,7 +64,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
               <Dumbbell className={styles.dumbbellIcon} />
             </div>
             <span className={styles.logoText}>
-              Malunggay<span className={styles.logoAccent}> Pandesal</span>
+              Iron<span className={styles.logoAccent}>Core</span>
             </span>
           </div>
 

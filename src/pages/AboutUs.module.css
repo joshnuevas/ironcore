@@ -254,12 +254,16 @@
 }
 
 .titleAccent {
-  font-size: 5rem;
+  font-size: 6rem;
   font-weight: 900;
-  color: #f97316;
+  color: white;
   letter-spacing: -0.05em;
   line-height: 1;
-  animation: slideInRight 0.8s ease-out 0.2s both;
+  background: linear-gradient(to right, white, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: slideInLeft 0.8s ease-out;
 }
 
 .heroSubtitle {
