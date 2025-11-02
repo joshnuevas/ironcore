@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { User, Mail, Edit2, Save, X } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { User, Mail, Edit2, Save, X, Camera } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./ProfilePage.module.css";
 
@@ -7,6 +7,7 @@ const ProfilePage = () => {
   const [userData, setUserData] = useState({
     username: "",
     email: "",
+    profilePicture: "",
   });
   const [editMode, setEditMode] = useState({
     username: false,
@@ -18,7 +19,9 @@ const ProfilePage = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchUserData();
@@ -40,6 +43,7 @@ const ProfilePage = () => {
         setUserData({
           username: data.username,
           email: data.email,
+          profilePicture: data.profilePicture || "",
         });
         setEditValues({
           username: data.username,
@@ -108,6 +112,60 @@ const ProfilePage = () => {
     }
   };
 
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage({ text: "Please select an image file", type: "error" });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage({ text: "Image size should be less than 5MB", type: "error" });
+      return;
+    }
+
+    setUploadingImage(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const response = await fetch(`http://localhost:8080/api/users/${userId}/profile-picture`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserData({ ...userData, profilePicture: data.profilePictureUrl });
+        setMessage({ text: "Profile picture updated successfully!", type: "success" });
+        setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+      } else {
+        const error = await response.json();
+        setMessage({ text: error.message || "Failed to upload image", type: "error" });
+      }
+    } catch (error) {
+      setMessage({ text: "Error uploading image", type: "error" });
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -133,9 +191,37 @@ const ProfilePage = () => {
         <div className={styles.profileCard}>
           <div className={styles.header}>
             <div className={styles.avatarContainer}>
-              <div className={styles.avatar}>
-                {userData.username.charAt(0).toUpperCase()}
+              <div className={styles.avatarWrapper}>
+                {userData.profilePicture ? (
+                  <img 
+                    src={userData.profilePicture} 
+                    alt="Profile" 
+                    className={styles.avatarImage}
+                  />
+                ) : (
+                  <div className={styles.avatar}>
+                    {userData.username.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <button 
+                  className={styles.cameraButton}
+                  onClick={handleImageClick}
+                  disabled={uploadingImage}
+                  title="Change profile picture"
+                >
+                  <Camera size={20} />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  style={{ display: 'none' }}
+                />
               </div>
+              {uploadingImage && (
+                <p className={styles.uploadingText}>Uploading...</p>
+              )}
             </div>
             <h1 className={styles.title}>My Profile</h1>
             <p className={styles.subtitle}>Manage your account information</p>
