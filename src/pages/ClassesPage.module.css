@@ -473,3 +473,10 @@
   box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
   transform: translateY(-2px);
 }
+
+.welcomeText {
+  color: #f97316;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-right: 1rem;
+}

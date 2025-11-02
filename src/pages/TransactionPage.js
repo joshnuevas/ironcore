@@ -95,6 +95,8 @@ const TransactionPage = ({ onLogout }) => {
     navigate("/membership");
   };
 
+   const username = localStorage.getItem("username");
+
   return (
     <div className={styles.transactionContainer}>
       {/* Background */}
@@ -129,7 +131,8 @@ const TransactionPage = ({ onLogout }) => {
               </button>
             ))}
           </div>
-
+            {/* Welcome message with username */}
+          <span className={styles.welcomeText}>Welcome, {username}!</span>
           <button onClick={handleLogout} className={styles.logoutButton}>
             LOGOUT
           </button>

@@ -3,10 +3,13 @@ import { Dumbbell } from "lucide-react";
 import styles from "./LandingPage.module.css";
 import { useNavigate } from "react-router-dom";
 
-const LandingPage = ({ onLogout }) => {
+const LandingPage = () => {
   const [activeNav, setActiveNav] = useState("HOME");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
+
+  // Get username from localStorage
+  const username = localStorage.getItem("username");
 
   const navItems = [
     "HOME",
@@ -29,7 +32,6 @@ const LandingPage = ({ onLogout }) => {
         navigate("/trainers");
         break;
       case "CLASSES":
-        // You can create a ClassesPage later — for now, navigate to a placeholder
         navigate("/classes");
         break;
       case "MEMBERSHIP":
@@ -49,8 +51,16 @@ const LandingPage = ({ onLogout }) => {
   };
 
   const confirmLogout = () => {
+    // Clear all session data from localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    
+    // Close modal
     setShowLogoutModal(false);
-    if (onLogout) onLogout();
+    
+    // Redirect to login page
     navigate("/login");
   };
 
@@ -92,6 +102,9 @@ const LandingPage = ({ onLogout }) => {
               </button>
             ))}
           </div>
+
+          {/* Welcome message with username */}
+          <span className={styles.welcomeText}>Welcome, {username}!</span>
 
           <button onClick={handleLogout} className={styles.logoutButton}>
             LOGOUT

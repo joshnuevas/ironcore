@@ -8,6 +8,9 @@ const ClassesPage = ({ onLogout }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
+
+  const username = localStorage.getItem("username");
+
   const navItems = [
     "HOME",
     "ABOUT US",
@@ -118,7 +121,8 @@ const ClassesPage = ({ onLogout }) => {
               </button>
             ))}
           </div>
-
+            {/* Welcome message with username */}
+          <span className={styles.welcomeText}>Welcome, {username}!</span>
           <button onClick={handleLogout} className={styles.logoutButton}>
             LOGOUT
           </button>

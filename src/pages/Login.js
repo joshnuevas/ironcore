@@ -13,35 +13,44 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
-    setSuccess(false);
+  e.preventDefault();
+  setError("");
+  setIsLoading(true);
 
-    try {
-      // --- Connect to your backend login endpoint ---
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  if (!email || !password) {
+    setError("Please fill in all fields.");
+    setIsLoading(false);
+    return;
+  }
 
-      const result = await response.text();
+  try {
+    const response = await fetch("http://localhost:8080/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (response.ok) {
-        // Login success
-        setSuccess(true);
-        setEmail("");
-        setPassword("");
-      } else {
-        setError(result || "Invalid email or password.");
-      }
-    } catch (err) {
-      setError("Unable to connect to the server.");
-    } finally {
-      setIsLoading(false);
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Store token and user info in localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.userId);
+      localStorage.setItem("username", data.username);
+      localStorage.setItem("email", data.email);
+
+      // Redirect to landing page
+      navigate("/landing");
+    } else {
+      const message = await response.text();
+      setError(message || "Login failed. Please try again.");
     }
-  };
+  } catch (err) {
+    setError("Unable to connect to the server.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleContinue = () => {
     navigate("/landing");

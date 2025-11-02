@@ -12,6 +12,8 @@ const ContactPage = ({ onLogout }) => {
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const navigate = useNavigate();
 
+   const username = localStorage.getItem("username");
+   
   const navItems = [
     { name: "HOME", path: "/landing" },
     { name: "ABOUT US", path: "/about" },
@@ -80,7 +82,8 @@ const ContactPage = ({ onLogout }) => {
               </button>
             ))}
           </div>
-
+{/* Welcome message with username */}
+          <span className={styles.welcomeText}>Welcome, {username}!</span>
           <button onClick={handleLogout} className={styles.logoutButton}>
             LOGOUT
           </button>

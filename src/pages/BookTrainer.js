@@ -14,6 +14,7 @@ const BookTrainer = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+   const username = localStorage.getItem("username");
   // Get trainer data from navigation state or use default
   const trainer = location.state?.trainer || {
     name: "The King",

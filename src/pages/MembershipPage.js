@@ -16,6 +16,7 @@ const MembershipPage = ({ onLogout }) => {
     "MEMBERSHIP",
   ];
 
+   const username = localStorage.getItem("username");
   const handleNavClick = (item) => {
     switch (item) {
       case "HOME":
@@ -131,7 +132,9 @@ const MembershipPage = ({ onLogout }) => {
               </button>
             ))}
           </div>
-
+     
+          {/* Welcome message with username */}
+          <span className={styles.welcomeText}>Welcome, {username}!</span>
           <button onClick={handleLogout} className={styles.logoutButton}>
             LOGOUT
           </button>
@@ -212,5 +215,7 @@ const MembershipPage = ({ onLogout }) => {
     </div>
   );
 };
+
+
 
 export default MembershipPage;

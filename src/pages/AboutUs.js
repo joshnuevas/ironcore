@@ -11,11 +11,13 @@ import {
 import styles from "./AboutUs.module.css";
 import { useNavigate } from "react-router-dom"; // ✅ Add navigation hook
 
+ const username = localStorage.getItem("username");
+
 const AboutUs = ({ onLogout }) => {
   const [activeNav, setActiveNav] = useState("ABOUT US");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate(); // ✅ Navigation instance
-
+   const username = localStorage.getItem("username");
   const navItems = [
     "HOME",
     "ABOUT US",
@@ -130,7 +132,8 @@ const AboutUs = ({ onLogout }) => {
               </button>
             ))}
           </div>
-
+            {/* Welcome message with username */}
+          <span className={styles.welcomeText}>Welcome, {username}!</span>
           <button onClick={handleLogout} className={styles.logoutButton}>
             LOGOUT
           </button>

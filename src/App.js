@@ -10,38 +10,82 @@ import OurTrainers from "./pages/OurTrainers";
 import ClassesPage from "./pages/ClassesPage"; 
 import TransactionPage from "./pages/TransactionPage";
 import BookTrainer from "./pages/BookTrainer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Default route redirects to Login */}
+        {/* Public routes */}
         <Route path="/" element={<Navigate to="/login" />} />
-
-        {/* Login page */}
         <Route path="/login" element={<Login />} />
-
-        {/* Register page */}
         <Route path="/register" element={<Register />} />
 
-        {/* Landing page after login */}
-        <Route path="/landing" element={<LandingPage />} /> {/* ✅ Added this */}
-
-        {/* Contact page (Protected Route) - NEW ROUTE */}
-        <Route path="/contact" element={<ContactPage />} />
-
-        {/* Membership page - NEW ROUTE */}
-        <Route path="/membership" element={<MembershipPage />} />
-
-        <Route path="/about" element={<AboutUs />} /> {/* ✅ added */}
-        
-        <Route path="/trainers" element={<OurTrainers />} /> {/* ✅ added */}
-
-        <Route path="/classes" element={<ClassesPage />} />
-
-        <Route path="/transaction" element={<TransactionPage />} />
-        <Route path="/book-trainer" element={<BookTrainer />} />
-        
+        {/* Protected routes */}
+        <Route 
+          path="/landing" 
+          element={
+            <ProtectedRoute>
+              <LandingPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/contact" 
+          element={
+            <ProtectedRoute>
+              <ContactPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/membership" 
+          element={
+            <ProtectedRoute>
+              <MembershipPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/about" 
+          element={
+            <ProtectedRoute>
+              <AboutUs />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/trainers" 
+          element={
+            <ProtectedRoute>
+              <OurTrainers />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/classes" 
+          element={
+            <ProtectedRoute>
+              <ClassesPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/transaction" 
+          element={
+            <ProtectedRoute>
+              <TransactionPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/book-trainer" 
+          element={
+            <ProtectedRoute>
+              <BookTrainer />
+            </ProtectedRoute>
+          } 
+        />
       </Routes>
     </Router>
   );

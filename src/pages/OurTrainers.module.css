@@ -173,3 +173,10 @@
     transform: translateX(0);
   }
 }
+
+.welcomeText {
+  color: #f97316;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-right: 1rem;
+}

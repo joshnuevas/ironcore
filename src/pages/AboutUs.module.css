@@ -664,3 +664,9 @@
     padding: 2rem;
   }
 }
+.welcomeText {
+  color: #f97316;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-right: 1rem;
+}

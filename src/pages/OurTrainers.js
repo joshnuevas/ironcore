@@ -31,6 +31,8 @@ const trainers = [
   },
 ];
 
+ const username = localStorage.getItem("username");
+
 const OurTrainers = ({ onLogout }) => {
   const [activeNav, setActiveNav] = useState("OUR TRAINERS");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -104,7 +106,8 @@ const OurTrainers = ({ onLogout }) => {
               </button>
             ))}
           </div>
-
+            {/* Welcome message with username */}
+          <span className={styles.welcomeText}>Welcome, {username}!</span>
           <button onClick={handleLogout} className={landingStyles.logoutButton}>
             LOGOUT
           </button>
