@@ -1,54 +1,13 @@
 import React, { useState } from "react";
-import {
-  Dumbbell,
-  Target,
-  Users,
-  Award,
-  TrendingUp,
-  Heart,
-  Shield,
-} from "lucide-react";
+import { Award, TrendingUp, Target, Users, Heart, Shield } from "lucide-react";
+import Navbar from "../components/Navbar"; // ✅ Reuse shared Navbar
 import styles from "./AboutUs.module.css";
-import { useNavigate } from "react-router-dom"; // ✅ Add navigation hook
+import { useNavigate } from "react-router-dom";
 
- const username = localStorage.getItem("username");
-
-const AboutUs = ({ onLogout }) => {
-  const [activeNav, setActiveNav] = useState("ABOUT US");
+const AboutUs = () => {
+  const navigate = useNavigate();
+  const username = localStorage.getItem("username");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const navigate = useNavigate(); // ✅ Navigation instance
-   const username = localStorage.getItem("username");
-  const navItems = [
-    "HOME",
-    "ABOUT US",
-    "OUR TRAINERS",
-    "CLASSES",
-    "MEMBERSHIP",
-  ];
-
-  // ✅ Updated navigation handling using react-router
-  const handleNavClick = (item) => {
-    setActiveNav(item);
-    switch (item) {
-      case "HOME":
-        navigate("/landing");
-        break;
-      case "ABOUT US":
-        navigate("/about");
-        break;
-      case "OUR TRAINERS":
-        navigate("/trainers");
-        break;
-      case "CLASSES":
-        navigate("/classes"); // Placeholder
-        break;
-      case "MEMBERSHIP":
-        navigate("/membership");
-        break;
-      default:
-        break;
-    }
-  };
 
   const handleLogout = () => {
     setShowLogoutModal(true);
@@ -56,7 +15,7 @@ const AboutUs = ({ onLogout }) => {
 
   const confirmLogout = () => {
     setShowLogoutModal(false);
-    if (onLogout) onLogout();
+    localStorage.removeItem("username");
     navigate("/login");
   };
 
@@ -100,45 +59,15 @@ const AboutUs = ({ onLogout }) => {
 
   return (
     <div className={styles.aboutContainer}>
+      {/* ✅ Reusable Navbar */}
+      <Navbar activeNav="ABOUT US" username={username} onLogout={handleLogout} />
+
       {/* Animated background */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
-
-      {/* Navbar */}
-      <nav className={styles.navbar}>
-        <div className={styles.navContainer}>
-          <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <Dumbbell className={styles.dumbbellIcon} />
-            </div>
-            <span className={styles.logoText}>
-              IRON<span className={styles.logoAccent}>CORE</span>
-            </span>
-          </div>
-
-          <div className={styles.navLinks}>
-            {navItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => handleNavClick(item)}
-                className={`${styles.navLink} ${
-                  activeNav === item ? styles.navLinkActive : ""
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-            {/* Welcome message with username */}
-          <span className={styles.welcomeText}>Welcome, {username}!</span>
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            LOGOUT
-          </button>
-        </div>
-      </nav>
 
       {/* Content */}
       <div className={styles.content}>
@@ -150,7 +79,8 @@ const AboutUs = ({ onLogout }) => {
               <span className={styles.titleAccent}>IRONCORE</span>
             </h1>
             <p className={styles.heroSubtitle}>
-              Where strength meets community, and dedication becomes transformation
+              Where strength meets community, and dedication becomes
+              transformation
             </p>
           </div>
         </section>
@@ -163,12 +93,13 @@ const AboutUs = ({ onLogout }) => {
             </div>
             <h2 className={styles.sectionTitle}>OUR MISSION</h2>
             <p className={styles.missionText}>
-              At IRONCORE, we believe fitness is more than just physical transformation. 
-              It's about building mental resilience, fostering genuine connections, 
-              and creating a lifestyle that empowers you to be your strongest self. 
-              We're committed to providing world-class facilities, expert guidance, 
-              and an inclusive environment where everyone from beginners to elite athletes 
-              can thrive and achieve their goals.
+              At IRONCORE, we believe fitness is more than just physical
+              transformation. It's about building mental resilience, fostering
+              genuine connections, and creating a lifestyle that empowers you to
+              be your strongest self. We're committed to providing world-class
+              facilities, expert guidance, and an inclusive environment where
+              everyone from beginners to elite athletes can thrive and achieve
+              their goals.
             </p>
           </div>
         </section>
@@ -208,10 +139,10 @@ const AboutUs = ({ onLogout }) => {
             <h2 className={styles.sectionTitle}>OUR STORY</h2>
             <p className={styles.storyText}>
               Founded in 2025, IRONCORE began with a simple vision: create a
-              space where people could push their limits without judgment. 
-              What started as a single location with a handful of passionate 
-              trainers has grown into a thriving community of over 5,000 members. 
-              Through dedication, innovation, and an unwavering commitment to 
+              space where people could push their limits without judgment. What
+              started as a single location with a handful of passionate trainers
+              has grown into a thriving community of over 5,000 members. Through
+              dedication, innovation, and an unwavering commitment to
               excellence, we've become more than just a gym—we're a movement.
             </p>
           </div>
@@ -225,7 +156,7 @@ const AboutUs = ({ onLogout }) => {
           </p>
           <button
             className={styles.ctaButton}
-            onClick={() => navigate("/membership")} // ✅ CTA redirects to Membership
+            onClick={() => navigate("/membership")}
           >
             GET STARTED TODAY
           </button>

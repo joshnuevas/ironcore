@@ -1,57 +1,12 @@
-import React, { useState } from "react";
-import { Dumbbell, Check } from "lucide-react";
+import React from "react";
+import { Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar"; // ✅ Reuse Navbar component
 import styles from "./MembershipPage.module.css";
+import landingStyles from "./LandingPage.module.css"; // ✅ For animated background
 
-const MembershipPage = ({ onLogout }) => {
-  const [activeNav] = useState("MEMBERSHIP");
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+const MembershipPage = () => {
   const navigate = useNavigate();
-
-  const navItems = [
-    "HOME",
-    "ABOUT US",
-    "OUR TRAINERS",
-    "CLASSES",
-    "MEMBERSHIP",
-  ];
-
-   const username = localStorage.getItem("username");
-  const handleNavClick = (item) => {
-    switch (item) {
-      case "HOME":
-        navigate("/landing");
-        break;
-      case "ABOUT US":
-        navigate("/about");
-        break;
-      case "OUR TRAINERS":
-        navigate("/trainers");
-        break;
-      case "CLASSES":
-        navigate("/classes");
-        break;
-      case "MEMBERSHIP":
-        navigate("/membership");
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleLogout = () => {
-    setShowLogoutModal(true);
-  };
-
-  const confirmLogout = () => {
-    setShowLogoutModal(false);
-    if (onLogout) onLogout();
-    navigate("/login");
-  };
-
-  const cancelLogout = () => {
-    setShowLogoutModal(false);
-  };
 
   const plans = [
     {
@@ -100,48 +55,17 @@ const MembershipPage = ({ onLogout }) => {
 
   return (
     <div className={styles.membershipContainer}>
-      {/* Background */}
-      <div className={styles.backgroundOverlay}>
-        <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
+      {/* ✅ Animated background from LandingPage */}
+      <div className={landingStyles.backgroundOverlay}>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
       </div>
 
-      {/* Navbar */}
-      <nav className={styles.navbar}>
-        <div className={styles.navContainer}>
-          <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <Dumbbell className={styles.dumbbellIcon} />
-            </div>
-            <span className={styles.logoText}>
-              IRON<span className={styles.logoAccent}>CORE</span>
-            </span>
-          </div>
+      {/* ✅ Reusable Navbar */}
+      <Navbar activeNav="MEMBERSHIP" />
 
-          <div className={styles.navLinks}>
-            {navItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => handleNavClick(item)}
-                className={`${styles.navLink} ${
-                  activeNav === item ? styles.navLinkActive : ""
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-     
-          {/* Welcome message with username */}
-          <span className={styles.welcomeText}>Welcome, {username}!</span>
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            LOGOUT
-          </button>
-        </div>
-      </nav>
-
-      {/* Page Content */}
+      {/* ✅ Page Content */}
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
@@ -151,6 +75,7 @@ const MembershipPage = ({ onLogout }) => {
             </p>
           </div>
 
+          {/* ✅ Membership Plans */}
           <div className={styles.plansGrid}>
             {plans.map((plan, index) => (
               <div
@@ -194,28 +119,8 @@ const MembershipPage = ({ onLogout }) => {
           </div>
         </div>
       </div>
-
-      {/* Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h2>Confirm Logout</h2>
-            <p>Are you sure you want to logout?</p>
-            <div className={styles.modalButtons}>
-              <button onClick={confirmLogout} className={styles.modalConfirm}>
-                Logout
-              </button>
-              <button onClick={cancelLogout} className={styles.modalCancel}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
-
 
 export default MembershipPage;

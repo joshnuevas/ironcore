@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Dumbbell, MapPin, Mail, Phone, Send } from "lucide-react";
-import styles from "./ContactPage.module.css";
+import { MapPin, Mail, Phone, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar"; // ✅ Reuse global Navbar
+import styles from "./ContactPage.module.css";
+import landingStyles from "./LandingPage.module.css"; // ✅ For animated background
 
-const ContactPage = ({ onLogout }) => {
+const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -12,29 +14,12 @@ const ContactPage = ({ onLogout }) => {
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const navigate = useNavigate();
 
-   const username = localStorage.getItem("username");
-   
-  const navItems = [
-    { name: "HOME", path: "/landing" },
-    { name: "ABOUT US", path: "/about" },
-    { name: "OUR TRAINERS", path: "/trainers" },
-    { name: "CLASSES", path: "/classes" },
-    { name: "MEMBERSHIP", path: "/membership" },
-  ];
-
-  const handleNavClick = (path) => {
-    navigate(path);
-  };
-
-  const handleLogout = () => {
-    if (onLogout) onLogout();
-    navigate("/login");
-  };
-
+  // ✅ Handle form changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // ✅ Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmissionStatus("submitting");
@@ -49,47 +34,17 @@ const ContactPage = ({ onLogout }) => {
 
   return (
     <div className={styles.contactContainer}>
-      <div className={styles.backgroundOverlay}>
-        <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
+      {/* ✅ Background blur animations */}
+      <div className={landingStyles.backgroundOverlay}>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
+        <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
       </div>
 
-      <nav className={styles.navbar}>
-        <div className={styles.navContainer}>
-          <div
-            className={styles.logoSection}
-            onClick={() => navigate("/landing")}
-          >
-            <div className={styles.logoIcon}>
-              <Dumbbell className={styles.dumbbellIcon} />
-            </div>
-            <span className={styles.logoText}>
-              IRON<span className={styles.logoAccent}>CORE</span>
-            </span>
-          </div>
+      {/* ✅ Reuse Navbar with logout + username built-in */}
+      <Navbar activeNav="CONTACT" />
 
-          <div className={styles.navLinks}>
-            {navItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => handleNavClick(item.path)}
-                className={`${styles.navLink} ${
-                  item.name === "HOME" ? styles.navLinkActive : ""
-                }`}
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
-{/* Welcome message with username */}
-          <span className={styles.welcomeText}>Welcome, {username}!</span>
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            LOGOUT
-          </button>
-        </div>
-      </nav>
-
+      {/* ✅ Page content */}
       <div className={styles.contentWrapper}>
         <div className={styles.contactCard}>
           <h1 className={styles.contactTitle}>GET IN TOUCH</h1>
@@ -97,12 +52,11 @@ const ContactPage = ({ onLogout }) => {
             We're ready to help you hit your fitness goals.
           </p>
 
+          {/* ✅ Contact Information */}
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
               <MapPin size={28} className={styles.infoIcon} />
-              <p className={styles.infoText}>
-                123 Muscle Ave, Metacity, CA 90210
-              </p>
+              <p className={styles.infoText}>123 Muscle Ave, Metacity, CA 90210</p>
             </div>
             <div className={styles.infoItem}>
               <Phone size={28} className={styles.infoIcon} />
@@ -114,6 +68,7 @@ const ContactPage = ({ onLogout }) => {
             </div>
           </div>
 
+          {/* ✅ Contact Form */}
           <form onSubmit={handleSubmit} className={styles.contactForm}>
             <input
               type="text"
@@ -155,6 +110,7 @@ const ContactPage = ({ onLogout }) => {
                 </>
               )}
             </button>
+
             {submissionStatus === "success" && (
               <p className={styles.successMessage}>
                 Message sent successfully! We will be in touch soon.

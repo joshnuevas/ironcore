@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Dumbbell } from "lucide-react";
-import landingStyles from "./LandingPage.module.css"; // reuse landing animations and navbar
+import React from "react";
+import Navbar from "../components/Navbar"; // ✅ Reuse Navbar component
+import landingStyles from "./LandingPage.module.css"; // For animated background
 import styles from "./OurTrainers.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -31,44 +31,12 @@ const trainers = [
   },
 ];
 
- const username = localStorage.getItem("username");
-
-const OurTrainers = ({ onLogout }) => {
-  const [activeNav, setActiveNav] = useState("OUR TRAINERS");
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+const OurTrainers = () => {
   const navigate = useNavigate();
-
-  const navItems = [
-    "HOME",
-    "ABOUT US",
-    "OUR TRAINERS",
-    "CLASSES",
-    "MEMBERSHIP",
-  ];
-
-  const handleNavClick = (item) => {
-    setActiveNav(item);
-    const map = {
-      HOME: "/landing",
-      "ABOUT US": "/about",
-      "OUR TRAINERS": "/trainers",
-      CLASSES: "/classes",
-      MEMBERSHIP: "/membership",
-    };
-    if (map[item]) navigate(map[item]);
-  };
-
-  const handleLogout = () => setShowLogoutModal(true);
-  const confirmLogout = () => {
-    setShowLogoutModal(false);
-    if (onLogout) onLogout();
-    navigate("/login");
-  };
-  const cancelLogout = () => setShowLogoutModal(false);
 
   return (
     <div className={styles.pageWrapper}>
-      {/* 🔸 Background animation reused from LandingPage */}
+      {/* 🔹 Background animation reused from LandingPage */}
       <div className={landingStyles.backgroundOverlay}>
         <div
           className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}
@@ -81,40 +49,10 @@ const OurTrainers = ({ onLogout }) => {
         ></div>
       </div>
 
-      {/* 🔸 Navbar */}
-      <nav className={landingStyles.navbar}>
-        <div className={landingStyles.navContainer}>
-          <div className={landingStyles.logoSection}>
-            <div className={landingStyles.logoIcon}>
-              <Dumbbell className={landingStyles.dumbbellIcon} />
-            </div>
-            <span className={landingStyles.logoText}>
-              IRON<span className={landingStyles.logoAccent}>CORE</span>
-            </span>
-          </div>
+      {/* 🔹 Reused Navbar */}
+      <Navbar activeNav="OUR TRAINERS" />
 
-          <div className={landingStyles.navLinks}>
-            {navItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => handleNavClick(item)}
-                className={`${landingStyles.navLink} ${
-                  activeNav === item ? landingStyles.navLinkActive : ""
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-            {/* Welcome message with username */}
-          <span className={styles.welcomeText}>Welcome, {username}!</span>
-          <button onClick={handleLogout} className={landingStyles.logoutButton}>
-            LOGOUT
-          </button>
-        </div>
-      </nav>
-
-      {/* 🔸 Main Trainers Content */}
+      {/* 🔹 Trainers Section */}
       <div
         className={`${styles.trainersContainer} ${styles.fadeInSection}`}
         style={{ paddingTop: "6.5rem" }}
@@ -162,30 +100,6 @@ const OurTrainers = ({ onLogout }) => {
           ))}
         </div>
       </div>
-
-      {/* 🔸 Logout Modal */}
-      {showLogoutModal && (
-        <div className={landingStyles.modalOverlay}>
-          <div className={landingStyles.modalContent}>
-            <h2>Confirm Logout</h2>
-            <p>Are you sure you want to logout?</p>
-            <div className={landingStyles.modalButtons}>
-              <button
-                onClick={confirmLogout}
-                className={landingStyles.modalConfirm}
-              >
-                Logout
-              </button>
-              <button
-                onClick={cancelLogout}
-                className={landingStyles.modalCancel}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

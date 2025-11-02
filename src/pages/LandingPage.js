@@ -1,116 +1,26 @@
-import React, { useState } from "react";
-import { Dumbbell } from "lucide-react";
+import React from "react";
+import Navbar from "../components/Navbar";
 import styles from "./LandingPage.module.css";
 import { useNavigate } from "react-router-dom";
 
 const LandingPage = () => {
-  const [activeNav, setActiveNav] = useState("HOME");
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
-
-  // Get username from localStorage
-  const username = localStorage.getItem("username");
-
-  const navItems = [
-    "HOME",
-    "ABOUT US",
-    "OUR TRAINERS",
-    "CLASSES",
-    "MEMBERSHIP",
-  ];
-
-  const handleNavClick = (item) => {
-    setActiveNav(item);
-    switch (item) {
-      case "HOME":
-        navigate("/landing");
-        break;
-      case "ABOUT US":
-        navigate("/about");
-        break;
-      case "OUR TRAINERS":
-        navigate("/trainers");
-        break;
-      case "CLASSES":
-        navigate("/classes");
-        break;
-      case "MEMBERSHIP":
-        navigate("/membership");
-        break;
-      default:
-        break;
-    }
-  };
 
   const handleContact = () => {
     navigate("/contact");
   };
 
-  const handleLogout = () => {
-    setShowLogoutModal(true);
-  };
-
-  const confirmLogout = () => {
-    // Clear all session data from localStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    localStorage.removeItem("email");
-    
-    // Close modal
-    setShowLogoutModal(false);
-    
-    // Redirect to login page
-    navigate("/login");
-  };
-
-  const cancelLogout = () => {
-    setShowLogoutModal(false);
-  };
-
   return (
     <div className={styles.landingContainer}>
+      {/* Use the Navbar component */}
+      <Navbar activeNav="HOME" />
+
       {/* Animated background elements */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
-
-      {/* Navbar */}
-      <nav className={styles.navbar}>
-        <div className={styles.navContainer}>
-          <div className={styles.logoSection}>
-            <div className={styles.logoIcon}>
-              <Dumbbell className={styles.dumbbellIcon} />
-            </div>
-            <span className={styles.logoText}>
-              IRON<span className={styles.logoAccent}>CORE</span>
-            </span>
-          </div>
-
-          <div className={styles.navLinks}>
-            {navItems.map((item) => (
-              <button
-                key={item}
-                onClick={() => handleNavClick(item)}
-                className={`${styles.navLink} ${
-                  activeNav === item ? styles.navLinkActive : ""
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          {/* Welcome message with username */}
-          <span className={styles.welcomeText}>Welcome, {username}!</span>
-
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            LOGOUT
-          </button>
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <div className={styles.heroSection}>
@@ -124,24 +34,6 @@ const LandingPage = () => {
           </button>
         </div>
       </div>
-
-      {/* Logout Confirmation Modal */}
-      {showLogoutModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h2>Confirm Logout</h2>
-            <p>Are you sure you want to logout?</p>
-            <div className={styles.modalButtons}>
-              <button onClick={confirmLogout} className={styles.modalConfirm}>
-                Logout
-              </button>
-              <button onClick={cancelLogout} className={styles.modalCancel}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
