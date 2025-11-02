@@ -195,6 +195,36 @@
   border-radius: 2px;
 }
 
+/* Profile Button */
+.profileButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: transparent;
+  border: 2px solid rgba(249, 115, 22, 0.5);
+  color: #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.profileButton:hover {
+  border-color: #f97316;
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.2);
+}
+
+.profileButtonActive {
+  border-color: #f97316;
+  color: #f97316;
+  background-color: rgba(249, 115, 22, 0.15);
+}
+
 /* Logout Button */
 .logoutButton {
   padding: 0.625rem 1.5rem;
@@ -359,6 +389,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;
+  color: white;
 }
 .modalConfirm:hover {
   transform: translateY(-2px);
@@ -386,4 +417,10 @@
   font-weight: 600;
   font-size: 0.875rem;
   margin-right: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

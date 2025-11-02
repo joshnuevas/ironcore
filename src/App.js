@@ -10,6 +10,7 @@ import OurTrainers from "./pages/OurTrainers";
 import ClassesPage from "./pages/ClassesPage"; 
 import TransactionPage from "./pages/TransactionPage";
 import BookTrainer from "./pages/BookTrainer";
+import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -83,6 +84,14 @@ function App() {
           element={
             <ProtectedRoute>
               <BookTrainer />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           } 
         />

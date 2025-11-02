@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dumbbell } from "lucide-react";
+import { Dumbbell, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Navbar.module.css";
 
@@ -36,6 +36,10 @@ const Navbar = ({ activeNav = "HOME" }) => {
       default:
         break;
     }
+  };
+
+  const handleProfileClick = () => {
+    navigate("/profile");
   };
 
   const handleLogout = () => {
@@ -82,11 +86,22 @@ const Navbar = ({ activeNav = "HOME" }) => {
             ))}
           </div>
 
-          <span className={styles.welcomeText}>Welcome, {username}!</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <button
+              onClick={handleProfileClick}
+              className={`${styles.profileButton} ${
+                activeNav === "PROFILE" ? styles.profileButtonActive : ""
+              }`}
+              title="View Profile"
+            >
+              <User size={18} />
+              <span>{username}</span>
+            </button>
 
-          <button onClick={handleLogout} className={styles.logoutButton}>
-            LOGOUT
-          </button>
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              LOGOUT
+            </button>
+          </div>
         </div>
       </nav>
 
