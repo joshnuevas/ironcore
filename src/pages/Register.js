@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Dumbbell, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Dumbbell, Eye, EyeOff, Mail, Lock, User, Check, X } from "lucide-react";
 import styles from "./Register.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -15,6 +15,68 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
+  // Password strength state
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    label: "",
+    color: "",
+    checks: {
+      length: false,
+      uppercase: false,
+      lowercase: false,
+      number: false,
+      special: false
+    }
+  });
+
+  // Calculate password strength whenever password changes
+  useEffect(() => {
+    if (!password) {
+      setPasswordStrength({
+        score: 0,
+        label: "",
+        color: "",
+        checks: {
+          length: false,
+          uppercase: false,
+          lowercase: false,
+          number: false,
+          special: false
+        }
+      });
+      return;
+    }
+
+    const checks = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+    };
+
+    const score = Object.values(checks).filter(Boolean).length;
+    
+    let label = "";
+    let color = "";
+    
+    if (score <= 2) {
+      label = "Weak";
+      color = "#ef4444"; // red
+    } else if (score === 3) {
+      label = "Fair";
+      color = "#f97316"; // orange
+    } else if (score === 4) {
+      label = "Good";
+      color = "#eab308"; // yellow
+    } else {
+      label = "Strong";
+      color = "#22c55e"; // green
+    }
+
+    setPasswordStrength({ score, label, color, checks });
+  }, [password]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -27,6 +89,14 @@ const Register = () => {
       setIsLoading(false);
       return;
     }
+
+    // Check password strength
+    if (passwordStrength.score < 3) {
+      setError("Password is too weak. Please meet at least 3 requirements.");
+      setIsLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       setIsLoading(false);
@@ -162,6 +232,86 @@ const Register = () => {
                   )}
                 </button>
               </div>
+
+              {/* Password Strength Indicator */}
+              {password && (
+                <div className={styles.strengthContainer}>
+                  <div className={styles.strengthBar}>
+                    <div 
+                      className={styles.strengthBarFill}
+                      style={{
+                        width: `${(passwordStrength.score / 5) * 100}%`,
+                        backgroundColor: passwordStrength.color
+                      }}
+                    ></div>
+                  </div>
+                  <span 
+                    className={styles.strengthLabel}
+                    style={{ color: passwordStrength.color }}
+                  >
+                    {passwordStrength.label}
+                  </span>
+                </div>
+              )}
+
+              {/* Password Requirements */}
+              {password && (
+                <div className={styles.requirementsContainer}>
+                  <p className={styles.requirementsTitle}>Password must contain:</p>
+                  <ul className={styles.requirementsList}>
+                    <li className={styles.requirementItem}>
+                      {passwordStrength.checks.length ? (
+                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                      ) : (
+                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                      )}
+                      <span style={{ color: passwordStrength.checks.length ? '#22c55e' : '#6b7280' }}>
+                        At least 8 characters
+                      </span>
+                    </li>
+                    <li className={styles.requirementItem}>
+                      {passwordStrength.checks.uppercase ? (
+                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                      ) : (
+                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                      )}
+                      <span style={{ color: passwordStrength.checks.uppercase ? '#22c55e' : '#6b7280' }}>
+                        One uppercase letter
+                      </span>
+                    </li>
+                    <li className={styles.requirementItem}>
+                      {passwordStrength.checks.lowercase ? (
+                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                      ) : (
+                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                      )}
+                      <span style={{ color: passwordStrength.checks.lowercase ? '#22c55e' : '#6b7280' }}>
+                        One lowercase letter
+                      </span>
+                    </li>
+                    <li className={styles.requirementItem}>
+                      {passwordStrength.checks.number ? (
+                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                      ) : (
+                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                      )}
+                      <span style={{ color: passwordStrength.checks.number ? '#22c55e' : '#6b7280' }}>
+                        One number
+                      </span>
+                    </li>
+                    <li className={styles.requirementItem}>
+                      {passwordStrength.checks.special ? (
+                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                      ) : (
+                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                      )}
+                      <span style={{ color: passwordStrength.checks.special ? '#22c55e' : '#6b7280' }}>
+                        One special character
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -194,6 +344,9 @@ const Register = () => {
                   )}
                 </button>
               </div>
+              {confirmPassword && password !== confirmPassword && (
+                <p className={styles.passwordMismatch}>Passwords do not match</p>
+              )}
             </div>
 
             {/* Submit */}
