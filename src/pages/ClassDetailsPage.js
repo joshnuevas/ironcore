@@ -10,6 +10,7 @@ const ClassDetailsPage = ({ onLogout }) => {
 
   // Get class data from navigation state or use default
   const classData = location.state?.classData || {
+    id: 1,
     name: "HIIT Training",
     icon: "🔥",
     description: "High-Intensity Interval Training",

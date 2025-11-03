@@ -13,44 +13,48 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setIsLoading(true);
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
 
-  if (!email || !password) {
-    setError("Please fill in all fields.");
-    setIsLoading(false);
-    return;
-  }
-
-  try {
-    const response = await fetch("http://localhost:8080/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      
-      // Store token and user info in localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userId", data.userId);
-      localStorage.setItem("username", data.username);
-      localStorage.setItem("email", data.email);
-
-      // Redirect to landing page
-      navigate("/landing");
-    } else {
-      const message = await response.text();
-      setError(message || "Login failed. Please try again.");
+    if (!email || !password) {
+      setError("Please fill in all fields.");
+      setIsLoading(false);
+      return;
     }
-  } catch (err) {
-    setError("Unable to connect to the server.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: 'include',  // ⭐ ADD THIS LINE - Critical for session cookies!
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Store token and user info in localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userId", data.userId);
+        localStorage.setItem("username", data.username);
+        localStorage.setItem("email", data.email);
+
+        console.log("✅ Login successful, session created");
+        
+        // Redirect to landing page
+        navigate("/landing");
+      } else {
+        const message = await response.text();
+        setError(message || "Login failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Unable to connect to the server.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleContinue = () => {
     navigate("/landing");

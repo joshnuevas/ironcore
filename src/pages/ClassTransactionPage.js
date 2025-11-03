@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Calendar, Clock, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -8,6 +8,9 @@ import axios from "axios";
 const ClassTransactionPage = ({ onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -19,10 +22,9 @@ const ClassTransactionPage = ({ onLogout }) => {
     price: "₱500",
     duration: "45 mins",
     maxParticipants: 15,
-    id: 1, // Default ID if missing
+    id: 1,
   };
 
-  // Available schedules
   const schedules = [
     { id: 1, day: "Monday", time: "6:00 AM - 6:45 AM", date: "Nov 04, 2025", slots: 12 },
     { id: 2, day: "Monday", time: "6:00 PM - 6:45 PM", date: "Nov 04, 2025", slots: 8 },
@@ -32,84 +34,115 @@ const ClassTransactionPage = ({ onLogout }) => {
     { id: 6, day: "Friday", time: "6:00 PM - 6:45 PM", date: "Nov 08, 2025", slots: 11 },
   ];
 
-  // User details (replace with actual auth data)
-  const userDetails = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+63 917 123 4567",
-    id: 1, // Example user ID
-  };
-
   const classPrice = parseInt(classData.price.replace(/[₱,]/g, ""));
   const processingFee = 20;
   const total = classPrice + processingFee;
+
+  // Fetch the logged-in user dynamically
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        setUserLoading(true);
+        const res = await axios.get("http://localhost:8080/api/users/me", {
+          withCredentials: true, // Important for session/cookie auth
+        });
+        setCurrentUser(res.data);
+        setUserError(null);
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+        setUserError("Failed to load user information. Please log in again.");
+        // Optionally redirect to login if user is not authenticated
+        // navigate("/login");
+      } finally {
+        setUserLoading(false);
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
 
   const handleEnrollNow = () => {
     if (!selectedSchedule) {
       alert("Please select a schedule first");
       return;
     }
+    if (!currentUser) {
+      alert("User information not loaded. Please try again.");
+      return;
+    }
     setShowConfirmModal(true);
   };
 
   const handleConfirmPayment = async () => {
-    if (!selectedSchedule) return;
+    if (!selectedSchedule || !currentUser) {
+      alert("Missing required information");
+      return;
+    }
 
     try {
-        const payload = {
-            userId: 1,
-            classId: classData.id || 1,
-            scheduleId: selectedSchedule.id,
-            processingFee: processingFee,
-            totalAmount: total,
-            paymentMethod: "GCash",
-            paymentStatus: "PENDING",
-        };
+      const payload = {
+        userId: currentUser.id, // Dynamic user ID from logged-in user
+        classId: 1,
+        scheduleId: selectedSchedule.id,
+        processingFee: processingFee,
+        totalAmount: total,
+        paymentMethod: "GCash",
+        paymentStatus: "PENDING",
+      };
 
-        console.log("=== SENDING PAYLOAD ===");
-        console.log(payload);
+      console.log("=== SENDING PAYLOAD ===", payload);
 
-        const response = await axios.post(
-            "http://localhost:8080/api/transactions",
-            payload,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }
-        );
-
-        console.log("=== RESPONSE ===");
-        console.log(response);
-
-        if (response.status === 200 || response.status === 201) {
-            alert("Enrollment saved! Redirecting to payment...");
-            navigate("/gcash-payment", {
-                state: {
-                    plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.time}`,
-                    amount: total,
-                },
-            });
+      const response = await axios.post(
+        "http://localhost:8080/api/transactions",
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
         }
+      );
+
+      console.log("=== RESPONSE ===", response);
+
+      if (response.status === 200 || response.status === 201) {
+        alert("Enrollment saved! Redirecting to payment...");
+        navigate("/gcash-payment", {
+          state: {
+            plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.time}`,
+            amount: total,
+          },
+        });
+      }
     } catch (error) {
-        console.error("=== FULL ERROR ===");
-        console.error(error);
-        console.error("=== ERROR RESPONSE ===");
-        console.error(error.response);
-        console.error("=== ERROR DATA ===");
-        console.error(error.response?.data);
-        console.error("=== ERROR STATUS ===");
-        console.error(error.response?.status);
-        console.error("=== ERROR MESSAGE ===");
-        console.error(error.response?.data?.message);
-        
-        alert(`Failed to save enrollment.\nError: ${error.response?.data?.message || error.message}`);
+      console.error("=== FULL ERROR ===", error);
+      alert(`Failed to save enrollment.\nError: ${error.response?.data?.message || error.message}`);
     }
   };
 
-  const handleCloseModal = () => {
-    setShowConfirmModal(false);
-  };
+  const handleCloseModal = () => setShowConfirmModal(false);
+
+  // Show loading state
+  if (userLoading) {
+    return (
+      <div className={styles.transactionContainer}>
+        <Navbar activeNav="CLASSES" onLogout={onLogout} />
+        <div className={styles.contentSection}>
+          <div className={styles.loadingMessage}>Loading user information...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (userError) {
+    return (
+      <div className={styles.transactionContainer}>
+        <Navbar activeNav="CLASSES" onLogout={onLogout} />
+        <div className={styles.contentSection}>
+          <div className={styles.errorMessage}>{userError}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.transactionContainer}>
@@ -167,12 +200,17 @@ const ClassTransactionPage = ({ onLogout }) => {
                   </div>
                 </div>
 
-                <button 
-                  onClick={handleEnrollNow} 
+                <button
+                  onClick={handleEnrollNow}
                   className={styles.enrollButton}
-                  disabled={!selectedSchedule}
+                  disabled={!selectedSchedule || !currentUser}
                 >
-                  {selectedSchedule ? "Enroll Now" : "Select Schedule First"}
+                  {!currentUser 
+                    ? "Loading..." 
+                    : selectedSchedule 
+                      ? "Enroll Now" 
+                      : "Select Schedule First"
+                  }
                 </button>
               </div>
             </div>
@@ -180,7 +218,6 @@ const ClassTransactionPage = ({ onLogout }) => {
             {/* Schedule Selection */}
             <div className={styles.scheduleCard}>
               <h2 className={styles.formTitle}>Select Your Schedule</h2>
-
               <div className={styles.scheduleList}>
                 {schedules.map((schedule) => (
                   <div
@@ -209,23 +246,21 @@ const ClassTransactionPage = ({ onLogout }) => {
                 ))}
               </div>
 
-              <div className={styles.userInfoCard}>
-                <h3 className={styles.userInfoTitle}>Your Information</h3>
-                <div className={styles.userInfoList}>
-                  <div className={styles.userInfoItem}>
-                    <span className={styles.userInfoLabel}>Name:</span>
-                    <span className={styles.userInfoValue}>{userDetails.name}</span>
-                  </div>
-                  <div className={styles.userInfoItem}>
-                    <span className={styles.userInfoLabel}>Email:</span>
-                    <span className={styles.userInfoValue}>{userDetails.email}</span>
-                  </div>
-                  <div className={styles.userInfoItem}>
-                    <span className={styles.userInfoLabel}>Phone:</span>
-                    <span className={styles.userInfoValue}>{userDetails.phone}</span>
+              {currentUser && (
+                <div className={styles.userInfoCard}>
+                  <h3 className={styles.userInfoTitle}>Your Information</h3>
+                  <div className={styles.userInfoList}>
+                    <div className={styles.userInfoItem}>
+                        <span className={styles.userInfoLabel}>Name:</span>
+                        <span className={styles.userInfoValue}>{currentUser.username}</span>
+                    </div>
+                    <div className={styles.userInfoItem}>
+                      <span className={styles.userInfoLabel}>Email:</span>
+                      <span className={styles.userInfoValue}>{currentUser.email}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               <div className={styles.paymentNote}>
                 <span className={styles.lockIcon}>🔒</span>
@@ -237,10 +272,12 @@ const ClassTransactionPage = ({ onLogout }) => {
       </div>
 
       {/* Confirmation Modal */}
-      {showConfirmModal && selectedSchedule && (
+      {showConfirmModal && selectedSchedule && currentUser && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.closeButton} onClick={handleCloseModal}>×</button>
+            <button className={styles.closeButton} onClick={handleCloseModal}>
+              ×
+            </button>
 
             <h2 className={styles.modalTitle}>Confirm Enrollment</h2>
             <p className={styles.modalSubtitle}>Please verify your class details</p>
@@ -280,11 +317,11 @@ const ClassTransactionPage = ({ onLogout }) => {
               <div className={styles.modalSection}>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Name:</span>
-                  <span className={styles.detailValue}>{userDetails.name}</span>
+                  <span className={styles.detailValue}>{currentUser.name}</span>
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Email:</span>
-                  <span className={styles.detailValue}>{userDetails.email}</span>
+                  <span className={styles.detailValue}>{currentUser.email}</span>
                 </div>
               </div>
 
