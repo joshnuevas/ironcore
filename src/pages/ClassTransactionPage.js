@@ -3,6 +3,7 @@ import { Calendar, Clock, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import styles from "./ClassTransactionPage.module.css";
+import axios from "axios";
 
 const ClassTransactionPage = ({ onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -18,6 +19,7 @@ const ClassTransactionPage = ({ onLogout }) => {
     price: "₱500",
     duration: "45 mins",
     maxParticipants: 15,
+    id: 1, // Default ID if missing
   };
 
   // Available schedules
@@ -30,11 +32,12 @@ const ClassTransactionPage = ({ onLogout }) => {
     { id: 6, day: "Friday", time: "6:00 PM - 6:45 PM", date: "Nov 08, 2025", slots: 11 },
   ];
 
-  // User details (replace with actual user data from auth context)
+  // User details (replace with actual auth data)
   const userDetails = {
     name: "John Doe",
     email: "john.doe@example.com",
     phone: "+63 917 123 4567",
+    id: 1, // Example user ID
   };
 
   const classPrice = parseInt(classData.price.replace(/[₱,]/g, ""));
@@ -49,13 +52,59 @@ const ClassTransactionPage = ({ onLogout }) => {
     setShowConfirmModal(true);
   };
 
-  const handleConfirmPayment = () => {
-    navigate("/gcash-payment", {
-      state: {
-        plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.time}`,
-        amount: total,
-      },
-    });
+  const handleConfirmPayment = async () => {
+    if (!selectedSchedule) return;
+
+    try {
+        const payload = {
+            userId: 1,
+            classId: classData.id || 1,
+            scheduleId: selectedSchedule.id,
+            processingFee: processingFee,
+            totalAmount: total,
+            paymentMethod: "GCash",
+            paymentStatus: "PENDING",
+        };
+
+        console.log("=== SENDING PAYLOAD ===");
+        console.log(payload);
+
+        const response = await axios.post(
+            "http://localhost:8080/api/transactions",
+            payload,
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }
+        );
+
+        console.log("=== RESPONSE ===");
+        console.log(response);
+
+        if (response.status === 200 || response.status === 201) {
+            alert("Enrollment saved! Redirecting to payment...");
+            navigate("/gcash-payment", {
+                state: {
+                    plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.time}`,
+                    amount: total,
+                },
+            });
+        }
+    } catch (error) {
+        console.error("=== FULL ERROR ===");
+        console.error(error);
+        console.error("=== ERROR RESPONSE ===");
+        console.error(error.response);
+        console.error("=== ERROR DATA ===");
+        console.error(error.response?.data);
+        console.error("=== ERROR STATUS ===");
+        console.error(error.response?.status);
+        console.error("=== ERROR MESSAGE ===");
+        console.error(error.response?.data?.message);
+        
+        alert(`Failed to save enrollment.\nError: ${error.response?.data?.message || error.message}`);
+    }
   };
 
   const handleCloseModal = () => {
@@ -64,17 +113,14 @@ const ClassTransactionPage = ({ onLogout }) => {
 
   return (
     <div className={styles.transactionContainer}>
-      {/* Background */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
 
-      {/* Navbar */}
       <Navbar activeNav="CLASSES" onLogout={onLogout} />
 
-      {/* Content */}
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
@@ -86,7 +132,6 @@ const ClassTransactionPage = ({ onLogout }) => {
             {/* Class Summary */}
             <div className={styles.summaryCard}>
               <h2 className={styles.summaryTitle}>Class Summary</h2>
-
               <div className={styles.classDetails}>
                 <div className={styles.classHeader}>
                   <span className={styles.classIcon}>{classData.icon}</span>
@@ -153,21 +198,17 @@ const ClassTransactionPage = ({ onLogout }) => {
                     <div className={styles.scheduleInfo}>
                       <div className={styles.scheduleTop}>
                         <span className={styles.scheduleDay}>{schedule.day}</span>
-                        <span className={styles.scheduleSlots}>
-                          {schedule.slots} slots left
-                        </span>
+                        <span className={styles.scheduleSlots}>{schedule.slots} slots left</span>
                       </div>
                       <div className={styles.scheduleTime}>{schedule.time}</div>
                       <div className={styles.scheduleDate}>
-                        <Calendar size={14} />
-                        {schedule.date}
+                        <Calendar size={14} /> {schedule.date}
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* User Info Display */}
               <div className={styles.userInfoCard}>
                 <h3 className={styles.userInfoTitle}>Your Information</h3>
                 <div className={styles.userInfoList}>
