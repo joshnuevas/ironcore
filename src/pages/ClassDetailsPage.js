@@ -68,9 +68,10 @@ const ClassDetailsPage = ({ onLogout }) => {
 
   const handleEnrollNow = () => {
     navigate("/class-transaction", {
-      state: {
-        classData: classData,
-      },
+        state: {
+            classData: classData,
+            classId: location.state?.classId, // ✅ forward the numeric ID
+        },
     });
   };
 

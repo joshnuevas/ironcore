@@ -116,6 +116,7 @@ const ClassesPage = () => {
     navigate("/class-details", {
       state: {
         classData: classItem.detailedData,
+        classId: classItem.id, // ✅ add this
       },
     });
   };

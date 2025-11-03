@@ -81,8 +81,8 @@ const ClassTransactionPage = ({ onLogout }) => {
 
     try {
       const payload = {
-        userId: currentUser.id, // Dynamic user ID from logged-in user
-        classId: 1,
+        userId: currentUser.id,
+        classId: location.state?.classId,
         scheduleId: selectedSchedule.id,
         processingFee: processingFee,
         totalAmount: total,
