@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { CreditCard, Calendar, User, Mail, Phone, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar"; // ✅ Reuse navbar component
 import styles from "./TransactionPage.module.css";
@@ -23,28 +23,32 @@ const TransactionPage = ({ onLogout }) => {
     ],
   };
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    cardNumber: "",
-    expiryDate: "",
-    cvv: "",
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  // User details (these would typically come from your auth context)
+  const userDetails = {
+    nickname: "K*********G", // Replace with actual user nickname
+    userId: "816388228(os_asia)", // Replace with actual user ID
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const subtotal = parseInt(plan.price.replace(/[₱,]/g, ""));
+  const vat = Math.round(subtotal * 0.12);
+  const total = subtotal + vat;
+
+  const handleBuyNow = () => {
     setShowSuccessModal(true);
   };
 
-  const handleSuccessClose = () => {
+  const handleConfirmPayment = () => {
+    // Navigate to GCash payment page with payment details
+    navigate("/gcash-payment", {
+      state: {
+        plan: plan.name,
+        amount: total,
+      },
+    });
+  };
+
+  const handleCloseModal = () => {
     setShowSuccessModal(false);
-    navigate("/membership");
   };
 
   return (
@@ -96,150 +100,136 @@ const TransactionPage = ({ onLogout }) => {
                     <span>{plan.price}</span>
                   </div>
                   <div className={styles.priceRow}>
-                    <span>Processing Fee</span>
-                    <span>₱50</span>
+                    <span>VAT (12%)</span>
+                    <span>₱{vat}</span>
                   </div>
                   <div className={styles.totalRow}>
                     <span>Total</span>
-                    <span className={styles.totalPrice}>
-                      ₱{parseInt(plan.price.replace(/[₱,]/g, "")) + 50}
-                    </span>
+                    <span className={styles.totalPrice}>₱{total}</span>
                   </div>
                 </div>
+
+                <button onClick={handleBuyNow} className={styles.buyNowButton}>
+                  Buy Now
+                </button>
               </div>
             </div>
 
-            {/* 🔸 Payment Form */}
-            <div className={styles.formCard}>
-              <h2 className={styles.formTitle}>Payment Details</h2>
-
-              <form onSubmit={handleSubmit} className={styles.form}>
-                {/* Personal Info */}
-                <div className={styles.formSection}>
-                  <h3 className={styles.sectionTitle}>Personal Information</h3>
-
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>
-                      <User className={styles.inputIcon} />
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      className={styles.input}
-                      placeholder="John Doe"
-                      required
-                    />
-                  </div>
-
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>
-                      <Mail className={styles.inputIcon} />
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className={styles.input}
-                      placeholder="john.doe@example.com"
-                      required
-                    />
-                  </div>
-
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>
-                      <Phone className={styles.inputIcon} />
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className={styles.input}
-                      placeholder="+63 XXX XXX XXXX"
-                      required
-                    />
+            {/* 🔸 Payment Info Card */}
+            <div className={styles.infoCard}>
+              <h2 className={styles.formTitle}>Payment Information</h2>
+              
+              <div className={styles.paymentInfo}>
+                <div className={styles.infoSection}>
+                  <h3 className={styles.infoLabel}>Payment Method</h3>
+                  <div className={styles.paymentMethod}>
+                    <span className={styles.gcashLogo}>💳</span>
+                    <span className={styles.gcashText}>GCash</span>
                   </div>
                 </div>
 
-                {/* Payment Info */}
-                <div className={styles.formSection}>
-                  <h3 className={styles.sectionTitle}>Payment Method</h3>
-
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>
-                      <CreditCard className={styles.inputIcon} />
-                      Card Number
-                    </label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleInputChange}
-                      className={styles.input}
-                      placeholder="1234 5678 9012 3456"
-                      maxLength="19"
-                      required
-                    />
+                <div className={styles.infoSection}>
+                  <h3 className={styles.infoLabel}>Membership Details</h3>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoKey}>Plan:</span>
+                    <span className={styles.infoValue}>{plan.name} Membership</span>
                   </div>
-
-                  <div className={styles.inputRow}>
-                    <div className={styles.inputGroup}>
-                      <label className={styles.label}>
-                        <Calendar className={styles.inputIcon} />
-                        Expiry Date
-                      </label>
-                      <input
-                        type="text"
-                        name="expiryDate"
-                        value={formData.expiryDate}
-                        onChange={handleInputChange}
-                        className={styles.input}
-                        placeholder="MM/YY"
-                        maxLength="5"
-                        required
-                      />
-                    </div>
-
-                    <div className={styles.inputGroup}>
-                      <label className={styles.label}>CVV</label>
-                      <input
-                        type="text"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleInputChange}
-                        className={styles.input}
-                        placeholder="123"
-                        maxLength="3"
-                        required
-                      />
-                    </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoKey}>Duration:</span>
+                    <span className={styles.infoValue}>1 Month</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoKey}>Price:</span>
+                    <span className={styles.infoValue}>{plan.price}</span>
                   </div>
                 </div>
 
-                <button type="submit" className={styles.submitButton}>
-                  Complete Payment
-                </button>
-              </form>
+                <div className={styles.infoSection}>
+                  <h3 className={styles.infoLabel}>Account Information</h3>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoKey}>Nickname:</span>
+                    <span className={styles.infoValue}>{userDetails.nickname}</span>
+                  </div>
+                  <div className={styles.infoItem}>
+                    <span className={styles.infoKey}>User ID:</span>
+                    <span className={styles.infoValue}>{userDetails.userId}</span>
+                  </div>
+                </div>
+
+                <div className={styles.secureNotice}>
+                  <span className={styles.lockIcon}>🔒</span>
+                  <p>Secure payment powered by GCash</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 🔹 Success Modal */}
+      {/* 🔹 Confirmation Modal */}
       {showSuccessModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <div className={styles.successIcon}>✓</div>
-            <h2>Payment Successful!</h2>
-            <p>Your {plan.name} membership has been activated.</p>
-            <button onClick={handleSuccessClose} className={styles.modalConfirm}>
-              Continue
+        <div className={styles.modalOverlay} onClick={handleCloseModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeButton} onClick={handleCloseModal}>×</button>
+            
+            <h2 className={styles.modalTitle}>Order Details</h2>
+            <p className={styles.modalSubtitle}>Please confirm your information is correct</p>
+
+            <div className={styles.modalDetails}>
+              <div className={styles.modalSection}>
+                <div className={styles.planDisplay}>
+                  <span className={styles.planIconLarge}>{plan.icon}</span>
+                  <div>
+                    <h3 className={styles.modalPlanName}>{plan.name} Membership</h3>
+                    <p className={styles.modalPlanType}>Monthly Subscription</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.divider}></div>
+
+              <div className={styles.modalSection}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Nickname:</span>
+                  <span className={styles.detailValue}>{userDetails.nickname}</span>
+                </div>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>User ID:</span>
+                  <span className={styles.detailValue}>{userDetails.userId}</span>
+                </div>
+              </div>
+
+              <div className={styles.divider}></div>
+
+              <div className={styles.modalSection}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Pay with:</span>
+                  <span className={styles.detailValue}>
+                    <span className={styles.gcashBadge}>💳 GCash</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.divider}></div>
+
+              <div className={styles.modalSection}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Price:</span>
+                  <span className={styles.detailValue}>₱{subtotal}</span>
+                </div>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>VAT (12%):</span>
+                  <span className={styles.detailValue}>₱{vat}</span>
+                </div>
+                <div className={styles.totalDetailRow}>
+                  <span className={styles.totalLabel}>Total Payment</span>
+                  <span className={styles.totalValue}>₱{total}</span>
+                </div>
+              </div>
+            </div>
+
+            <button onClick={handleConfirmPayment} className={styles.confirmButton}>
+              Confirm and go to payment
             </button>
           </div>
         </div>

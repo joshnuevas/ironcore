@@ -48,8 +48,7 @@
 }
 
 @keyframes pulse {
-  0%,
-  100% {
+  0%, 100% {
     opacity: 0.08;
     transform: scale(1);
   }
@@ -60,8 +59,7 @@
 }
 
 @keyframes float {
-  0%,
-  100% {
+  0%, 100% {
     transform: translate(0, 0) scale(1);
   }
   25% {
@@ -154,13 +152,13 @@
   margin-bottom: 1.5rem;
 }
 
-.planDetails {
+.classDetails {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.planHeader {
+.classHeader {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -168,30 +166,30 @@
   border-bottom: 1px solid rgba(249, 115, 22, 0.2);
 }
 
-.planIcon {
+.classIcon {
   font-size: 2.5rem;
 }
 
-.planName {
+.className {
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
   margin: 0;
 }
 
-.planType {
+.classDescription {
   font-size: 0.875rem;
   color: #9ca3af;
   margin: 0.25rem 0 0 0;
 }
 
-.featuresList {
+.classInfo {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.featureItem {
+.infoItem {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -199,7 +197,7 @@
   font-size: 0.95rem;
 }
 
-.checkIcon {
+.infoIcon {
   width: 1.25rem;
   height: 1.25rem;
   color: #f97316;
@@ -236,8 +234,7 @@
   color: #f97316;
 }
 
-/* Buy Now Button */
-.buyNowButton {
+.enrollButton {
   width: 100%;
   padding: 1rem;
   background: linear-gradient(to right, #f97316, #dc2626);
@@ -253,91 +250,170 @@
   margin-top: 1rem;
 }
 
-.buyNowButton:hover {
+.enrollButton:hover:not(:disabled) {
   transform: translateY(-3px);
   box-shadow: 0 15px 40px rgba(249, 115, 22, 0.6);
 }
 
-.buyNowButton:active {
+.enrollButton:active:not(:disabled) {
   transform: translateY(-1px);
 }
 
-/* Info Card */
-.infoCard {
+.enrollButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Schedule Card */
+.scheduleCard {
   background: rgba(17, 24, 39, 0.6);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(249, 115, 22, 0.2);
   border-radius: 1.5rem;
   padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .formTitle {
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
-  margin-bottom: 2rem;
-}
-
-.paymentInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.infoSection {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.infoLabel {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #f97316;
   margin: 0;
 }
 
-.paymentMethod {
+.scheduleList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.scheduleOption {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(31, 41, 55, 0.5);
+  border: 2px solid rgba(249, 115, 22, 0.2);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.scheduleOption:hover {
+  background: rgba(31, 41, 55, 0.7);
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
+.scheduleSelected {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: #f97316;
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.2);
+}
+
+.scheduleRadio {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(249, 115, 22, 0.5);
+  border-radius: 50%;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: rgba(31, 41, 55, 0.5);
-  border: 1px solid rgba(249, 115, 22, 0.3);
-  border-radius: 0.75rem;
+  justify-content: center;
+  margin-top: 0.125rem;
 }
 
-.gcashLogo {
-  font-size: 2rem;
+.scheduleSelected .scheduleRadio {
+  border-color: #f97316;
 }
 
-.gcashText {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: white;
+.scheduleRadioSelected {
+  width: 12px;
+  height: 12px;
+  background: #f97316;
+  border-radius: 50%;
 }
 
-.infoItem {
+.scheduleInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.scheduleTop {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem;
-  background: rgba(31, 41, 55, 0.3);
-  border-radius: 0.5rem;
 }
 
-.infoKey {
+.scheduleDay {
+  font-size: 1rem;
+  font-weight: 700;
+  color: white;
+}
+
+.scheduleSlots {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.scheduleSelected .scheduleSlots {
+  color: #f97316;
+}
+
+.scheduleTime {
+  font-size: 0.95rem;
+  color: #d1d5db;
+}
+
+.scheduleDate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+/* User Info Card */
+.userInfoCard {
+  padding: 1.5rem;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 0.75rem;
+}
+
+.userInfoTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #f97316;
+  margin: 0 0 1rem 0;
+}
+
+.userInfoList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.userInfoItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.userInfoLabel {
   color: #9ca3af;
   font-size: 0.95rem;
 }
 
-.infoValue {
+.userInfoValue {
   color: white;
   font-weight: 600;
   font-size: 0.95rem;
 }
 
-.secureNotice {
+.paymentNote {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -345,14 +421,13 @@
   background: rgba(34, 197, 94, 0.1);
   border: 1px solid rgba(34, 197, 94, 0.3);
   border-radius: 0.75rem;
-  margin-top: 1rem;
 }
 
 .lockIcon {
   font-size: 1.5rem;
 }
 
-.secureNotice p {
+.paymentNote p {
   color: #a7f3d0;
   margin: 0;
   font-size: 0.95rem;
@@ -382,6 +457,8 @@
   width: 90%;
   position: relative;
   border: 1px solid rgba(249, 115, 22, 0.3);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes fadeInScale {
@@ -442,24 +519,24 @@
   gap: 0.75rem;
 }
 
-.planDisplay {
+.classDisplay {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.planIconLarge {
+.classIconLarge {
   font-size: 3rem;
 }
 
-.modalPlanName {
+.modalClassName {
   font-size: 1.25rem;
   font-weight: 700;
   color: white;
   margin: 0;
 }
 
-.modalPlanType {
+.modalClassDescription {
   font-size: 0.875rem;
   color: #9ca3af;
   margin: 0.25rem 0 0 0;
@@ -475,17 +552,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
+  gap: 1rem;
 }
 
 .detailLabel {
   color: #9ca3af;
   font-size: 0.95rem;
+  flex-shrink: 0;
 }
 
 .detailValue {
   color: white;
   font-weight: 600;
   font-size: 0.95rem;
+  text-align: right;
 }
 
 .gcashBadge {
@@ -550,7 +630,7 @@
   .checkoutGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .summaryCard {
     position: static;
   }
@@ -560,17 +640,27 @@
   .title {
     font-size: 2.5rem;
   }
-  
+
   .modalContent {
     width: 95%;
     padding: 1.5rem;
   }
-  
+
   .modalTitle {
     font-size: 1.5rem;
   }
-  
+
   .totalValue {
     font-size: 1.25rem;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .detailValue {
+    text-align: left;
   }
 }

@@ -16,6 +16,23 @@ const ClassesPage = () => {
         "Short bursts of intense exercise followed by rest. Great for fat burning and endurance.",
       icon: Zap,
       gradientClass: styles.gradientHiit,
+      // ✅ Added detailed data for ClassDetailsPage
+      detailedData: {
+        name: "HIIT Training",
+        icon: "🔥",
+        description: "High-Intensity Interval Training",
+        price: "₱500",
+        duration: "45 mins",
+        intensity: "High",
+        maxParticipants: 15,
+        trainer: {
+          name: "Coach Sarah Martinez",
+          image: "👩‍🏫",
+          specialty: "HIIT & Cardio Specialist",
+          experience: "8 years",
+          rating: 4.9,
+        },
+      },
     },
     {
       id: 2,
@@ -24,6 +41,23 @@ const ClassesPage = () => {
         "Dance-based cardio workout set to music. Fun, energetic, and great for all fitness levels.",
       icon: Music,
       gradientClass: styles.gradientZumba,
+      // ✅ Added detailed data for ClassDetailsPage
+      detailedData: {
+        name: "Zumba Dance",
+        icon: "💃",
+        description: "Dance-based cardio workout set to music",
+        price: "₱400",
+        duration: "60 mins",
+        intensity: "Medium",
+        maxParticipants: 20,
+        trainer: {
+          name: "Coach Maria Santos",
+          image: "👩‍🏫",
+          specialty: "Dance & Cardio",
+          experience: "7 years",
+          rating: 4.8,
+        },
+      },
     },
     {
       id: 3,
@@ -32,6 +66,23 @@ const ClassesPage = () => {
         "High-energy cardio workout on stationary bikes. Focuses on stamina, leg strength, and endurance.",
       icon: Bike,
       gradientClass: styles.gradientSpin,
+      // ✅ Added detailed data for ClassDetailsPage
+      detailedData: {
+        name: "Spin Class",
+        icon: "🚴",
+        description: "High-energy cycling workout",
+        price: "₱450",
+        duration: "45 mins",
+        intensity: "Medium",
+        maxParticipants: 15,
+        trainer: {
+          name: "Coach Anna Lee",
+          image: "👩‍🏫",
+          specialty: "Cardio & Endurance",
+          experience: "6 years",
+          rating: 4.7,
+        },
+      },
     },
     {
       id: 4,
@@ -40,8 +91,34 @@ const ClassesPage = () => {
         "Build strength, flexibility, and balance. Relieve stress and improve core stability.",
       icon: Flower2,
       gradientClass: styles.gradientYoga,
+      // ✅ Added detailed data for ClassDetailsPage
+      detailedData: {
+        name: "Yoga Flow",
+        icon: "🧘",
+        description: "Mindful movement and flexibility",
+        price: "₱400",
+        duration: "60 mins",
+        intensity: "Low",
+        maxParticipants: 20,
+        trainer: {
+          name: "Coach Linda Chen",
+          image: "👩‍🏫",
+          specialty: "Yoga & Meditation",
+          experience: "10 years",
+          rating: 5.0,
+        },
+      },
     },
   ];
+
+  // ✅ Handler to navigate to class details page
+  const handleJoinNow = (classItem) => {
+    navigate("/class-details", {
+      state: {
+        classData: classItem.detailedData,
+      },
+    });
+  };
 
   return (
     <div className={styles.classesContainer}>
@@ -85,9 +162,7 @@ const ClassesPage = () => {
 
                   <button
                     className={`${styles.joinButton} ${classItem.gradientClass}`}
-                    onClick={() =>
-                      navigate("/trainers", { state: { selectedClass: classItem.title } })
-                    }
+                    onClick={() => handleJoinNow(classItem)}
                   >
                     JOIN NOW
                   </button>

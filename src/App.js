@@ -12,6 +12,9 @@ import TransactionPage from "./pages/TransactionPage";
 import BookTrainer from "./pages/BookTrainer";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import GCashPaymentPage from './pages/GCashPaymentPage';
+import ClassTransactionPage from './pages/ClassTransactionPage'; 
+import ClassDetailsPage from './pages/ClassDetailsPage'; // ✅ Add this line
 
 function App() {
   return (
@@ -80,6 +83,14 @@ function App() {
           } 
         />
         <Route 
+          path="/gcash-payment" 
+          element={
+            <ProtectedRoute>
+              <GCashPaymentPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
           path="/book-trainer" 
           element={
             <ProtectedRoute>
@@ -92,6 +103,24 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* ✅ New page routes */}
+        <Route 
+          path="/class-transaction" 
+          element={
+            <ProtectedRoute>
+              <ClassTransactionPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/class-details" 
+          element={
+            <ProtectedRoute>
+              <ClassDetailsPage />
             </ProtectedRoute>
           } 
         />

@@ -1,0 +1,554 @@
+/* Container */
+.detailsContainer {
+  min-height: 100vh;
+  background: linear-gradient(to bottom right, #111827, #1f2937, #000000);
+  position: relative;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Animated Background */
+.backgroundOverlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bgBlur {
+  position: absolute;
+  width: 30rem;
+  height: 30rem;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+  animation: pulse 4s ease-in-out infinite, float 10s ease-in-out infinite;
+}
+
+.bgBlur1 {
+  background-color: #f97316;
+  top: -15rem;
+  left: -15rem;
+}
+
+.bgBlur2 {
+  background-color: #ef4444;
+  bottom: -15rem;
+  right: -15rem;
+}
+
+.bgBlur3 {
+  background-color: #f97316;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.08;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(40px, -40px) scale(1.05);
+  }
+  50% {
+    transform: translate(0, -60px) scale(1.15);
+  }
+  75% {
+    transform: translate(-40px, -40px) scale(1.05);
+  }
+}
+
+/* Content Section */
+.contentSection {
+  min-height: 100vh;
+  padding-top: 7rem;
+  padding-bottom: 4rem;
+  position: relative;
+  z-index: 10;
+}
+
+.contentContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Back Button */
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 0.75rem;
+  color: #f97316;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 2rem;
+}
+
+.backButton:hover {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: #f97316;
+  transform: translateX(-5px);
+}
+
+.backIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Main Grid */
+.mainGrid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 2rem;
+}
+
+/* Left Column */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Class Header */
+.classHeader {
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.classIconWrapper {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(220, 38, 38, 0.2));
+  border: 2px solid rgba(249, 115, 22, 0.3);
+  border-radius: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.2);
+}
+
+.classIconLarge {
+  font-size: 4rem;
+}
+
+.classHeaderInfo {
+  flex: 1;
+}
+
+.className {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: white;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+}
+
+.classDescription {
+  font-size: 1.125rem;
+  color: #9ca3af;
+  margin: 0 0 1.5rem 0;
+}
+
+.classMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.metaBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(31, 41, 55, 0.6);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 2rem;
+  color: #d1d5db;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.intensityBadge {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: #f97316;
+}
+
+/* Section Card */
+.sectionCard {
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Trainer Card */
+.trainerCard {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 1rem;
+}
+
+.trainerAvatar {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.3), rgba(220, 38, 38, 0.3));
+  border: 2px solid rgba(249, 115, 22, 0.4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.trainerInfo {
+  flex: 1;
+}
+
+.trainerName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 0.25rem 0;
+}
+
+.trainerSpecialty {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  margin: 0 0 0.75rem 0;
+}
+
+.trainerMeta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.trainerExp {
+  font-size: 0.875rem;
+  color: #d1d5db;
+}
+
+.trainerRating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #f97316;
+}
+
+/* Schedule List */
+.scheduleList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scheduleItem {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 0.75rem;
+  align-items: center;
+}
+
+.scheduleDay {
+  font-weight: 700;
+  color: #f97316;
+  font-size: 0.95rem;
+}
+
+.scheduleTime {
+  color: #d1d5db;
+  font-size: 0.95rem;
+}
+
+.scheduleSlots {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+/* Bullet List */
+.bulletList {
+  margin: 0;
+  padding-left: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bulletList li {
+  color: #d1d5db;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.bulletList li::marker {
+  color: #f97316;
+}
+
+/* Benefits Grid */
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.benefitItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  background: rgba(31, 41, 55, 0.5);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 0.75rem;
+  color: #d1d5db;
+  font-size: 0.95rem;
+}
+
+.benefitIcon {
+  color: #f97316;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+/* Right Column */
+.rightColumn {
+  position: sticky;
+  top: 7rem;
+  height: fit-content;
+}
+
+/* Enrollment Card */
+.enrollmentCard {
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.priceSection {
+  text-align: center;
+  padding: 1.5rem;
+  background: rgba(249, 115, 22, 0.1);
+  border: 2px solid rgba(249, 115, 22, 0.3);
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.priceLabel {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.priceValue {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #f97316;
+  letter-spacing: -0.025em;
+}
+
+.priceNote {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.enrollmentDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.detailItem {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.detailIcon {
+  color: #f97316;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.detailLabel {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0 0 0.25rem 0;
+}
+
+.detailValue {
+  font-size: 0.95rem;
+  color: white;
+  font-weight: 600;
+  margin: 0;
+}
+
+.enrollButton {
+  width: 100%;
+  padding: 1.25rem;
+  background: linear-gradient(to right, #f97316, #dc2626);
+  color: white;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+}
+
+.enrollButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(249, 115, 22, 0.6);
+}
+
+.enrollButton:active {
+  transform: translateY(-1px);
+}
+
+.enrollmentNote {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 0.75rem;
+}
+
+.noteIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.enrollmentNote p {
+  font-size: 0.875rem;
+  color: #fde68a;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .rightColumn {
+    position: static;
+  }
+
+  .classHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .classHeader {
+    padding: 1.5rem;
+  }
+
+  .className {
+    font-size: 2rem;
+  }
+
+  .classIconWrapper {
+    width: 80px;
+    height: 80px;
+  }
+
+  .classIconLarge {
+    font-size: 3rem;
+  }
+
+  .scheduleItem {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .scheduleSlots {
+    text-align: left;
+  }
+
+  .sectionCard {
+    padding: 1.5rem;
+  }
+
+  .contentContainer {
+    padding: 0 1rem;
+  }
+}
