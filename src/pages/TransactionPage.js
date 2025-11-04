@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Navbar from "../components/Navbar"; // ✅ Reuse navbar component
+import Navbar from "../components/Navbar";
 import styles from "./TransactionPage.module.css";
+import axios from "axios";
 
 const TransactionPage = ({ onLogout }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userLoading, setUserLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,33 +26,106 @@ const TransactionPage = ({ onLogout }) => {
     ],
   };
 
-  // User details (these would typically come from your auth context)
-  const userDetails = {
-    nickname: "K*********G", // Replace with actual user nickname
-    userId: "816388228(os_asia)", // Replace with actual user ID
-  };
-
   const subtotal = parseInt(plan.price.replace(/[₱,]/g, ""));
   const vat = Math.round(subtotal * 0.12);
   const total = subtotal + vat;
 
+  // ⭐ Fetch current user
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        setUserLoading(true);
+        const res = await axios.get("http://localhost:8080/api/users/me", {
+          withCredentials: true,
+        });
+        setCurrentUser(res.data);
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+        alert("Please log in to continue.");
+        navigate("/login");
+      } finally {
+        setUserLoading(false);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [navigate]);
+
   const handleBuyNow = () => {
+    if (!currentUser) {
+      alert("User information not loaded. Please try again.");
+      return;
+    }
     setShowSuccessModal(true);
   };
 
-  const handleConfirmPayment = () => {
-    // Navigate to GCash payment page with payment details
-    navigate("/gcash-payment", {
-      state: {
-        plan: plan.name,
-        amount: total,
-      },
-    });
+  // ⭐ Create transaction and navigate to payment
+  const handleConfirmPayment = async () => {
+    if (!currentUser) {
+      alert("User information not loaded.");
+      return;
+    }
+
+    try {
+      const payload = {
+        userId: currentUser.id,
+        classId: null,
+        scheduleId: null,
+        membershipType: plan.name,
+        processingFee: vat,
+        totalAmount: total,
+        paymentMethod: "GCash",
+        paymentStatus: "PENDING",
+      };
+
+      console.log("=== SENDING MEMBERSHIP PAYLOAD ===", payload);
+
+      const response = await axios.post(
+        "http://localhost:8080/api/transactions",
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      console.log("=== RESPONSE ===", response.data);
+
+      if (response.status === 200 || response.status === 201) {
+        // Navigate to payment page with transaction ID
+        navigate("/gcash-payment", {
+          state: {
+            plan: `${plan.name} Membership`,
+            amount: total,
+            transactionId: response.data.id,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("=== FULL ERROR ===", error);
+      alert(`Failed to create membership transaction.\nError: ${error.response?.data?.message || error.message}`);
+    }
   };
 
   const handleCloseModal = () => {
     setShowSuccessModal(false);
   };
+
+  // Show loading state
+  if (userLoading) {
+    return (
+      <div className={styles.transactionContainer}>
+        <Navbar activeNav="MEMBERSHIP" onLogout={onLogout} />
+        <div className={styles.contentSection}>
+          <div className={styles.contentContainer}>
+            <div style={{ textAlign: "center", padding: "2rem" }}>
+              Loading user information...
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.transactionContainer}>
@@ -109,8 +185,12 @@ const TransactionPage = ({ onLogout }) => {
                   </div>
                 </div>
 
-                <button onClick={handleBuyNow} className={styles.buyNowButton}>
-                  Buy Now
+                <button 
+                  onClick={handleBuyNow} 
+                  className={styles.buyNowButton}
+                  disabled={!currentUser}
+                >
+                  {currentUser ? "Buy Now" : "Loading..."}
                 </button>
               </div>
             </div>
@@ -144,17 +224,19 @@ const TransactionPage = ({ onLogout }) => {
                   </div>
                 </div>
 
-                <div className={styles.infoSection}>
-                  <h3 className={styles.infoLabel}>Account Information</h3>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoKey}>Nickname:</span>
-                    <span className={styles.infoValue}>{userDetails.nickname}</span>
+                {currentUser && (
+                  <div className={styles.infoSection}>
+                    <h3 className={styles.infoLabel}>Account Information</h3>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoKey}>Name:</span>
+                      <span className={styles.infoValue}>{currentUser.username}</span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoKey}>Email:</span>
+                      <span className={styles.infoValue}>{currentUser.email}</span>
+                    </div>
                   </div>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoKey}>User ID:</span>
-                    <span className={styles.infoValue}>{userDetails.userId}</span>
-                  </div>
-                </div>
+                )}
 
                 <div className={styles.secureNotice}>
                   <span className={styles.lockIcon}>🔒</span>
@@ -167,7 +249,7 @@ const TransactionPage = ({ onLogout }) => {
       </div>
 
       {/* 🔹 Confirmation Modal */}
-      {showSuccessModal && (
+      {showSuccessModal && currentUser && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.closeButton} onClick={handleCloseModal}>×</button>
@@ -190,12 +272,12 @@ const TransactionPage = ({ onLogout }) => {
 
               <div className={styles.modalSection}>
                 <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Nickname:</span>
-                  <span className={styles.detailValue}>{userDetails.nickname}</span>
+                  <span className={styles.detailLabel}>Name:</span>
+                  <span className={styles.detailValue}>{currentUser.username}</span>
                 </div>
                 <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>User ID:</span>
-                  <span className={styles.detailValue}>{userDetails.userId}</span>
+                  <span className={styles.detailLabel}>Email:</span>
+                  <span className={styles.detailValue}>{currentUser.email}</span>
                 </div>
               </div>
 
