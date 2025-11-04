@@ -1,5 +1,5 @@
 import React from "react";
-import { Zap, Music, Bike, Flower2 } from "lucide-react";
+import { Zap, Music, Bike, Flower2, Activity, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar"; // ✅ Reused global Navbar
 import styles from "./ClassesPage.module.css";
@@ -106,6 +106,56 @@ const ClassesPage = () => {
           specialty: "Yoga & Meditation",
           experience: "10 years",
           rating: 5.0,
+        },
+      },
+    },
+    {
+      id: 5,
+      title: "PILATES",
+      description:
+        "Low-impact exercises that strengthen muscles while improving postural alignment and flexibility.",
+      icon: Activity,
+      gradientClass: styles.gradientPilates,
+      // ✅ Added detailed data for ClassDetailsPage
+      detailedData: {
+        name: "Pilates Core",
+        icon: "💪",
+        description: "Core strengthening and flexibility training",
+        price: "₱450",
+        duration: "50 mins",
+        intensity: "Low-Medium",
+        maxParticipants: 18,
+        trainer: {
+          name: "Coach Emily Rodriguez",
+          image: "👩‍🏫",
+          specialty: "Pilates & Core Training",
+          experience: "9 years",
+          rating: 4.9,
+        },
+      },
+    },
+    {
+      id: 6,
+      title: "BOXING",
+      description:
+        "High-energy boxing workout combining cardio, strength training, and stress relief. No experience needed.",
+      icon: Target,
+      gradientClass: styles.gradientBoxing,
+      // ✅ Added detailed data for ClassDetailsPage
+      detailedData: {
+        name: "Boxing Fitness",
+        icon: "🥊",
+        description: "Cardio boxing and strength training",
+        price: "₱500",
+        duration: "55 mins",
+        intensity: "High",
+        maxParticipants: 12,
+        trainer: {
+          name: "Coach Mark Johnson",
+          image: "👨‍🏫",
+          specialty: "Boxing & Combat Fitness",
+          experience: "11 years",
+          rating: 4.8,
         },
       },
     },

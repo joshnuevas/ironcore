@@ -329,6 +329,14 @@
   background: linear-gradient(135deg, #10b981, #06b6d4);
 }
 
+.gradientPilates {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.gradientBoxing {
+  background: linear-gradient(135deg, #f97316, #e11d48);
+}
+
 /* Icon Wrapper */
 .iconWrapper {
   width: 5rem;
