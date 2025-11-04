@@ -34,7 +34,7 @@ const GCashPaymentPage = ({ onLogout }) => {
   const handlePaymentComplete = async () => {
     if (!paymentDetails.transactionId) {
       alert("Transaction ID not found. Please try enrolling again.");
-      navigate("/classes");
+      navigate("/landing");
       return;
     }
 
@@ -50,7 +50,7 @@ const GCashPaymentPage = ({ onLogout }) => {
       console.log("Transaction updated:", response.data);
       
       alert("Payment confirmed! Your enrollment is now complete.");
-      navigate("/classes"); // Or wherever you want to redirect
+      navigate("/landing"); // Or wherever you want to redirect
     } catch (error) {
       console.error("Failed to update transaction:", error);
       alert("Failed to confirm payment. Please contact support with your transaction details.");
