@@ -66,12 +66,13 @@ const ClassDetailsPage = ({ onLogout }) => {
     "Basic fitness level recommended",
   ];
 
+  // ⭐ FIXED: Just pass classData (which already includes id)
   const handleEnrollNow = () => {
+    console.log("Navigating with classData:", classData); // Debug log
     navigate("/class-transaction", {
-        state: {
-            classData: classData,
-            classId: location.state?.classId, // ✅ forward the numeric ID
-        },
+      state: {
+        classData: classData,
+      },
     });
   };
 

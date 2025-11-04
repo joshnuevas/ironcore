@@ -1,20 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Copy } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./GCashPaymentPage.module.css";
+import axios from "axios";
 
 const GCashPaymentPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [copied, setCopied] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // Get payment details from previous page
   const paymentDetails = location.state || {
     plan: "GOLD",
     amount: 1650,
+    transactionId: null,
   };
-
-  const [copied, setCopied] = React.useState(false);
 
   const accountDetails = {
     name: "LY*A N.",
@@ -28,8 +30,33 @@ const GCashPaymentPage = ({ onLogout }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handlePaymentComplete = () => {
-    navigate("/membership");
+  // ⭐ NEW: Update transaction status to COMPLETED
+  const handlePaymentComplete = async () => {
+    if (!paymentDetails.transactionId) {
+      alert("Transaction ID not found. Please try enrolling again.");
+      navigate("/classes");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/api/transactions/${paymentDetails.transactionId}/status?status=COMPLETED`,
+        {},
+        { withCredentials: true }
+      );
+
+      console.log("Transaction updated:", response.data);
+      
+      alert("Payment confirmed! Your enrollment is now complete.");
+      navigate("/classes"); // Or wherever you want to redirect
+    } catch (error) {
+      console.error("Failed to update transaction:", error);
+      alert("Failed to confirm payment. Please contact support with your transaction details.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -42,7 +69,7 @@ const GCashPaymentPage = ({ onLogout }) => {
       </div>
 
       {/* Navbar */}
-      <Navbar activeNav="MEMBERSHIP" onLogout={onLogout} />
+      <Navbar activeNav="CLASSES" onLogout={onLogout} />
 
       {/* Content */}
       <div className={styles.contentSection}>
@@ -124,7 +151,7 @@ const GCashPaymentPage = ({ onLogout }) => {
                 <span className={styles.amountValue}>₱{paymentDetails.amount}</span>
               </div>
               <div className={styles.planInfo}>
-                <span>{paymentDetails.plan} Membership</span>
+                <span>{paymentDetails.plan}</span>
               </div>
             </div>
 
@@ -152,10 +179,18 @@ const GCashPaymentPage = ({ onLogout }) => {
 
             {/* Action Buttons */}
             <div className={styles.actionButtons}>
-              <button onClick={handlePaymentComplete} className={styles.doneButton}>
-                I've Completed Payment
+              <button 
+                onClick={handlePaymentComplete} 
+                className={styles.doneButton}
+                disabled={isProcessing}
+              >
+                {isProcessing ? "Processing..." : "I've Completed Payment"}
               </button>
-              <button onClick={() => navigate(-1)} className={styles.cancelButton}>
+              <button 
+                onClick={() => navigate(-1)} 
+                className={styles.cancelButton}
+                disabled={isProcessing}
+              >
                 Cancel
               </button>
             </div>

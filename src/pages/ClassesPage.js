@@ -115,8 +115,10 @@ const ClassesPage = () => {
   const handleJoinNow = (classItem) => {
     navigate("/class-details", {
       state: {
-        classData: classItem.detailedData,
-        classId: classItem.id, // ✅ add this
+        classData: {
+          ...classItem.detailedData,
+          id: classItem.id,  // ⭐ Add the id to classData
+        },
       },
     });
   };

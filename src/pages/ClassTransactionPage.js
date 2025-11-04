@@ -38,21 +38,30 @@ const ClassTransactionPage = ({ onLogout }) => {
   const processingFee = 20;
   const total = classPrice + processingFee;
 
+  // Validate class data on mount
+  useEffect(() => {
+    console.log("=== CLASS DATA ===", classData);
+    console.log("=== CLASS ID ===", classData.id);
+    
+    if (!classData.id) {
+      alert("Class information is missing. Redirecting to classes page.");
+      navigate("/classes");
+    }
+  }, [classData, navigate]);
+
   // Fetch the logged-in user dynamically
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         setUserLoading(true);
         const res = await axios.get("http://localhost:8080/api/users/me", {
-          withCredentials: true, // Important for session/cookie auth
+          withCredentials: true,
         });
         setCurrentUser(res.data);
         setUserError(null);
       } catch (error) {
         console.error("Failed to fetch current user:", error);
         setUserError("Failed to load user information. Please log in again.");
-        // Optionally redirect to login if user is not authenticated
-        // navigate("/login");
       } finally {
         setUserLoading(false);
       }
@@ -79,10 +88,17 @@ const ClassTransactionPage = ({ onLogout }) => {
       return;
     }
 
+    // Validate class ID exists
+    if (!classData.id) {
+      alert("Class ID is missing. Please select a class again.");
+      navigate("/classes");
+      return;
+    }
+
     try {
       const payload = {
         userId: currentUser.id,
-        classId: location.state?.classId,
+        classId: classData.id,
         scheduleId: selectedSchedule.id,
         processingFee: processingFee,
         totalAmount: total,
@@ -101,19 +117,21 @@ const ClassTransactionPage = ({ onLogout }) => {
         }
       );
 
-      console.log("=== RESPONSE ===", response);
+      console.log("=== RESPONSE ===", response.data);
 
       if (response.status === 200 || response.status === 201) {
-        alert("Enrollment saved! Redirecting to payment...");
+        // Navigate to payment page with transaction ID
         navigate("/gcash-payment", {
           state: {
             plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.time}`,
             amount: total,
+            transactionId: response.data.id,
           },
         });
       }
     } catch (error) {
       console.error("=== FULL ERROR ===", error);
+      console.error("=== ERROR RESPONSE ===", error.response);
       alert(`Failed to save enrollment.\nError: ${error.response?.data?.message || error.message}`);
     }
   };
@@ -317,7 +335,7 @@ const ClassTransactionPage = ({ onLogout }) => {
               <div className={styles.modalSection}>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Name:</span>
-                  <span className={styles.detailValue}>{currentUser.name}</span>
+                  <span className={styles.detailValue}>{currentUser.username}</span>
                 </div>
                 <div className={styles.detailRow}>
                   <span className={styles.detailLabel}>Email:</span>
