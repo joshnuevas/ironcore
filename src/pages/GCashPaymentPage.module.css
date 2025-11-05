@@ -1,7 +1,7 @@
 /* Container */
 .paymentContainer {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #111827, #1f2937, #000000);
+  background: linear-gradient(135deg, #0066ff 0%, #0099ff 100%);
   position: relative;
   overflow: hidden;
 }
@@ -24,54 +24,38 @@
   height: 30rem;
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.12;
-  animation: pulse 4s ease-in-out infinite, float 10s ease-in-out infinite;
+  opacity: 0.15;
+  animation: float 10s ease-in-out infinite;
 }
 
 .bgBlur1 {
-  background-color: #f97316;
+  background-color: #ffffff;
   top: -15rem;
   left: -15rem;
 }
 
 .bgBlur2 {
-  background-color: #ef4444;
+  background-color: #ffffff;
   bottom: -15rem;
   right: -15rem;
 }
 
 .bgBlur3 {
-  background-color: #f97316;
+  background-color: #0052cc;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.08;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.15;
-    transform: scale(1.15);
-  }
-}
-
 @keyframes float {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
+  0%, 100% {
+    transform: translate(0, 0);
   }
-  25% {
-    transform: translate(40px, -40px) scale(1.05);
+  33% {
+    transform: translate(30px, -30px);
   }
-  50% {
-    transform: translate(0, -60px) scale(1.15);
-  }
-  75% {
-    transform: translate(-40px, -40px) scale(1.05);
+  66% {
+    transform: translate(-30px, 30px);
   }
 }
 
@@ -85,16 +69,16 @@
 }
 
 .contentContainer {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 0 2rem;
-  animation: fadeInUp 0.8s ease-out;
+  animation: fadeInUp 0.6s ease-out;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -108,11 +92,11 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: rgba(17, 24, 39, 0.6);
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 0.75rem;
-  color: #f97316;
+  color: white;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
@@ -120,8 +104,7 @@
 }
 
 .backButton:hover {
-  background: rgba(249, 115, 22, 0.1);
-  border-color: #f97316;
+  background: rgba(255, 255, 255, 0.3);
   transform: translateX(-5px);
 }
 
@@ -132,346 +115,377 @@
 
 /* Payment Card */
 .paymentCard {
-  background: rgba(17, 24, 39, 0.6);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(249, 115, 22, 0.2);
+  background: white;
   border-radius: 1.5rem;
-  padding: 3rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 2rem;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
 }
 
-/* Header */
-.header {
-  text-align: center;
+/* GCash Header */
+.gcashHeader {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f3f4f6;
 }
 
-.gcashBadge {
-  display: inline-flex;
+.gcashLogo {
+  display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, rgba(0, 119, 255, 0.2), rgba(0, 175, 255, 0.2));
-  border: 1px solid rgba(0, 175, 255, 0.4);
-  border-radius: 2rem;
-  color: #60d5ff;
-  font-weight: 600;
-  font-size: 1rem;
-  margin: 0 auto;
-  box-shadow: 0 4px 15px rgba(0, 175, 255, 0.2);
 }
 
 .gcashIcon {
-  font-size: 1.5rem;
+  font-size: 2rem;
 }
 
-.title {
-  font-size: 2.5rem;
+.gcashText {
+  font-size: 1.75rem;
   font-weight: 900;
-  color: white;
-  margin: 0;
-  letter-spacing: -0.05em;
-  background: linear-gradient(to right, white, #f97316);
+  background: linear-gradient(135deg, #0066ff, #0099ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.subtitle {
-  font-size: 1rem;
-  color: #9ca3af;
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* QR Section */
-.qrSection {
+.secureBadge {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-}
-
-.qrWrapper {
-  position: relative;
-  padding: 2rem;
-  background: white;
-  border-radius: 1.5rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-  animation: glow 3s ease-in-out infinite;
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(249, 115, 22, 0.2);
-  }
-  50% {
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 50px rgba(249, 115, 22, 0.4);
-  }
-}
-
-.qrImage {
-  display: block;
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  border-radius: 0.5rem;
-}
-
-.qrLabel {
-  display: flex;
-  justify-content: center;
-}
-
-.instapayBadge {
-  padding: 0.5rem 1.25rem;
-  background: rgba(249, 115, 22, 0.1);
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #ecfdf5;
   border-radius: 2rem;
-  color: #f97316;
+  color: #059669;
   font-size: 0.875rem;
   font-weight: 600;
 }
 
-/* Account Section */
-.accountSection {
+/* Payment Details Card */
+.paymentDetailsCard {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 1rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 2rem;
-  background: rgba(31, 41, 55, 0.3);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  border-radius: 1rem;
 }
 
-.sectionTitle {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #f97316;
-  margin: 0;
-}
-
-.detailsGrid {
+.merchantSection {
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: 1rem;
 }
 
-.detailItem {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.detailLabel {
-  font-size: 0.875rem;
-  color: #9ca3af;
-  font-weight: 500;
-}
-
-.detailValueRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background: rgba(17, 24, 39, 0.6);
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  border-radius: 0.5rem;
-}
-
-.detailValue {
-  color: white;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.copyButton {
-  padding: 0.5rem;
-  background: rgba(249, 115, 22, 0.1);
-  border: 1px solid rgba(249, 115, 22, 0.3);
-  border-radius: 0.375rem;
-  color: #f97316;
-  cursor: pointer;
-  transition: all 0.3s;
+.merchantIcon {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #0066ff, #0099ff);
+  border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 102, 255, 0.3);
 }
 
-.copyButton:hover {
-  background: rgba(249, 115, 22, 0.2);
-  border-color: #f97316;
+.merchantInfo {
+  flex: 1;
 }
 
-/* Amount Section */
+.merchantName {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.merchantType {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
 .amountSection {
-  padding: 2rem;
-  background: rgba(249, 115, 22, 0.1);
-  border: 2px solid rgba(249, 115, 22, 0.3);
-  border-radius: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-}
-
-.amountRow {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 0.75rem;
+  border: 2px dashed #0066ff;
 }
 
 .amountLabel {
-  font-size: 1rem;
-  color: #d1d5db;
+  font-size: 0.875rem;
+  color: #6b7280;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .amountValue {
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 900;
-  color: #f97316;
+  background: linear-gradient(135deg, #0066ff, #0099ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   letter-spacing: -0.025em;
 }
 
-.planInfo {
-  text-align: center;
-  padding-top: 0.75rem;
-  border-top: 1px solid rgba(249, 115, 22, 0.2);
-}
-
-.planInfo span {
-  color: #9ca3af;
-  font-size: 0.95rem;
-}
-
-/* Instructions Section */
-.instructionsSection {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.instructionsList {
+.paymentInfo {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin: 0;
-  padding-left: 1.5rem;
-  color: #d1d5db;
 }
 
-.instructionsList li {
-  line-height: 1.6;
-  font-size: 0.95rem;
-}
-
-.instructionsList li::marker {
-  color: #f97316;
-  font-weight: 700;
-}
-
-/* Notice Box */
-.noticeBox {
+.infoRow {
   display: flex;
-  gap: 1rem;
-  padding: 1.25rem;
-  background: rgba(234, 179, 8, 0.1);
-  border: 1px solid rgba(234, 179, 8, 0.3);
-  border-radius: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.noticeIcon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
+.infoLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
 }
 
-.noticeText {
-  color: #fde68a;
-  margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.6;
+.infoValue {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 600;
 }
 
-/* Action Buttons */
-.actionButtons {
+/* PIN Section */
+.pinSection {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-top: 1rem;
+  gap: 0.75rem;
 }
 
-.doneButton {
+.pinLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.pinHint {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.pinInput {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(to right, #f97316, #dc2626);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.75rem;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.pinInput:focus {
+  border-color: #0066ff;
+  box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+}
+
+.pinInput::placeholder {
+  letter-spacing: 0.5rem;
+}
+
+/* Pay Button */
+.payButton {
+  width: 100%;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #0066ff, #0099ff);
   color: white;
   border: none;
   border-radius: 0.75rem;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  letter-spacing: 0.025em;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 102, 255, 0.4);
 }
 
-.doneButton:hover {
+.payButton:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(249, 115, 22, 0.6);
+  box-shadow: 0 15px 40px rgba(0, 102, 255, 0.5);
 }
 
-.doneButton:active {
+.payButton:active:not(:disabled) {
   transform: translateY(-1px);
 }
 
-.cancelButton {
-  width: 100%;
+.payButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.processingText {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.spinIcon {
+  animation: spin 1s linear infinite;
+}
+
+.transactionCodeBox {
+  margin-top: 1.5rem;
   padding: 1rem;
-  background: transparent;
-  color: #f97316;
-  border: 2px solid #f97316;
+  background: #f3f4f6;
   border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.codeLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.codeValue {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #0066ff;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.1em;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Security Notice */
+.securityNotice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #f0fdf4;
+  border-radius: 0.5rem;
+  color: #059669;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Success Modal */
+.successOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.successModal {
+  background: white;
+  border-radius: 2rem;
+  padding: 3rem 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.successIcon {
+  color: #10b981;
+  margin-bottom: 1.5rem;
+  animation: bounceIn 0.8s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.successTitle {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #1f2937;
+  margin: 0 0 0.75rem 0;
+}
+
+.successMessage {
   font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.025em;
-  cursor: pointer;
-  transition: all 0.3s;
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
 }
 
-.cancelButton:hover {
-  background: rgba(249, 115, 22, 0.1);
-  transform: translateY(-2px);
-}
-
-.cancelButton:active {
-  transform: translateY(0);
+.successAmount {
+  font-size: 2.5rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #0066ff, #0099ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
   .paymentCard {
-    padding: 2rem 1.5rem;
-    gap: 2rem;
-  }
-
-  .title {
-    font-size: 2rem;
-  }
-
-  .qrWrapper {
     padding: 1.5rem;
-  }
-
-  .qrImage {
-    max-width: 300px;
+    gap: 1.5rem;
   }
 
   .amountValue {
-    font-size: 1.75rem;
+    font-size: 2.5rem;
   }
 
   .contentContainer {
@@ -481,18 +495,18 @@
 
 @media (max-width: 480px) {
   .paymentCard {
-    padding: 1.5rem 1rem;
+    padding: 1.25rem;
   }
 
-  .title {
-    font-size: 1.75rem;
+  .gcashText {
+    font-size: 1.5rem;
   }
 
-  .qrImage {
-    max-width: 250px;
+  .amountValue {
+    font-size: 2rem;
   }
 
-  .actionButtons {
-    gap: 0.75rem;
+  .successModal {
+    padding: 2rem 1.5rem;
   }
 }

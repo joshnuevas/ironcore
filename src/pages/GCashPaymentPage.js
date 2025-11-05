@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, CheckCircle, Copy } from "lucide-react";
+import { ArrowLeft, CheckCircle, Shield, Clock } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./GCashPaymentPage.module.css";
 import axios from "axios";
@@ -8,8 +8,9 @@ import axios from "axios";
 const GCashPaymentPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [copied, setCopied] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [pin, setPin] = useState("");
   
   // Get payment details from previous page
   const paymentDetails = location.state || {
@@ -18,45 +19,56 @@ const GCashPaymentPage = ({ onLogout }) => {
     transactionId: null,
   };
 
-  const accountDetails = {
-    name: "LY*A N.",
-    mobile: "0917 125 ****",
-    userId: "**********Z4MGIK",
+  const merchantDetails = {
+    name: "IronCore Fitness Gym",
+    type: "Fitness & Wellness",
   };
 
-  const handleCopy = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+  // Simulate GCash payment
+  const handlePayNow = async () => {
+    if (pin.length !== 4) {
+      alert("Please enter your 4-digit MPIN");
+      return;
+    }
 
-  // ⭐ NEW: Update transaction status to COMPLETED
-  const handlePaymentComplete = async () => {
     if (!paymentDetails.transactionId) {
-      alert("Transaction ID not found. Please try enrolling again.");
+      alert("Transaction ID not found. Please try again.");
       navigate("/landing");
       return;
     }
 
     setIsProcessing(true);
 
-    try {
-      const response = await axios.put(
-        `http://localhost:8080/api/transactions/${paymentDetails.transactionId}/status?status=COMPLETED`,
-        {},
-        { withCredentials: true }
-      );
+    // Simulate payment processing delay
+    setTimeout(async () => {
+      try {
+        // Update transaction status to COMPLETED
+        const response = await axios.put(
+          `http://localhost:8080/api/transactions/${paymentDetails.transactionId}/status?status=COMPLETED`,
+          {},
+          { withCredentials: true }
+        );
 
-      console.log("Transaction updated:", response.data);
-      
-      alert("Payment confirmed! Your enrollment is now complete.");
-      navigate("/landing"); // Or wherever you want to redirect
-    } catch (error) {
-      console.error("Failed to update transaction:", error);
-      alert("Failed to confirm payment. Please contact support with your transaction details.");
-    } finally {
-      setIsProcessing(false);
-    }
+        console.log("Transaction updated:", response.data);
+        
+        // Show success animation
+        setShowSuccess(true);
+        
+        // Redirect after 2 seconds
+        setTimeout(() => {
+          navigate("/landing");
+        }, 2000);
+      } catch (error) {
+        console.error("Failed to update transaction:", error);
+        alert("Payment failed. Please try again.");
+        setIsProcessing(false);
+      }
+    }, 2000);
+  };
+
+  const handlePinChange = (e) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 4);
+    setPin(value);
   };
 
   return (
@@ -80,123 +92,112 @@ const GCashPaymentPage = ({ onLogout }) => {
             Back
           </button>
 
-          {/* Payment Card */}
+          {/* GCash Payment Interface */}
           <div className={styles.paymentCard}>
-            {/* Header */}
-            <div className={styles.header}>
-              <div className={styles.gcashBadge}>
+            {/* GCash Header */}
+            <div className={styles.gcashHeader}>
+              <div className={styles.gcashLogo}>
                 <span className={styles.gcashIcon}>💳</span>
-                <span>GCash Payment</span>
+                <span className={styles.gcashText}>GCash</span>
               </div>
-              <h1 className={styles.title}>Scan to Pay</h1>
-              <p className={styles.subtitle}>
-                Scan the QR code below using your GCash app to complete the payment
-              </p>
-            </div>
-
-            {/* QR Code Section */}
-            <div className={styles.qrSection}>
-              <div className={styles.qrWrapper}>
-                <img 
-                  src="/Gcash.JPG" 
-                  alt="GCash QR Code" 
-                  className={styles.qrImage}
-                />
-              </div>
-
-              <div className={styles.qrLabel}>
-                <span className={styles.instapayBadge}>InstaPay QR Code</span>
+              <div className={styles.secureBadge}>
+                <Shield size={16} />
+                <span>Secure Payment</span>
               </div>
             </div>
 
-            {/* Account Details */}
-            <div className={styles.accountSection}>
-              <h3 className={styles.sectionTitle}>Account Details</h3>
-              
-              <div className={styles.detailsGrid}>
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>Account Name</span>
-                  <div className={styles.detailValueRow}>
-                    <span className={styles.detailValue}>{accountDetails.name}</span>
-                  </div>
+            {/* Payment Details Card */}
+            <div className={styles.paymentDetailsCard}>
+              <div className={styles.merchantSection}>
+                <div className={styles.merchantIcon}>🏋️</div>
+                <div className={styles.merchantInfo}>
+                  <h3 className={styles.merchantName}>{merchantDetails.name}</h3>
+                  <p className={styles.merchantType}>{merchantDetails.type}</p>
                 </div>
+              </div>
 
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>Mobile Number</span>
-                  <div className={styles.detailValueRow}>
-                    <span className={styles.detailValue}>{accountDetails.mobile}</span>
-                    <button 
-                      onClick={() => handleCopy("09171256748")}
-                      className={styles.copyButton}
-                      title="Copy mobile number"
-                    >
-                      {copied ? <CheckCircle size={16} /> : <Copy size={16} />}
-                    </button>
-                  </div>
+              <div className={styles.amountSection}>
+                <span className={styles.amountLabel}>Amount to Pay</span>
+                <span className={styles.amountValue}>₱{paymentDetails.amount.toLocaleString()}</span>
+              </div>
+
+              <div className={styles.paymentInfo}>
+                <div className={styles.infoRow}>
+                  <span className={styles.infoLabel}>Payment For:</span>
+                  <span className={styles.infoValue}>{paymentDetails.plan}</span>
                 </div>
-
-                <div className={styles.detailItem}>
-                  <span className={styles.detailLabel}>User ID</span>
-                  <div className={styles.detailValueRow}>
-                    <span className={styles.detailValue}>{accountDetails.userId}</span>
-                  </div>
+                <div className={styles.infoRow}>
+                  <span className={styles.infoLabel}>Transaction ID:</span>
+                  <span className={styles.infoValue}>#{paymentDetails.transactionId}</span>
                 </div>
               </div>
             </div>
 
-            {/* Payment Amount */}
-            <div className={styles.amountSection}>
-              <div className={styles.amountRow}>
-                <span className={styles.amountLabel}>Payment Amount</span>
-                <span className={styles.amountValue}>₱{paymentDetails.amount}</span>
-              </div>
-              <div className={styles.planInfo}>
-                <span>{paymentDetails.plan}</span>
-              </div>
-            </div>
-
-            {/* Instructions */}
-            <div className={styles.instructionsSection}>
-              <h3 className={styles.sectionTitle}>How to Pay</h3>
-              <ol className={styles.instructionsList}>
-                <li>Open your GCash app</li>
-                <li>Tap "Scan QR" or "Pay QR"</li>
-                <li>Scan the QR code above</li>
-                <li>Verify the amount (₱{paymentDetails.amount})</li>
-                <li>Complete the payment</li>
-                <li>Take a screenshot of your receipt</li>
-              </ol>
-            </div>
-
-            {/* Notice */}
-            <div className={styles.noticeBox}>
-              <span className={styles.noticeIcon}>⚠️</span>
-              <p className={styles.noticeText}>
-                Transfer fees may apply. Please take a screenshot of your payment receipt 
-                and send it to our staff for verification.
-              </p>
-            </div>
-
-            {/* Action Buttons */}
-            <div className={styles.actionButtons}>
-              <button 
-                onClick={handlePaymentComplete} 
-                className={styles.doneButton}
+            {/* PIN Input Section */}
+            <div className={styles.pinSection}>
+              <label className={styles.pinLabel}>
+                <span>Enter your MPIN</span>
+                <span className={styles.pinHint}>(Use any 4 digits for demo)</span>
+              </label>
+              <input
+                type="password"
+                maxLength="4"
+                value={pin}
+                onChange={handlePinChange}
+                placeholder="••••"
+                className={styles.pinInput}
                 disabled={isProcessing}
-              >
-                {isProcessing ? "Processing..." : "I've Completed Payment"}
-              </button>
-              <button 
-                onClick={() => navigate(-1)} 
-                className={styles.cancelButton}
-                disabled={isProcessing}
-              >
-                Cancel
-              </button>
+              />
+            </div>
+
+            {/* Payment Button */}
+            <button
+              onClick={handlePayNow}
+              className={styles.payButton}
+              disabled={isProcessing || pin.length !== 4}
+            >
+              {isProcessing ? (
+                <span className={styles.processingText}>
+                  <Clock size={20} className={styles.spinIcon} />
+                  Processing Payment...
+                </span>
+              ) : (
+                "Pay Now"
+              )}
+            </button>
+
+            {/* Security Notice */}
+            <div className={styles.securityNotice}>
+              <Shield size={16} />
+              <p>Your payment is secured with end-to-end encryption</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccess && (
+        <div className={styles.successOverlay}>
+          <div className={styles.successModal}>
+            <div className={styles.successIcon}>
+              <CheckCircle size={80} />
+            </div>
+            <h2 className={styles.successTitle}>Payment Successful!</h2>
+            <p className={styles.successMessage}>
+              Your enrollment has been confirmed.
+            </p>
+            <div className={styles.successAmount}>₱{paymentDetails.amount.toLocaleString()}</div>
+            
+            {/* ⭐ ADD THIS: Display transaction code */}
+            {paymentDetails.transactionCode && (
+              <div className={styles.transactionCodeBox}>
+                <span className={styles.codeLabel}>Transaction Code:</span>
+                <span className={styles.codeValue}>{paymentDetails.transactionCode}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
