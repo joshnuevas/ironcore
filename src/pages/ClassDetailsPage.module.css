@@ -302,13 +302,19 @@
 
 .scheduleItem {
   display: grid;
-  grid-template-columns: 120px 1fr auto;
+  grid-template-columns: 120px 1fr 140px auto;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   background: rgba(31, 41, 55, 0.5);
   border: 1px solid rgba(249, 115, 22, 0.2);
   border-radius: 0.75rem;
   align-items: center;
+  transition: all 0.3s;
+}
+
+.scheduleItem:hover {
+  background: rgba(31, 41, 55, 0.7);
+  border-color: rgba(249, 115, 22, 0.3);
 }
 
 .scheduleDay {
@@ -322,10 +328,55 @@
   font-size: 0.95rem;
 }
 
-.scheduleSlots {
+.scheduleDate {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: #9ca3af;
   font-size: 0.875rem;
+}
+
+.scheduleSlots {
+  color: #10b981;
+  font-size: 0.875rem;
+  font-weight: 600;
   text-align: right;
+}
+
+/* ⭐ NEW: Full Schedule Styles */
+.scheduleItemFull {
+  opacity: 0.5;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.scheduleItemFull:hover {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+.scheduleSlotsFull {
+  color: #ef4444 !important;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+/* ⭐ NEW: Loading and Empty States */
+.loadingText {
+  text-align: center;
+  padding: 2rem;
+  color: #9ca3af;
+  font-size: 0.95rem;
+}
+
+.noSchedules {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+  background: rgba(249, 115, 22, 0.1);
+  border-radius: 0.75rem;
+  border: 1px dashed rgba(249, 115, 22, 0.3);
 }
 
 /* Bullet List */
@@ -515,6 +566,11 @@
   .benefitsGrid {
     grid-template-columns: 1fr;
   }
+
+  .scheduleItem {
+    grid-template-columns: 100px 1fr 120px auto;
+    gap: 0.75rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -538,9 +594,11 @@
   .scheduleItem {
     grid-template-columns: 1fr;
     gap: 0.5rem;
+    padding: 1rem;
   }
 
-  .scheduleSlots {
+  .scheduleSlots,
+  .scheduleSlotsFull {
     text-align: left;
   }
 

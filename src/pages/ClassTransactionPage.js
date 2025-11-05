@@ -8,48 +8,30 @@ import axios from "axios";
 const ClassTransactionPage = ({ onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [schedules, setSchedules] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState(null);
+  const [loadingSchedules, setLoadingSchedules] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get class data from navigation state
-  const classData = location.state?.classData || {
-    name: "HIIT Training",
-    icon: "🔥",
-    description: "High-Intensity Interval Training",
-    price: "₱500",
-    duration: "45 mins",
-    maxParticipants: 15,
-    id: 1,
-  };
-
-  const schedules = [
-    { id: 1, day: "Monday", time: "6:00 AM - 6:45 AM", date: "Nov 04, 2025", slots: 12 },
-    { id: 2, day: "Monday", time: "6:00 PM - 6:45 PM", date: "Nov 04, 2025", slots: 8 },
-    { id: 3, day: "Wednesday", time: "6:00 AM - 6:45 AM", date: "Nov 06, 2025", slots: 10 },
-    { id: 4, day: "Wednesday", time: "6:00 PM - 6:45 PM", date: "Nov 06, 2025", slots: 15 },
-    { id: 5, day: "Friday", time: "6:00 AM - 6:45 AM", date: "Nov 08, 2025", slots: 7 },
-    { id: 6, day: "Friday", time: "6:00 PM - 6:45 PM", date: "Nov 08, 2025", slots: 11 },
-  ];
+  // Class data passed from previous page
+  const classData = location.state?.classData;
 
   const classPrice = parseInt(classData.price.replace(/[₱,]/g, ""));
   const processingFee = 20;
   const total = classPrice + processingFee;
 
-  // Validate class data on mount
+  // Validate class data
   useEffect(() => {
-    console.log("=== CLASS DATA ===", classData);
-    console.log("=== CLASS ID ===", classData.id);
-    
-    if (!classData.id) {
+    if (!classData?.id) {
       alert("Class information is missing. Redirecting to classes page.");
       navigate("/classes");
     }
   }, [classData, navigate]);
 
-  // Fetch the logged-in user dynamically
+  // Fetch current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -58,40 +40,45 @@ const ClassTransactionPage = ({ onLogout }) => {
           withCredentials: true,
         });
         setCurrentUser(res.data);
-        setUserError(null);
       } catch (error) {
         console.error("Failed to fetch current user:", error);
-        setUserError("Failed to load user information. Please log in again.");
+        setUserError("Failed to load user info. Please log in again.");
       } finally {
         setUserLoading(false);
       }
     };
-
     fetchCurrentUser();
   }, []);
 
+  // Fetch schedules for this class
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      if (!classData?.id) return;
+      try {
+        setLoadingSchedules(true);
+        const response = await axios.get(
+          `http://localhost:8080/api/schedules/class/${classData.id}`
+        );
+        setSchedules(response.data);
+      } catch (error) {
+        console.error("Error fetching schedules:", error);
+        setSchedules([]);
+      } finally {
+        setLoadingSchedules(false);
+      }
+    };
+    fetchSchedules();
+  }, [classData?.id]);
+
   const handleEnrollNow = () => {
-    if (!selectedSchedule) {
-      alert("Please select a schedule first");
-      return;
-    }
-    if (!currentUser) {
-      alert("User information not loaded. Please try again.");
-      return;
-    }
+    if (!selectedSchedule) return alert("Please select a schedule first");
+    if (!currentUser) return alert("User info not loaded");
     setShowConfirmModal(true);
   };
 
   const handleConfirmPayment = async () => {
     if (!selectedSchedule || !currentUser) {
       alert("Missing required information");
-      return;
-    }
-
-    // Validate class ID exists
-    if (!classData.id) {
-      alert("Class ID is missing. Please select a class again.");
-      navigate("/classes");
       return;
     }
 
@@ -106,8 +93,6 @@ const ClassTransactionPage = ({ onLogout }) => {
         paymentStatus: "PENDING",
       };
 
-      console.log("=== SENDING PAYLOAD ===", payload);
-
       const response = await axios.post(
         "http://localhost:8080/api/transactions",
         payload,
@@ -117,10 +102,7 @@ const ClassTransactionPage = ({ onLogout }) => {
         }
       );
 
-      console.log("=== RESPONSE ===", response.data);
-
       if (response.status === 200 || response.status === 201) {
-        // Navigate to payment page with transaction ID
         navigate("/gcash-payment", {
           state: {
             plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.time}`,
@@ -130,15 +112,13 @@ const ClassTransactionPage = ({ onLogout }) => {
         });
       }
     } catch (error) {
-      console.error("=== FULL ERROR ===", error);
-      console.error("=== ERROR RESPONSE ===", error.response);
-      alert(`Failed to save enrollment.\nError: ${error.response?.data?.message || error.message}`);
+      console.error("Error saving transaction:", error);
+      alert(`Failed to save enrollment: ${error.response?.data?.message || error.message}`);
     }
   };
 
   const handleCloseModal = () => setShowConfirmModal(false);
 
-  // Show loading state
   if (userLoading) {
     return (
       <div className={styles.transactionContainer}>
@@ -150,7 +130,6 @@ const ClassTransactionPage = ({ onLogout }) => {
     );
   }
 
-  // Show error state
   if (userError) {
     return (
       <div className={styles.transactionContainer}>
@@ -199,7 +178,7 @@ const ClassTransactionPage = ({ onLogout }) => {
                   </div>
                   <div className={styles.infoItem}>
                     <Users className={styles.infoIcon} />
-                    <span>Max {classData.maxParticipants} people</span>
+                    <span>Up to 15 people</span>
                   </div>
                 </div>
 
@@ -223,12 +202,11 @@ const ClassTransactionPage = ({ onLogout }) => {
                   className={styles.enrollButton}
                   disabled={!selectedSchedule || !currentUser}
                 >
-                  {!currentUser 
-                    ? "Loading..." 
-                    : selectedSchedule 
-                      ? "Enroll Now" 
-                      : "Select Schedule First"
-                  }
+                  {!currentUser
+                    ? "Loading..."
+                    : selectedSchedule
+                    ? "Enroll Now"
+                    : "Select Schedule First"}
                 </button>
               </div>
             </div>
@@ -236,41 +214,52 @@ const ClassTransactionPage = ({ onLogout }) => {
             {/* Schedule Selection */}
             <div className={styles.scheduleCard}>
               <h2 className={styles.formTitle}>Select Your Schedule</h2>
-              <div className={styles.scheduleList}>
-                {schedules.map((schedule) => (
-                  <div
-                    key={schedule.id}
-                    className={`${styles.scheduleOption} ${
-                      selectedSchedule?.id === schedule.id ? styles.scheduleSelected : ""
-                    }`}
-                    onClick={() => setSelectedSchedule(schedule)}
-                  >
-                    <div className={styles.scheduleRadio}>
-                      {selectedSchedule?.id === schedule.id && (
-                        <div className={styles.scheduleRadioSelected}></div>
-                      )}
-                    </div>
-                    <div className={styles.scheduleInfo}>
-                      <div className={styles.scheduleTop}>
-                        <span className={styles.scheduleDay}>{schedule.day}</span>
-                        <span className={styles.scheduleSlots}>{schedule.slots} slots left</span>
+
+              {loadingSchedules ? (
+                <p>Loading schedules...</p>
+              ) : schedules.length === 0 ? (
+                <p>No schedules available yet.</p>
+              ) : (
+                <div className={styles.scheduleList}>
+                  {schedules.map((schedule) => (
+                    <div
+                      key={schedule.id}
+                      className={`${styles.scheduleOption} ${
+                        selectedSchedule?.id === schedule.id
+                          ? styles.scheduleSelected
+                          : ""
+                      }`}
+                      onClick={() => setSelectedSchedule(schedule)}
+                    >
+                      <div className={styles.scheduleRadio}>
+                        {selectedSchedule?.id === schedule.id && (
+                          <div className={styles.scheduleRadioSelected}></div>
+                        )}
                       </div>
-                      <div className={styles.scheduleTime}>{schedule.time}</div>
-                      <div className={styles.scheduleDate}>
-                        <Calendar size={14} /> {schedule.date}
+                      <div className={styles.scheduleInfo}>
+                        <div className={styles.scheduleTop}>
+                          <span className={styles.scheduleDay}>{schedule.day}</span>
+                          <span className={styles.scheduleSlots}>
+                            {schedule.maxParticipants - schedule.currentParticipants} slots left
+                          </span>
+                        </div>
+                        <div className={styles.scheduleTime}>{schedule.time}</div>
+                        <div className={styles.scheduleDate}>
+                          <Calendar size={14} /> {schedule.date}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
               {currentUser && (
                 <div className={styles.userInfoCard}>
                   <h3 className={styles.userInfoTitle}>Your Information</h3>
                   <div className={styles.userInfoList}>
                     <div className={styles.userInfoItem}>
-                        <span className={styles.userInfoLabel}>Name:</span>
-                        <span className={styles.userInfoValue}>{currentUser.username}</span>
+                      <span className={styles.userInfoLabel}>Name:</span>
+                      <span className={styles.userInfoValue}>{currentUser.username}</span>
                     </div>
                     <div className={styles.userInfoItem}>
                       <span className={styles.userInfoLabel}>Email:</span>
@@ -296,79 +285,30 @@ const ClassTransactionPage = ({ onLogout }) => {
             <button className={styles.closeButton} onClick={handleCloseModal}>
               ×
             </button>
-
             <h2 className={styles.modalTitle}>Confirm Enrollment</h2>
             <p className={styles.modalSubtitle}>Please verify your class details</p>
 
             <div className={styles.modalDetails}>
-              <div className={styles.modalSection}>
-                <div className={styles.classDisplay}>
-                  <span className={styles.classIconLarge}>{classData.icon}</span>
-                  <div>
-                    <h3 className={styles.modalClassName}>{classData.name}</h3>
-                    <p className={styles.modalClassDescription}>{classData.description}</p>
-                  </div>
-                </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Schedule:</span>
+                <span className={styles.detailValue}>
+                  {selectedSchedule.day}, {selectedSchedule.time}
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Date:</span>
+                <span className={styles.detailValue}>{selectedSchedule.date}</span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Duration:</span>
+                <span className={styles.detailValue}>{classData.duration}</span>
               </div>
 
               <div className={styles.divider}></div>
 
-              <div className={styles.modalSection}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Schedule:</span>
-                  <span className={styles.detailValue}>
-                    {selectedSchedule.day}, {selectedSchedule.time}
-                  </span>
-                </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Date:</span>
-                  <span className={styles.detailValue}>{selectedSchedule.date}</span>
-                </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Duration:</span>
-                  <span className={styles.detailValue}>{classData.duration}</span>
-                </div>
-              </div>
-
-              <div className={styles.divider}></div>
-
-              <div className={styles.modalSection}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Name:</span>
-                  <span className={styles.detailValue}>{currentUser.username}</span>
-                </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Email:</span>
-                  <span className={styles.detailValue}>{currentUser.email}</span>
-                </div>
-              </div>
-
-              <div className={styles.divider}></div>
-
-              <div className={styles.modalSection}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Pay with:</span>
-                  <span className={styles.detailValue}>
-                    <span className={styles.gcashBadge}>💳 GCash</span>
-                  </span>
-                </div>
-              </div>
-
-              <div className={styles.divider}></div>
-
-              <div className={styles.modalSection}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Class Fee:</span>
-                  <span className={styles.detailValue}>₱{classPrice}</span>
-                </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Processing Fee:</span>
-                  <span className={styles.detailValue}>₱{processingFee}</span>
-                </div>
-                <div className={styles.totalDetailRow}>
-                  <span className={styles.totalLabel}>Total Payment</span>
-                  <span className={styles.totalValue}>₱{total}</span>
-                </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Total Payment:</span>
+                <span className={styles.totalValue}>₱{total}</span>
               </div>
             </div>
 

@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Clock, Users, Calendar, MapPin, Dumbbell, Star } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./ClassDetailsPage.module.css";
+import axios from "axios";
 
 const ClassDetailsPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [schedules, setSchedules] = useState([]);
+  const [schedulesLoading, setSchedulesLoading] = useState(true);
 
   // Get class data from navigation state or use default
   const classData = location.state?.classData || {
@@ -27,15 +30,27 @@ const ClassDetailsPage = ({ onLogout }) => {
     },
   };
 
-  // Class schedule
-  const schedule = [
-    { day: "Monday", time: "6:00 AM - 6:45 AM", slots: 12 },
-    { day: "Monday", time: "6:00 PM - 6:45 PM", slots: 8 },
-    { day: "Wednesday", time: "6:00 AM - 6:45 AM", slots: 10 },
-    { day: "Wednesday", time: "6:00 PM - 6:45 PM", slots: 15 },
-    { day: "Friday", time: "6:00 AM - 6:45 AM", slots: 7 },
-    { day: "Friday", time: "6:00 PM - 6:45 PM", slots: 11 },
-  ];
+  // ⭐ Fetch live schedules from backend
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        setSchedulesLoading(true);
+        const res = await axios.get(
+          `http://localhost:8080/api/schedules/class/${classData.id}`,
+          { withCredentials: true }
+        );
+        setSchedules(res.data);
+      } catch (error) {
+        console.error("Failed to fetch schedules:", error);
+      } finally {
+        setSchedulesLoading(false);
+      }
+    };
+
+    if (classData.id) {
+      fetchSchedules();
+    }
+  }, [classData.id]);
 
   // What to expect
   const expectations = [
@@ -66,9 +81,8 @@ const ClassDetailsPage = ({ onLogout }) => {
     "Basic fitness level recommended",
   ];
 
-  // ⭐ FIXED: Just pass classData (which already includes id)
   const handleEnrollNow = () => {
-    console.log("Navigating with classData:", classData); // Debug log
+    console.log("Navigating with classData:", classData);
     navigate("/class-transaction", {
       state: {
         classData: classData,
@@ -149,23 +163,40 @@ const ClassDetailsPage = ({ onLogout }) => {
                 </div>
               </div>
 
-              {/* Schedule */}
+              {/* Schedule - ⭐ UPDATED WITH LIVE DATA */}
               <div className={styles.sectionCard}>
                 <h2 className={styles.sectionTitle}>
                   <Calendar size={20} />
                   Weekly Schedule
                 </h2>
-                <div className={styles.scheduleList}>
-                  {schedule.map((session, idx) => (
-                    <div key={idx} className={styles.scheduleItem}>
-                      <div className={styles.scheduleDay}>{session.day}</div>
-                      <div className={styles.scheduleTime}>{session.time}</div>
-                      <div className={styles.scheduleSlots}>
-                        {session.slots} slots available
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {schedulesLoading ? (
+                  <div className={styles.loadingText}>Loading schedules...</div>
+                ) : schedules.length === 0 ? (
+                  <div className={styles.noSchedules}>No schedules available yet</div>
+                ) : (
+                  <div className={styles.scheduleList}>
+                    {schedules.map((session) => {
+                      const slotsLeft = session.maxParticipants - session.enrolledCount;
+                      const isFull = slotsLeft <= 0;
+                      
+                      return (
+                        <div 
+                          key={session.id} 
+                          className={`${styles.scheduleItem} ${isFull ? styles.scheduleItemFull : ""}`}
+                        >
+                          <div className={styles.scheduleDay}>{session.day}</div>
+                          <div className={styles.scheduleTime}>{session.timeSlot}</div>
+                          <div className={styles.scheduleDate}>
+                            <Calendar size={14} /> {session.date}
+                          </div>
+                          <div className={isFull ? styles.scheduleSlotsFull : styles.scheduleSlots}>
+                            {isFull ? "FULL" : `${slotsLeft} slots available`}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* What to Expect */}

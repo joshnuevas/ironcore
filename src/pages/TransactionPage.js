@@ -30,7 +30,7 @@ const TransactionPage = ({ onLogout }) => {
   const vat = Math.round(subtotal * 0.12);
   const total = subtotal + vat;
 
-  // ⭐ Fetch current user
+  // Fetch current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -59,7 +59,7 @@ const TransactionPage = ({ onLogout }) => {
     setShowSuccessModal(true);
   };
 
-  // ⭐ Create transaction and navigate to payment
+  // Create transaction and navigate to payment
   const handleConfirmPayment = async () => {
     if (!currentUser) {
       alert("User information not loaded.");
@@ -92,12 +92,13 @@ const TransactionPage = ({ onLogout }) => {
       console.log("=== RESPONSE ===", response.data);
 
       if (response.status === 200 || response.status === 201) {
-        // Navigate to payment page with transaction ID
+        // ⭐ Navigate to payment page with transaction ID and code
         navigate("/gcash-payment", {
           state: {
             plan: `${plan.name} Membership`,
             amount: total,
             transactionId: response.data.id,
+            transactionCode: response.data.transactionCode, // ⭐ ADD THIS
           },
         });
       }
@@ -129,17 +130,17 @@ const TransactionPage = ({ onLogout }) => {
 
   return (
     <div className={styles.transactionContainer}>
-      {/* 🔹 Background */}
+      {/* Background */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
 
-      {/* 🔹 Navbar reuse */}
+      {/* Navbar reuse */}
       <Navbar activeNav="MEMBERSHIP" onLogout={onLogout} />
 
-      {/* 🔹 Content Section */}
+      {/* Content Section */}
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
@@ -148,7 +149,7 @@ const TransactionPage = ({ onLogout }) => {
           </div>
 
           <div className={styles.checkoutGrid}>
-            {/* 🔸 Order Summary */}
+            {/* Order Summary */}
             <div className={styles.summaryCard}>
               <h2 className={styles.summaryTitle}>Order Summary</h2>
 
@@ -195,7 +196,7 @@ const TransactionPage = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* 🔸 Payment Info Card */}
+            {/* Payment Info Card */}
             <div className={styles.infoCard}>
               <h2 className={styles.formTitle}>Payment Information</h2>
               
@@ -248,7 +249,7 @@ const TransactionPage = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* 🔹 Confirmation Modal */}
+      {/* Confirmation Modal */}
       {showSuccessModal && currentUser && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
