@@ -1,20 +1,28 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
 import MembershipPage from "./pages/MembershipPage";
 import AboutUs from "./pages/AboutUs";
-import OurTrainers from "./pages/OurTrainers"; 
-import ClassesPage from "./pages/ClassesPage"; 
+import OurTrainers from "./pages/OurTrainers";
+import ClassesPage from "./pages/ClassesPage";
 import TransactionPage from "./pages/TransactionPage";
 import BookTrainer from "./pages/BookTrainer";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
-import GCashPaymentPage from './pages/GCashPaymentPage';
-import ClassTransactionPage from './pages/ClassTransactionPage'; 
-import ClassDetailsPage from './pages/ClassDetailsPage'; // ✅ Add this line
+import GCashPaymentPage from "./pages/GCashPaymentPage";
+import ClassTransactionPage from "./pages/ClassTransactionPage";
+import ClassDetailsPage from "./pages/ClassDetailsPage";
+import AdminCodeChecker from "./pages/AdminCodeChecker";
+import AdminScheduleViewer from "./pages/AdminScheduleViewer";
+import AdminSlotChecker from "./pages/AdminSlotChecker";
 
 function App() {
   return (
@@ -26,103 +34,129 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         {/* Protected routes */}
-        <Route 
-          path="/landing" 
+        <Route
+          path="/landing"
           element={
             <ProtectedRoute>
               <LandingPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/contact" 
+        <Route
+          path="/contact"
           element={
             <ProtectedRoute>
               <ContactPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/membership" 
+        <Route
+          path="/membership"
           element={
             <ProtectedRoute>
               <MembershipPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/about" 
+        <Route
+          path="/about"
           element={
             <ProtectedRoute>
               <AboutUs />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/trainers" 
+        <Route
+          path="/trainers"
           element={
             <ProtectedRoute>
               <OurTrainers />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/classes" 
+        <Route
+          path="/classes"
           element={
             <ProtectedRoute>
               <ClassesPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/transaction" 
+        <Route
+          path="/transaction"
           element={
             <ProtectedRoute>
               <TransactionPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/gcash-payment" 
+        <Route
+          path="/gcash-payment"
           element={
             <ProtectedRoute>
               <GCashPaymentPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/book-trainer" 
+        <Route
+          path="/book-trainer"
           element={
             <ProtectedRoute>
               <BookTrainer />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/profile" 
+        <Route
+          path="/profile"
           element={
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* ✅ New page routes */}
-        <Route 
-          path="/class-transaction" 
+        <Route
+          path="/class-transaction"
           element={
             <ProtectedRoute>
               <ClassTransactionPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/class-details" 
+        <Route
+          path="/class-details"
           element={
             <ProtectedRoute>
               <ClassDetailsPage />
             </ProtectedRoute>
-          } 
+          }
+        />
+
+        {/* ✅ Admin routes */}
+        <Route
+          path="/admin/code-checker"
+          element={
+            <ProtectedRoute>
+              <AdminCodeChecker />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/schedule-viewer"
+          element={
+            <ProtectedRoute>
+              <AdminScheduleViewer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/slot-checker"
+          element={
+            <ProtectedRoute>
+              <AdminSlotChecker />
+            </ProtectedRoute>
+          }
         />
       </Routes>
     </Router>
