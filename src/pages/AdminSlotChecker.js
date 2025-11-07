@@ -170,9 +170,9 @@ const AdminSlotChecker = ({ onLogout }) => {
                       <tr key={schedule.id}>
                         <td className={styles.classCell}>
                           <span className={styles.classIcon}>
-                            {schedule.classEntity.icon}
-                          </span>
-                          {schedule.classEntity.name}
+                            {schedule.classEntity?.icon || "📘"}
+                            </span>
+                            {schedule.classEntity?.name || "Unnamed"}
                         </td>
                         <td>{schedule.day}</td>
                         <td>{schedule.timeSlot}</td>

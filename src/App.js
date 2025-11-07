@@ -17,9 +17,11 @@ import TransactionPage from "./pages/TransactionPage";
 import BookTrainer from "./pages/BookTrainer";
 import ProfilePage from "./pages/ProfilePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import GCashPaymentPage from "./pages/GCashPaymentPage";
 import ClassTransactionPage from "./pages/ClassTransactionPage";
 import ClassDetailsPage from "./pages/ClassDetailsPage";
+import AdminLandingPage from "./pages/AdminLandingPage"; // NEW IMPORT
 import AdminCodeChecker from "./pages/AdminCodeChecker";
 import AdminScheduleViewer from "./pages/AdminScheduleViewer";
 import AdminSlotChecker from "./pages/AdminSlotChecker";
@@ -115,7 +117,7 @@ function App() {
           }
         />
 
-        {/* ✅ New page routes */}
+        {/* Class routes */}
         <Route
           path="/class-transaction"
           element={
@@ -133,29 +135,38 @@ function App() {
           }
         />
 
-        {/* ✅ Admin routes */}
+        {/* Admin routes - Protected by ProtectedAdminRoute */}
+        {/* NEW ROUTE - Admin Landing/Dashboard */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedAdminRoute>
+              <AdminLandingPage />
+            </ProtectedAdminRoute>
+          }
+        />
         <Route
           path="/admin/code-checker"
           element={
-            <ProtectedRoute>
+            <ProtectedAdminRoute>
               <AdminCodeChecker />
-            </ProtectedRoute>
+            </ProtectedAdminRoute>
           }
         />
         <Route
           path="/admin/schedule-viewer"
           element={
-            <ProtectedRoute>
+            <ProtectedAdminRoute>
               <AdminScheduleViewer />
-            </ProtectedRoute>
+            </ProtectedAdminRoute>
           }
         />
         <Route
           path="/admin/slot-checker"
           element={
-            <ProtectedRoute>
+            <ProtectedAdminRoute>
               <AdminSlotChecker />
-            </ProtectedRoute>
+            </ProtectedAdminRoute>
           }
         />
       </Routes>

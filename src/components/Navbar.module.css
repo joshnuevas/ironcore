@@ -424,3 +424,77 @@
     transform: rotate(360deg);
   }
 }
+
+/* Add these styles to your existing Navbar.module.css */
+
+.adminButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.adminButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.adminButtonActive {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+  transform: translateY(-2px);
+}
+
+.profileButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #4a5568;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.profileButton:hover {
+  background: #2d3748;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.profileButtonActive {
+  background: #2d3748;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.logoutButton {
+  padding: 0.5rem 1.5rem;
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logoutButton:hover {
+  background: #c53030;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(229, 62, 62, 0.4);
+}
