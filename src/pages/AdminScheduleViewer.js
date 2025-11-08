@@ -46,7 +46,6 @@ const AdminScheduleViewer = ({ onLogout }) => {
       day: schedule.day,
       timeSlot: schedule.timeSlot,
       date: schedule.date,
-      maxParticipants: schedule.maxParticipants,
     });
     setSaveError(null);
   };
@@ -61,16 +60,20 @@ const AdminScheduleViewer = ({ onLogout }) => {
     try {
       setSaveError(null);
       
-      // Validate inputs
-      if (!editForm.day || !editForm.timeSlot || !editForm.date || !editForm.maxParticipants) {
+      // Validate inputs (removed maxParticipants validation)
+      if (!editForm.day || !editForm.timeSlot || !editForm.date) {
         setSaveError("All fields are required");
         return;
       }
 
-      if (editForm.maxParticipants < 1) {
-        setSaveError("Max participants must be at least 1");
-        return;
-      }
+      // Get the current schedule to preserve maxParticipants
+      let currentMaxParticipants;
+      Object.values(schedules).forEach(classSchedules => {
+        const schedule = classSchedules.find(s => s.id === scheduleId);
+        if (schedule) {
+          currentMaxParticipants = schedule.maxParticipants;
+        }
+      });
 
       const response = await axios.put(
         `http://localhost:8080/api/schedules/${scheduleId}`,
@@ -78,7 +81,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
           day: editForm.day,
           timeSlot: editForm.timeSlot,
           date: editForm.date,
-          maxParticipants: parseInt(editForm.maxParticipants),
+          maxParticipants: currentMaxParticipants, // Keep existing value
         },
         { withCredentials: true }
       );
@@ -173,67 +176,59 @@ const AdminScheduleViewer = ({ onLogout }) => {
 
                   <div className={styles.schedulesList}>
                     {classSchedules.map((schedule) => (
-                      <div key={schedule.id} className={styles.scheduleItem}>
+                      <div key={schedule.id} className={`${styles.scheduleItem} ${editingId === schedule.id ? styles.editing : ''}`}>
                         {editingId === schedule.id ? (
                           // Edit Mode
-                          <div className={styles.editForm}>
-                            <div className={styles.editRow}>
-                              <label>Day:</label>
-                              <select
-                                value={editForm.day}
-                                onChange={(e) => setEditForm({...editForm, day: e.target.value})}
-                                className={styles.editInput}
-                              >
-                                <option value="MONDAY">Monday</option>
-                                <option value="TUESDAY">Tuesday</option>
-                                <option value="WEDNESDAY">Wednesday</option>
-                                <option value="THURSDAY">Thursday</option>
-                                <option value="FRIDAY">Friday</option>
-                                <option value="SATURDAY">Saturday</option>
-                                <option value="SUNDAY">Sunday</option>
-                              </select>
-                            </div>
-                            <div className={styles.editRow}>
-                              <label>Time:</label>
-                              <input
-                                type="text"
-                                value={editForm.timeSlot}
-                                onChange={(e) => setEditForm({...editForm, timeSlot: e.target.value})}
-                                className={styles.editInput}
-                                placeholder="e.g., 9:00 AM - 10:00 AM"
-                              />
-                            </div>
-                            <div className={styles.editRow}>
-                              <label>Date:</label>
-                              <input
-                                type="date"
-                                value={formatDateForInput(editForm.date)}
-                                onChange={(e) => setEditForm({...editForm, date: e.target.value})}
-                                className={styles.editInput}
-                              />
-                            </div>
-                            <div className={styles.editRow}>
-                              <label>Max Participants:</label>
-                              <input
-                                type="number"
-                                min="1"
-                                value={editForm.maxParticipants}
-                                onChange={(e) => setEditForm({...editForm, maxParticipants: e.target.value})}
-                                className={styles.editInput}
-                              />
-                            </div>
-                            {saveError && (
-                              <div className={styles.errorMessage}>
-                                {saveError}
+                          <div className={styles.editFormContainer}>
+                            <div className={styles.editForm}>
+                              <div className={styles.editRow}>
+                                <label>Day:</label>
+                                <select
+                                  value={editForm.day}
+                                  onChange={(e) => setEditForm({...editForm, day: e.target.value})}
+                                  className={styles.editSelect}
+                                >
+                                  <option value="MONDAY">Monday</option>
+                                  <option value="TUESDAY">Tuesday</option>
+                                  <option value="WEDNESDAY">Wednesday</option>
+                                  <option value="THURSDAY">Thursday</option>
+                                  <option value="FRIDAY">Friday</option>
+                                  <option value="SATURDAY">Saturday</option>
+                                  <option value="SUNDAY">Sunday</option>
+                                </select>
                               </div>
-                            )}
-                            <div className={styles.editActions}>
-                              <button onClick={() => handleSave(schedule.id)} className={styles.saveBtn}>
-                                <Save size={16} /> Save
-                              </button>
-                              <button onClick={handleCancelEdit} className={styles.cancelBtn}>
-                                <X size={16} /> Cancel
-                              </button>
+                              <div className={styles.editRow}>
+                                <label>Time:</label>
+                                <input
+                                  type="text"
+                                  value={editForm.timeSlot}
+                                  onChange={(e) => setEditForm({...editForm, timeSlot: e.target.value})}
+                                  className={styles.editInput}
+                                  placeholder="e.g., 9:00 AM - 10:00 AM"
+                                />
+                              </div>
+                              <div className={styles.editRow}>
+                                <label>Date:</label>
+                                <input
+                                  type="date"
+                                  value={formatDateForInput(editForm.date)}
+                                  onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                                  className={styles.editInput}
+                                />
+                              </div>
+                              {saveError && (
+                                <div className={styles.errorMessage}>
+                                  {saveError}
+                                </div>
+                              )}
+                              <div className={styles.editActions}>
+                                <button onClick={() => handleSave(schedule.id)} className={styles.saveBtn}>
+                                  <Save size={16} /> Save
+                                </button>
+                                <button onClick={handleCancelEdit} className={styles.cancelBtn}>
+                                  <X size={16} /> Cancel
+                                </button>
+                              </div>
                             </div>
                           </div>
                         ) : (
