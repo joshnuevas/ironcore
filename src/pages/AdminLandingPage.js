@@ -80,7 +80,8 @@ const AdminLandingPage = () => {
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
       </div>
-
+      
+      <h1> </h1>
       <div className={styles.contentWrapper}>
         {/* Header */}
         <div className={styles.header}>
