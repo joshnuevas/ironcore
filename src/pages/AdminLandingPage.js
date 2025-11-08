@@ -28,6 +28,13 @@ const AdminLandingPage = () => {
       setStats(response.data);
     } catch (error) {
       console.error("Failed to fetch admin stats:", error);
+      // Set default values if fetch fails
+      setStats({
+        activeSchedules: 0,
+        totalMembers: 0,
+        availableSlots: 0,
+        completedTransactions: 0,
+      });
     } finally {
       setIsLoading(false);
     }
