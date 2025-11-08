@@ -2,6 +2,26 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Setup and Run Instructions
+```bash
+# Create a New React App (if not already created)
+npx create-react-app my-app
+cd my-app
+
+# Clone the Repository
+git clone https://github.com/joshnuevas/ironcore.git
+cd ironcore
+
+# Install Dependencies
+npm install
+
+# If you encounter missing modules (e.g., axios, react-router-dom, lucide-react)
+npm install axios react-router-dom lucide-react
+
+# Start the Development Server
+npm start
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
