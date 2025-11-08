@@ -1,13 +1,15 @@
 .adminContainer {
   min-height: 100vh;
+  height: 100%;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Animated background elements */
 .backgroundOverlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -83,11 +85,11 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);
+  background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
   padding: 12px 30px;
   border-radius: 50px;
   margin-bottom: 24px;
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 20px #f97316;
 }
 
 .headerBadge h1 {
