@@ -1,42 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Dumbbell, User, Shield } from "lucide-react";
+import { Dumbbell, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "./Navbar.module.css";
 
 const Navbar = ({ activeNav = "HOME" }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const username = localStorage.getItem("username");
+  const loginRole = localStorage.getItem("loginRole");
+  
+  // Determine if we're in admin mode
+  const isAdminMode = loginRole === "admin";
 
-  useEffect(() => {
-    // Check admin status on component mount
-    const checkAdminStatus = async () => {
-      try {
-        const response = await axios.get("http://localhost:8080/api/users/me", {
-          withCredentials: true,
-        });
-        console.log("User data from /me endpoint:", response.data);
-        console.log("isAdmin value:", response.data.isAdmin);
-        console.log("isAdmin type:", typeof response.data.isAdmin);
-        setIsAdmin(response.data.isAdmin === true || response.data.isAdmin === 1);
-      } catch (error) {
-        console.error("Error checking admin status:", error);
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, []);
-
-  const navItems = [
-    "HOME",
-    "ABOUT US",
-    "OUR TRAINERS",
-    "CLASSES",
-    "MEMBERSHIP",
-  ];
+  // Define nav items based on current role
+  const navItems = isAdminMode 
+    ? [] // Admin mode has no nav items
+    : ["HOME", "ABOUT US", "OUR TRAINERS", "CLASSES", "MEMBERSHIP"];
 
   const handleNavClick = (item) => {
     switch (item) {
@@ -64,11 +44,14 @@ const Navbar = ({ activeNav = "HOME" }) => {
     navigate("/profile");
   };
 
-  // In your Navbar.jsx, update the handleAdminClick function:
-
-const handleAdminClick = () => {
-  navigate("/admin"); // Changed from "/admin/schedule-viewer" to "/admin"
-};
+  const handleLogoClick = () => {
+    // Navigate based on current role
+    if (isAdminMode) {
+      navigate("/admin");
+    } else {
+      navigate("/landing");
+    }
+  };
 
   const handleLogout = () => {
     setShowLogoutModal(true);
@@ -79,6 +62,7 @@ const handleAdminClick = () => {
     localStorage.removeItem("userId");
     localStorage.removeItem("username");
     localStorage.removeItem("email");
+    localStorage.removeItem("loginRole");
     setShowLogoutModal(false);
     navigate("/login");
   };
@@ -91,7 +75,11 @@ const handleAdminClick = () => {
     <>
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
-          <div className={styles.logoSection}>
+          <div 
+            className={styles.logoSection} 
+            onClick={handleLogoClick}
+            style={{ cursor: 'pointer' }}
+          >
             <div className={styles.logoIcon}>
               <Dumbbell className={styles.dumbbellIcon} />
             </div>
@@ -115,20 +103,6 @@ const handleAdminClick = () => {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            {/* Admin Dashboard Button - Only visible if isAdmin is true */}
-            {isAdmin && (
-              <button
-                onClick={handleAdminClick}
-                className={`${styles.adminButton} ${
-                  activeNav === "ADMIN" ? styles.adminButtonActive : ""
-                }`}
-                title="Admin Dashboard"
-              >
-                <Shield size={18} />
-                <span>ADMIN</span>
-              </button>
-            )}
-
             <button
               onClick={handleProfileClick}
               className={`${styles.profileButton} ${
