@@ -9,6 +9,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
     fetchSchedules();
@@ -47,17 +48,65 @@ const AdminScheduleViewer = ({ onLogout }) => {
       date: schedule.date,
       maxParticipants: schedule.maxParticipants,
     });
+    setSaveError(null);
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditForm({});
+    setSaveError(null);
   };
 
   const handleSave = async (scheduleId) => {
-    // TODO: Implement save functionality
-    console.log("Saving schedule:", scheduleId, editForm);
-    setEditingId(null);
+    try {
+      setSaveError(null);
+      
+      // Validate inputs
+      if (!editForm.day || !editForm.timeSlot || !editForm.date || !editForm.maxParticipants) {
+        setSaveError("All fields are required");
+        return;
+      }
+
+      if (editForm.maxParticipants < 1) {
+        setSaveError("Max participants must be at least 1");
+        return;
+      }
+
+      const response = await axios.put(
+        `http://localhost:8080/api/schedules/${scheduleId}`,
+        {
+          day: editForm.day,
+          timeSlot: editForm.timeSlot,
+          date: editForm.date,
+          maxParticipants: parseInt(editForm.maxParticipants),
+        },
+        { withCredentials: true }
+      );
+
+      // Update local state with the saved schedule
+      setSchedules(prevSchedules => {
+        const newSchedules = { ...prevSchedules };
+        
+        // Find and update the schedule in the grouped structure
+        Object.keys(newSchedules).forEach(className => {
+          const scheduleIndex = newSchedules[className].findIndex(s => s.id === scheduleId);
+          if (scheduleIndex !== -1) {
+            newSchedules[className][scheduleIndex] = {
+              ...newSchedules[className][scheduleIndex],
+              ...response.data,
+            };
+          }
+        });
+        
+        return newSchedules;
+      });
+
+      setEditingId(null);
+      setEditForm({});
+    } catch (error) {
+      console.error("Failed to save schedule:", error);
+      setSaveError(error.response?.data?.message || "Failed to save changes. Please try again.");
+    }
   };
 
   const formatDate = (dateString) => {
@@ -66,6 +115,12 @@ const AdminScheduleViewer = ({ onLogout }) => {
       day: "numeric",
       year: "numeric",
     });
+  };
+
+  // Format date for input field (YYYY-MM-DD)
+  const formatDateForInput = (dateString) => {
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0];
   };
 
   if (isLoading) {
@@ -124,12 +179,19 @@ const AdminScheduleViewer = ({ onLogout }) => {
                           <div className={styles.editForm}>
                             <div className={styles.editRow}>
                               <label>Day:</label>
-                              <input
-                                type="text"
+                              <select
                                 value={editForm.day}
                                 onChange={(e) => setEditForm({...editForm, day: e.target.value})}
                                 className={styles.editInput}
-                              />
+                              >
+                                <option value="MONDAY">Monday</option>
+                                <option value="TUESDAY">Tuesday</option>
+                                <option value="WEDNESDAY">Wednesday</option>
+                                <option value="THURSDAY">Thursday</option>
+                                <option value="FRIDAY">Friday</option>
+                                <option value="SATURDAY">Saturday</option>
+                                <option value="SUNDAY">Sunday</option>
+                              </select>
                             </div>
                             <div className={styles.editRow}>
                               <label>Time:</label>
@@ -138,17 +200,33 @@ const AdminScheduleViewer = ({ onLogout }) => {
                                 value={editForm.timeSlot}
                                 onChange={(e) => setEditForm({...editForm, timeSlot: e.target.value})}
                                 className={styles.editInput}
+                                placeholder="e.g., 9:00 AM - 10:00 AM"
+                              />
+                            </div>
+                            <div className={styles.editRow}>
+                              <label>Date:</label>
+                              <input
+                                type="date"
+                                value={formatDateForInput(editForm.date)}
+                                onChange={(e) => setEditForm({...editForm, date: e.target.value})}
+                                className={styles.editInput}
                               />
                             </div>
                             <div className={styles.editRow}>
                               <label>Max Participants:</label>
                               <input
                                 type="number"
+                                min="1"
                                 value={editForm.maxParticipants}
                                 onChange={(e) => setEditForm({...editForm, maxParticipants: e.target.value})}
                                 className={styles.editInput}
                               />
                             </div>
+                            {saveError && (
+                              <div className={styles.errorMessage}>
+                                {saveError}
+                              </div>
+                            )}
                             <div className={styles.editActions}>
                               <button onClick={() => handleSave(schedule.id)} className={styles.saveBtn}>
                                 <Save size={16} /> Save
