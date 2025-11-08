@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dumbbell, Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Dumbbell, Eye, EyeOff, Mail, Lock, Shield, User } from "lucide-react";
 import styles from "./Login.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -8,8 +8,9 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [showRoleSelection, setShowRoleSelection] = useState(false);
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -27,37 +28,59 @@ const Login = () => {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: 'include',  // ⭐ ADD THIS LINE - Critical for session cookies!
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
         
-        // Store token and user info in localStorage
+        // Store basic info
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("username", data.username);
         localStorage.setItem("email", data.email);
 
-        console.log("✅ Login successful, session created");
+        // Check if user is admin
+        const userResponse = await fetch("http://localhost:8080/api/users/me", {
+          credentials: 'include',
+        });
         
-        // Redirect to landing page
-        navigate("/landing");
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          
+          // If user is admin, show role selection
+          if (userData.isAdmin === true || userData.isAdmin === 1) {
+            setUserData(userData);
+            setShowRoleSelection(true);
+            setIsLoading(false);
+          } else {
+            // Regular user, go directly to landing
+            localStorage.setItem("loginRole", "user");
+            navigate("/landing");
+          }
+        }
       } else {
         const message = await response.text();
         setError(message || "Login failed. Please try again.");
+        setIsLoading(false);
       }
     } catch (err) {
       console.error("Login error:", err);
       setError("Unable to connect to the server.");
-    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleContinue = () => {
-    navigate("/landing");
+  const handleRoleSelection = (role) => {
+    localStorage.setItem("loginRole", role);
+    setShowRoleSelection(false);
+    
+    if (role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/landing");
+    }
   };
 
   return (
@@ -186,15 +209,42 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Success Modal */}
-      {success && (
+      {/* Role Selection Modal */}
+      {showRoleSelection && (
         <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h2>🎉 Login Successful!</h2>
-            <p>Welcome to IronCore.</p>
-            <button className={styles.continueButton} onClick={handleContinue}>
-              Continue
-            </button>
+          <div className={styles.roleModalContent}>
+            <h2 className={styles.roleModalTitle}>Choose Your Role</h2>
+            <p className={styles.roleModalDescription}>
+              You have admin privileges. How would you like to continue?
+            </p>
+            
+            <div className={styles.roleButtonsContainer}>
+              <button
+                onClick={() => handleRoleSelection("admin")}
+                className={`${styles.roleButton} ${styles.adminRoleButton}`}
+              >
+                <Shield className={styles.roleIcon} />
+                <div className={styles.roleButtonText}>
+                  <div className={styles.roleButtonTitle}>Admin Dashboard</div>
+                  <div className={styles.roleButtonDesc}>
+                    Manage schedules, codes, and slots
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleRoleSelection("user")}
+                className={`${styles.roleButton} ${styles.userRoleButton}`}
+              >
+                <User className={styles.roleIcon} />
+                <div className={styles.roleButtonText}>
+                  <div className={styles.roleButtonTitle}>Member Access</div>
+                  <div className={styles.roleButtonDesc}>
+                    Browse classes, trainers, and membership
+                  </div>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       )}
