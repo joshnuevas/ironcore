@@ -1,11 +1,37 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, UserCheck, QrCode, Shield, BarChart3, Users } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./AdminLandingPage.module.css";
+import axios from "axios";
 
 const AdminLandingPage = () => {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    activeSchedules: 0,
+    totalMembers: 0,
+    availableSlots: 0,
+    completedTransactions: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.get("http://localhost:8080/api/admin/stats", {
+        withCredentials: true,
+      });
+      setStats(response.data);
+    } catch (error) {
+      console.error("Failed to fetch admin stats:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const adminCards = [
     {
@@ -69,7 +95,9 @@ const AdminLandingPage = () => {
               </div>
               <div className={styles.statInfo}>
                 <p className={styles.statLabel}>Active Schedules</p>
-                <h3 className={styles.statValue}>24</h3>
+                <h3 className={styles.statValue}>
+                  {isLoading ? "..." : stats.activeSchedules}
+                </h3>
               </div>
             </div>
           </div>
@@ -81,7 +109,9 @@ const AdminLandingPage = () => {
               </div>
               <div className={styles.statInfo}>
                 <p className={styles.statLabel}>Total Members</p>
-                <h3 className={styles.statValue}>156</h3>
+                <h3 className={styles.statValue}>
+                  {isLoading ? "..." : stats.totalMembers}
+                </h3>
               </div>
             </div>
           </div>
@@ -93,7 +123,9 @@ const AdminLandingPage = () => {
               </div>
               <div className={styles.statInfo}>
                 <p className={styles.statLabel}>Available Slots</p>
-                <h3 className={styles.statValue}>89</h3>
+                <h3 className={styles.statValue}>
+                  {isLoading ? "..." : stats.availableSlots}
+                </h3>
               </div>
             </div>
           </div>

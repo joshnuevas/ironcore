@@ -9,6 +9,8 @@ const AdminSlotChecker = ({ onLogout }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [newMaxParticipants, setNewMaxParticipants] = useState("");
+  const [saveError, setSaveError] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(null);
 
   useEffect(() => {
     fetchSchedules();
@@ -31,17 +33,76 @@ const AdminSlotChecker = ({ onLogout }) => {
   const handleEditSlots = (schedule) => {
     setEditingId(schedule.id);
     setNewMaxParticipants(schedule.maxParticipants);
+    setSaveError(null);
+    setSaveSuccess(null);
   };
 
   const handleSaveSlots = async (scheduleId) => {
-    // TODO: Implement save functionality
-    console.log("Saving new max participants:", scheduleId, newMaxParticipants);
-    setEditingId(null);
+    try {
+      setSaveError(null);
+      setSaveSuccess(null);
+
+      // Validation
+      const maxParticipants = parseInt(newMaxParticipants);
+      
+      if (!newMaxParticipants || isNaN(maxParticipants)) {
+        setSaveError("Please enter a valid number");
+        return;
+      }
+
+      if (maxParticipants < 1) {
+        setSaveError("Max participants must be at least 1");
+        return;
+      }
+
+      // Find the current schedule to check enrolled count
+      const currentSchedule = schedules.find(s => s.id === scheduleId);
+      if (maxParticipants < currentSchedule.enrolledCount) {
+        setSaveError(`Cannot set max participants below current enrollment (${currentSchedule.enrolledCount})`);
+        return;
+      }
+
+      // Get the current schedule data
+      const scheduleToUpdate = schedules.find(s => s.id === scheduleId);
+
+      // Send update request
+      const response = await axios.put(
+        `http://localhost:8080/api/schedules/${scheduleId}`,
+        {
+          day: scheduleToUpdate.day,
+          timeSlot: scheduleToUpdate.timeSlot,
+          date: scheduleToUpdate.date,
+          maxParticipants: maxParticipants,
+        },
+        { withCredentials: true }
+      );
+
+      // Update local state with the new data
+      setSchedules(prevSchedules =>
+        prevSchedules.map(schedule =>
+          schedule.id === scheduleId
+            ? { ...schedule, maxParticipants: maxParticipants }
+            : schedule
+        )
+      );
+
+      setSaveSuccess(`Successfully updated max participants to ${maxParticipants}`);
+      setEditingId(null);
+      setNewMaxParticipants("");
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setSaveSuccess(null), 3000);
+
+    } catch (error) {
+      console.error("Failed to save slots:", error);
+      setSaveError(error.response?.data?.message || "Failed to update. Please try again.");
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setNewMaxParticipants("");
+    setSaveError(null);
   };
 
   const getUtilizationPercentage = (enrolled, max) => {
@@ -90,6 +151,20 @@ const AdminSlotChecker = ({ onLogout }) => {
             <h1 className={styles.title}>SLOT CHECKER</h1>
             <p className={styles.subtitle}>Monitor and adjust class capacity</p>
           </div>
+
+          {/* Success/Error Messages */}
+          {saveSuccess && (
+            <div className={styles.successMessage}>
+              <CheckCircle size={20} />
+              <span>{saveSuccess}</span>
+            </div>
+          )}
+          {saveError && (
+            <div className={styles.errorMessage}>
+              <AlertCircle size={20} />
+              <span>{saveError}</span>
+            </div>
+          )}
 
           {/* Statistics Cards */}
           <div className={styles.statsGrid}>
@@ -171,8 +246,8 @@ const AdminSlotChecker = ({ onLogout }) => {
                         <td className={styles.classCell}>
                           <span className={styles.classIcon}>
                             {schedule.classEntity?.icon || "📘"}
-                            </span>
-                            {schedule.classEntity?.name || "Unnamed"}
+                          </span>
+                          {schedule.classEntity?.name || "Unnamed"}
                         </td>
                         <td>{schedule.day}</td>
                         <td>{schedule.timeSlot}</td>
@@ -188,7 +263,8 @@ const AdminSlotChecker = ({ onLogout }) => {
                               value={newMaxParticipants}
                               onChange={(e) => setNewMaxParticipants(e.target.value)}
                               className={styles.slotInput}
-                              min="0"
+                              min={schedule.enrolledCount}
+                              placeholder="Enter max slots"
                             />
                           ) : (
                             <span className={styles.maxSlots}>
