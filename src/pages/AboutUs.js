@@ -9,44 +9,43 @@ const AboutUs = () => {
   const username = localStorage.getItem("username");
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const handleLogout = () => {
-    setShowLogoutModal(true);
-  };
-
+  const handleLogout = () => setShowLogoutModal(true);
   const confirmLogout = () => {
     setShowLogoutModal(false);
     localStorage.removeItem("username");
     navigate("/login");
   };
+  const cancelLogout = () => setShowLogoutModal(false);
 
-  const cancelLogout = () => {
-    setShowLogoutModal(false);
-  };
-
+  // ✅ Values and Stats Data
   const values = [
     {
       icon: <Target size={32} />,
       title: "Excellence",
       description:
         "We push boundaries and strive for excellence in everything we do, from our training programs to our community culture.",
+      color: "#f95616ff",
     },
     {
       icon: <Users size={32} />,
       title: "Community",
       description:
         "Building a supportive family where everyone motivates each other to reach their full potential and beyond.",
+      color: "#FFEE8C",
     },
     {
       icon: <Heart size={32} />,
       title: "Passion",
       description:
         "Our dedication to fitness and wellness drives us to create transformative experiences for every member.",
+      color: "#FF8C8C",
     },
     {
       icon: <Shield size={32} />,
       title: "Integrity",
       description:
         "We maintain the highest standards of professionalism, honesty, and accountability in all our interactions.",
+      color: "#93C5FD",
     },
   ];
 
@@ -57,6 +56,7 @@ const AboutUs = () => {
     { number: "10+", label: "Years Strong" },
   ];
 
+  // ✅ Main Return
   return (
     <div className={styles.aboutContainer}>
       {/* ✅ Reusable Navbar */}
@@ -116,14 +116,33 @@ const AboutUs = () => {
           </div>
         </section>
 
-        {/* Values Section */}
+        {/* ✅ Updated Values Section */}
         <section className={styles.valuesSection}>
           <h2 className={styles.sectionTitle}>OUR CORE VALUES</h2>
           <div className={styles.valuesGrid}>
             {values.map((value, index) => (
               <div key={index} className={styles.valueCard}>
-                <div className={styles.valueIcon}>{value.icon}</div>
-                <h3 className={styles.valueTitle}>{value.title}</h3>
+                <div
+                  className={styles.valueIcon}
+                  style={{
+                    background: `linear-gradient(135deg, ${
+                      value.color || "#f97316"
+                    }, #dc2626)`,
+                    boxShadow: `0 8px 20px ${
+                      value.color
+                        ? `${value.color}66`
+                        : "rgba(249,115,22,0.4)"
+                    }`,
+                    color: "#fff",
+                  }}
+                >
+                  {React.cloneElement(value.icon, { color: "#fff" })}
+                </div>
+                <h3
+                  className={styles.valueTitle}
+                  style={{ color: value.color || "#fff" }}>
+                  {value.title}
+                </h3>
                 <p className={styles.valueDescription}>{value.description}</p>
               </div>
             ))}
