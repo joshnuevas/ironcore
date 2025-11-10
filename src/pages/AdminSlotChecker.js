@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Users, TrendingUp, AlertCircle, CheckCircle, Edit2 } from "lucide-react";
+import { Users, TrendingUp, AlertCircle, CheckCircle, Edit2, Eye, X } from "lucide-react";
 import styles from "./AdminSlotChecker.module.css";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -11,6 +11,13 @@ const AdminSlotChecker = ({ onLogout }) => {
   const [newMaxParticipants, setNewMaxParticipants] = useState("");
   const [saveError, setSaveError] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(null);
+  
+  // Modal states
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [enrolledUsers, setEnrolledUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [removeError, setRemoveError] = useState(null);
 
   useEffect(() => {
     fetchSchedules();
@@ -30,6 +37,60 @@ const AdminSlotChecker = ({ onLogout }) => {
     }
   };
 
+  const fetchEnrolledUsers = async (scheduleId) => {
+    try {
+      setLoadingUsers(true);
+      const response = await axios.get(
+        `http://localhost:8080/api/admin/schedules/${scheduleId}/users`,
+        { withCredentials: true }
+      );
+      setEnrolledUsers(response.data);
+    } catch (error) {
+      console.error("Failed to fetch enrolled users:", error);
+      setRemoveError("Failed to load enrolled users");
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleViewUsers = async (schedule) => {
+    setSelectedSchedule(schedule);
+    setShowUsersModal(true);
+    setRemoveError(null);
+    await fetchEnrolledUsers(schedule.id);
+  };
+
+  const handleRemoveUser = async (transactionId) => {
+    if (!window.confirm("Mark this user's session as completed? This will free up the slot.")) {
+      return;
+    }
+
+    try {
+      setRemoveError(null);
+      const response = await axios.put(
+        `http://localhost:8080/api/admin/schedules/${selectedSchedule.id}/users/${transactionId}/complete`,
+        {},
+        { withCredentials: true }
+      );
+
+      await fetchEnrolledUsers(selectedSchedule.id);
+      await fetchSchedules();
+
+      setSaveSuccess("Session marked as completed");
+      setTimeout(() => setSaveSuccess(null), 3000);
+    } catch (error) {
+      console.error("Failed to complete session:", error);
+      setRemoveError(error.response?.data?.message || "Failed to mark session as completed");
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowUsersModal(false);
+    setSelectedSchedule(null);
+    setEnrolledUsers([]);
+    setRemoveError(null);
+  };
+
   const handleEditSlots = (schedule) => {
     setEditingId(schedule.id);
     setNewMaxParticipants(schedule.maxParticipants);
@@ -42,7 +103,6 @@ const AdminSlotChecker = ({ onLogout }) => {
       setSaveError(null);
       setSaveSuccess(null);
 
-      // Validation
       const maxParticipants = parseInt(newMaxParticipants);
       
       if (!newMaxParticipants || isNaN(maxParticipants)) {
@@ -55,18 +115,15 @@ const AdminSlotChecker = ({ onLogout }) => {
         return;
       }
 
-      // Find the current schedule to check enrolled count
       const currentSchedule = schedules.find(s => s.id === scheduleId);
       if (maxParticipants < currentSchedule.enrolledCount) {
         setSaveError(`Cannot set max participants below current enrollment (${currentSchedule.enrolledCount})`);
         return;
       }
 
-      // Get the current schedule data
       const scheduleToUpdate = schedules.find(s => s.id === scheduleId);
 
-      // Send update request
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:8080/api/schedules/${scheduleId}`,
         {
           day: scheduleToUpdate.day,
@@ -77,7 +134,6 @@ const AdminSlotChecker = ({ onLogout }) => {
         { withCredentials: true }
       );
 
-      // Update local state with the new data
       setSchedules(prevSchedules =>
         prevSchedules.map(schedule =>
           schedule.id === scheduleId
@@ -90,7 +146,6 @@ const AdminSlotChecker = ({ onLogout }) => {
       setEditingId(null);
       setNewMaxParticipants("");
 
-      // Clear success message after 3 seconds
       setTimeout(() => setSaveSuccess(null), 3000);
 
     } catch (error) {
@@ -127,7 +182,6 @@ const AdminSlotChecker = ({ onLogout }) => {
     );
   }
 
-  // Calculate statistics
   const totalSlots = schedules.reduce((sum, s) => sum + s.maxParticipants, 0);
   const totalEnrolled = schedules.reduce((sum, s) => sum + s.enrolledCount, 0);
   const fullSchedules = schedules.filter(s => s.enrolledCount >= s.maxParticipants).length;
@@ -149,10 +203,10 @@ const AdminSlotChecker = ({ onLogout }) => {
           {/* Header */}
           <div className={styles.headerSection}>
             <h1 className={styles.title}>SLOT CHECKER</h1>
-            <p className={styles.subtitle}>Monitor and adjust class capacity</p>
+            <p className={styles.subtitle}>Monitor and manage class capacity</p>
           </div>
 
-          {/* Success/Error Messages */}
+          {/* Messages */}
           {saveSuccess && (
             <div className={styles.successMessage}>
               <CheckCircle size={20} />
@@ -166,7 +220,7 @@ const AdminSlotChecker = ({ onLogout }) => {
             </div>
           )}
 
-          {/* Statistics Cards */}
+          {/* Statistics Grid */}
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
               <div className={styles.statIcon}>
@@ -213,7 +267,7 @@ const AdminSlotChecker = ({ onLogout }) => {
             </div>
           </div>
 
-          {/* Schedules Table */}
+          {/* Table Card */}
           <div className={styles.tableCard}>
             <div className={styles.tableHeader}>
               <h2 className={styles.tableTitle}>Schedule Capacity</h2>
@@ -223,13 +277,13 @@ const AdminSlotChecker = ({ onLogout }) => {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Class</th>
-                    <th>Day</th>
-                    <th>Time</th>
-                    <th>Enrolled</th>
-                    <th>Max Slots</th>
-                    <th>Utilization</th>
-                    <th>Action</th>
+                    <th className={styles.th}>Class</th>
+                    <th className={styles.th}>Day</th>
+                    <th className={styles.th}>Time</th>
+                    <th className={styles.th}>Enrolled</th>
+                    <th className={styles.th}>Max Slots</th>
+                    <th className={styles.th}>Utilization</th>
+                    <th className={styles.th}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -242,21 +296,20 @@ const AdminSlotChecker = ({ onLogout }) => {
                     const isEditing = editingId === schedule.id;
 
                     return (
-                      <tr key={schedule.id}>
-                        <td className={styles.classCell}>
-                          <span className={styles.classIcon}>
-                            {schedule.classEntity?.icon || "📘"}
+                      <tr key={schedule.id} className={styles.tr}>
+                        <td className={styles.td}>
+                          <span className={styles.classCell}>
+                            {schedule.classEntity?.name || "Unnamed"}
                           </span>
-                          {schedule.classEntity?.name || "Unnamed"}
                         </td>
-                        <td>{schedule.day}</td>
-                        <td>{schedule.timeSlot}</td>
-                        <td>
+                        <td className={styles.td}>{schedule.day}</td>
+                        <td className={styles.td}>{schedule.timeSlot}</td>
+                        <td className={styles.td}>
                           <span className={styles.enrolledCount}>
                             {schedule.enrolledCount}
                           </span>
                         </td>
-                        <td>
+                        <td className={styles.td}>
                           {isEditing ? (
                             <input
                               type="number"
@@ -272,7 +325,7 @@ const AdminSlotChecker = ({ onLogout }) => {
                             </span>
                           )}
                         </td>
-                        <td>
+                        <td className={styles.td}>
                           <div className={styles.utilizationCell}>
                             <div className={styles.progressBar}>
                               <div
@@ -285,30 +338,42 @@ const AdminSlotChecker = ({ onLogout }) => {
                             </span>
                           </div>
                         </td>
-                        <td>
-                          {isEditing ? (
-                            <div className={styles.editActions}>
-                              <button
-                                onClick={() => handleSaveSlots(schedule.id)}
-                                className={styles.saveBtn}
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={handleCancelEdit}
-                                className={styles.cancelBtn}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => handleEditSlots(schedule)}
-                              className={styles.editBtn}
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                          )}
+                        <td className={styles.td}>
+                          <div className={styles.actionButtons}>
+                            {isEditing ? (
+                              <>
+                                <button
+                                  onClick={() => handleSaveSlots(schedule.id)}
+                                  className={styles.saveBtn}
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={handleCancelEdit}
+                                  className={styles.cancelBtn}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => handleViewUsers(schedule)}
+                                  className={styles.viewBtn}
+                                  title="View enrolled users"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleEditSlots(schedule)}
+                                  className={styles.editBtn}
+                                  title="Edit max slots"
+                                >
+                                  <Edit2 size={16} />
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -338,6 +403,72 @@ const AdminSlotChecker = ({ onLogout }) => {
           </div>
         </div>
       </div>
+
+      {/* Users Modal */}
+      {showUsersModal && (
+        <div className={styles.modalOverlay} onClick={handleCloseModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <div>
+                <h2 className={styles.modalTitle}>Enrolled Users</h2>
+                <p className={styles.modalSubtitle}>
+                  {selectedSchedule?.classEntity?.name} - {selectedSchedule?.day} {selectedSchedule?.timeSlot}
+                </p>
+              </div>
+              <button onClick={handleCloseModal} className={styles.closeBtn}>
+                <X size={24} />
+              </button>
+            </div>
+
+            {removeError && (
+              <div className={styles.modalError}>
+                <AlertCircle size={20} />
+                <span>{removeError}</span>
+              </div>
+            )}
+
+            <div className={styles.modalBody}>
+              {loadingUsers ? (
+                <div className={styles.loadingContainer}>
+                  <div className={styles.spinner}></div>
+                  <p>Loading users...</p>
+                </div>
+              ) : enrolledUsers.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <Users size={48} className={styles.emptyIcon} />
+                  <p>No users enrolled in this schedule yet</p>
+                </div>
+              ) : (
+                <div className={styles.usersList}>
+                  {enrolledUsers.map((user) => (
+                    <div key={user.transactionId} className={styles.userCard}>
+                      <div className={styles.userInfo}>
+                        <div className={styles.userAvatar}>
+                          {user.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <h4 className={styles.userName}>{user.username}</h4>
+                          <p className={styles.userEmail}>{user.email}</p>
+                          <p className={styles.transactionCode}>
+                            Transaction: {user.transactionCode}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveUser(user.transactionId)}
+                        className={styles.removeBtn}
+                        title="Mark session as completed"
+                      >
+                        <CheckCircle size={18} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
