@@ -10,7 +10,7 @@
   box-sizing: border-box;
 }
 
-/* Animated Background */
+/* Animated Background - Simplified */
 .backgroundOverlay {
   position: absolute;
   inset: 0;
@@ -20,24 +20,26 @@
 
 .bgBlur {
   position: absolute;
-  width: 30rem;
-  height: 30rem;
+  width: 35rem;
+  height: 35rem;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.12;
-  animation: pulse 4s ease-in-out infinite, float 10s ease-in-out infinite;
+  filter: blur(120px);
+  opacity: 0.08;
+  animation: gentleFloat 20s ease-in-out infinite;
 }
 
 .bgBlur1 {
   background-color: #f97316;
   top: -15rem;
   left: -15rem;
+  animation-delay: 0s;
 }
 
 .bgBlur2 {
   background-color: #ef4444;
   bottom: -15rem;
   right: -15rem;
+  animation-delay: 7s;
 }
 
 .bgBlur3 {
@@ -45,33 +47,17 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  animation-delay: 14s;
 }
 
-@keyframes pulse {
-  0%,
-  100% {
+@keyframes gentleFloat {
+  0%, 100% {
+    transform: translate(0, 0);
     opacity: 0.08;
-    transform: scale(1);
   }
   50% {
-    opacity: 0.15;
-    transform: scale(1.15);
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  25% {
-    transform: translate(40px, -40px) scale(1.05);
-  }
-  50% {
-    transform: translate(0, -60px) scale(1.15);
-  }
-  75% {
-    transform: translate(-40px, -40px) scale(1.05);
+    transform: translate(20px, -20px);
+    opacity: 0.12;
   }
 }
 
@@ -86,13 +72,13 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(31, 41, 55, 0.5);
-  animation: slideDown 0.6s ease-out;
+  animation: slideDown 0.5s ease-out;
 }
 
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-100%);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -126,17 +112,6 @@
   background: linear-gradient(to bottom right, #f97316, #dc2626);
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
-  animation: glow 2s ease-in-out infinite;
-}
-
-@keyframes glow {
-  0%,
-  100% {
-    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
-  }
-  50% {
-    box-shadow: 0 8px 20px 0 rgba(249, 115, 22, 0.5);
-  }
 }
 
 .dumbbellIcon {
@@ -171,7 +146,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.05em;
-  transition: all 0.3s;
+  transition: all 0.25s ease;
   border-radius: 0.5rem;
   position: relative;
 }
@@ -206,7 +181,7 @@
   font-weight: 700;
   letter-spacing: 0.05em;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s ease;
 }
 .logoutButton:hover {
   background: linear-gradient(to right, #f97316, #dc2626);
@@ -229,7 +204,7 @@
   align-items: center;
   justify-content: center;
   padding: 4rem 2rem;
-  animation: fadeInUp 1s ease-out;
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .heroContent {
@@ -250,7 +225,8 @@
   color: white;
   letter-spacing: -0.05em;
   line-height: 1;
-  animation: slideInLeft 0.8s ease-out;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.2s forwards;
 }
 
 .titleAccent {
@@ -263,7 +239,8 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: slideInLeft 0.8s ease-out;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.3s forwards;
 }
 
 .heroSubtitle {
@@ -271,13 +248,14 @@
   color: #9ca3af;
   font-weight: 300;
   letter-spacing: 0.05em;
-  animation: fadeIn 1s ease-out 0.4s both;
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.4s forwards;
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -285,36 +263,9 @@
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
@@ -334,7 +285,7 @@
   padding: 3rem;
   border-radius: 1rem;
   border: 1px solid rgba(249, 115, 22, 0.2);
-  animation: fadeInUp 1s ease-out 0.2s both;
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
 .missionIcon {
@@ -388,9 +339,9 @@
   -webkit-backdrop-filter: blur(10px);
   border-radius: 1rem;
   border: 1px solid rgba(249, 115, 22, 0.2);
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   cursor: default;
-  animation: fadeIn 1s ease-out;
+  animation: fadeIn 0.8s ease-out;
 }
 
 .statCard:hover {
@@ -443,9 +394,9 @@
   -webkit-backdrop-filter: blur(10px);
   border-radius: 1rem;
   border: 1px solid rgba(249, 115, 22, 0.2);
-  transition: all 0.3s;
+  transition: all 0.3s ease;
   cursor: default;
-  animation: fadeInUp 1s ease-out;
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .valueCard:hover {
@@ -567,7 +518,7 @@
   padding: 3rem;
   border-radius: 1rem;
   border: 1px solid rgba(249, 115, 22, 0.2);
-  animation: fadeInUp 1s ease-out 0.4s both;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
 }
 
 .storyIcon {
@@ -594,7 +545,7 @@
 .ctaSection {
   padding: 6rem 2rem;
   text-align: center;
-  animation: fadeInUp 1s ease-out 0.6s both;
+  animation: fadeInUp 0.8s ease-out 0.6s both;
 }
 
 .ctaTitle {
@@ -621,44 +572,72 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 10px 30px rgba(249, 116, 22, 0.13);
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);
 }
 
 .ctaButton:hover {
   background: linear-gradient(to right, #ea580c, #b91c1c);
-  box-shadow: 0 15px 40px rgba(248, 119, 26, 0.226);
-  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(249, 115, 22, 0.5);
+  transform: translateY(-3px);
 }
 
 .ctaButton:active {
-  transform: translateY(-1px) scale(1.02);
+  transform: translateY(-1px);
 }
 
 /* Logout Modal */
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
+  animation: fadeInOverlay 0.2s ease-out;
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modalContent {
-  background: #111827;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
   padding: 2rem;
   border-radius: 1rem;
+  border: 1px solid rgba(249, 115, 22, 0.2);
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   color: white;
-  animation: fadeIn 0.3s ease-out;
+  animation: scaleIn 0.3s ease-out;
+  max-width: 400px;
+  width: 90%;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .modalContent h2 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
+  background: linear-gradient(to right, white, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .modalContent p {
@@ -672,38 +651,35 @@
   justify-content: center;
 }
 
-.modalConfirm {
+.modalConfirm,
+.modalCancel {
   padding: 0.75rem 2rem;
-  background: linear-gradient(to right, #f97316, #dc2626);
-  border: none;
   border-radius: 0.5rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s ease;
+  border: none;
+}
+
+.modalConfirm {
+  background: linear-gradient(to right, #f97316, #dc2626);
   color: white;
 }
 
 .modalConfirm:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
 }
 
 .modalCancel {
-  padding: 0.75rem 2rem;
   background: transparent;
-  border: 2px solid #f97316;
-  border-radius: 0.5rem;
-  color: #f97316;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s;
+  border: 2px solid rgba(107, 114, 128, 0.5);
+  color: #d1d5db;
 }
 
 .modalCancel:hover {
-  background: #f97316;
-  color: white;
-  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
-  transform: translateY(-2px);
+  background: rgba(107, 114, 128, 0.2);
+  border-color: #6b7280;
 }
 
 /* Responsive Design */
@@ -742,6 +718,11 @@
   .missionContent,
   .storyContent {
     padding: 2rem;
+  }
+  
+  .bgBlur {
+    width: 25rem;
+    height: 25rem;
   }
 }
 .welcomeText {
