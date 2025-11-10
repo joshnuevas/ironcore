@@ -6,28 +6,52 @@ import { useNavigate } from "react-router-dom";
 
 const trainers = [
   {
-    name: "The King",
-    location: "Palo, Leyte",
-    rating: 4,
-    image: "/images/theking.jpg",
+    name: "Coach Sarah Martinez",
+    location: "HIIT & Cardio Specialist",
+    rating: 5,
+    image: "/images/sarah-martinez.jpg",
     description:
-      "Known for his no-nonsense training approach, The King has over 8 years of experience in strength and conditioning. He specializes in powerlifting, body recomposition, and helping athletes reach peak physical performance.",
+      "With 8 years of experience, Coach Sarah specializes in high-intensity interval training and cardio workouts. Her energetic approach and focus on fat burning and endurance makes her classes challenging yet rewarding for all fitness levels.",
   },
   {
-    name: "Pacman",
-    location: "Palo, Leyte",
+    name: "Coach Maria Santos",
+    location: "Dance & Cardio",
     rating: 5,
-    image: "/images/pacman.jpg",
+    image: "/images/maria-santos.jpg",
     description:
-      "A certified boxing and cardio instructor, Pacman brings unmatched energy to every session. With over a decade in fitness, he focuses on endurance training, fat loss, and building mental toughness through high-intensity workouts.",
+      "Coach Maria brings 7 years of dance and fitness expertise to every Zumba session. Her infectious energy and passion for dance-based cardio creates a fun, welcoming environment where everyone feels confident moving to the beat.",
   },
   {
-    name: "Ashton Hall",
-    location: "Palo, Leyte",
+    name: "Coach Anna Lee",
+    location: "Cardio & Endurance",
     rating: 5,
-    image: "/images/ashton.jpg",
+    image: "/images/anna-lee.jpg",
     description:
-      "Ashton is a functional movement specialist and certified personal trainer with 6 years of experience. His calm yet focused coaching style emphasizes form, mobility, and balanced strength development tailored to every individual.",
+      "With 6 years of experience in cycling and endurance training, Coach Anna leads high-energy spin classes that build stamina and leg strength. Her motivating coaching style pushes you to reach new performance levels.",
+  },
+  {
+    name: "Coach Linda Chen",
+    location: "Yoga & Meditation",
+    rating: 5,
+    image: "/images/linda-chen.jpg",
+    description:
+      "A master yoga instructor with 10 years of experience, Coach Linda guides students through mindful movement practices that build strength, flexibility, and inner peace. Her calming presence and expert instruction create transformative yoga experiences.",
+  },
+  {
+    name: "Coach Emily Rodriguez",
+    location: "Pilates & Core Training",
+    rating: 5,
+    image: "/images/emily-rodriguez.jpg",
+    description:
+      "Coach Emily has dedicated 9 years to mastering Pilates and core strengthening techniques. Her precise instruction and focus on proper alignment helps clients develop a strong, stable core while improving overall flexibility and posture.",
+  },
+  {
+    name: "Coach Mark Johnson",
+    location: "Boxing & Combat Fitness",
+    rating: 5,
+    image: "/images/mark-johnson.jpg",
+    description:
+      "With 11 years in boxing and combat fitness, Coach Mark delivers powerful, high-energy workouts that combine cardio, strength training, and stress relief. His expertise makes boxing accessible and exciting for all experience levels.",
   },
 ];
 
@@ -60,7 +84,7 @@ const OurTrainers = () => {
         <div className={styles.headerSection}>
           <h1 className={styles.title}>OUR TRAINERS</h1>
           <p className={styles.subtitle}>
-            Meet our elite team from Palo, Leyte
+            Meet our elite team of fitness experts
           </p>
         </div>
 
@@ -93,7 +117,7 @@ const OurTrainers = () => {
                     navigate("/book-trainer", { state: { trainer } })
                   }
                 >
-                  BOOK NOW
+                  VIEW PROFILE
                 </button>
               </div>
             </div>
