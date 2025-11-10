@@ -55,9 +55,46 @@
   padding-top: 6rem;
   padding-bottom: 2rem;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+/* Back Button - Outside Card */
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 0.75rem;
+  color: #f97316;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  animation: fadeInUp 0.6s ease-out;
+  align-self: flex-start;
+}
+
+.backButton:hover {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: #f97316;
+  transform: translateX(-5px);
+}
+
+.backIcon {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /* Profile Card */
@@ -404,6 +441,11 @@
 
 /* Responsive */
 @media (max-width: 640px) {
+  .content {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .profileCard {
     padding: 1.5rem;
   }
@@ -433,6 +475,11 @@
   }
 
   .editButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .backButton {
     width: 100%;
     justify-content: center;
   }

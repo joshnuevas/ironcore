@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, CheckCircle, XCircle, Calendar, CreditCard, User, Mail, Package } from "lucide-react";
+import { Search, CheckCircle, XCircle, Calendar, CreditCard, User, Mail, Package, ArrowLeft } from "lucide-react";
 import styles from "./AdminCodeChecker.module.css";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -67,9 +67,18 @@ const AdminCodeChecker = ({ onLogout }) => {
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
+          {/* Back Button */}
+          <button
+            onClick={() => window.location.href = '/admin'}
+            className={styles.backButton}
+          >
+            <ArrowLeft className={styles.backIcon} />
+            <span>Back to Admin Dashboard</span>
+          </button>
+
           {/* Header */}
           <div className={styles.headerSection}>
-            <h1 className={styles.title}>TRANSACTION CODE CHECKER</h1>
+            <h1 className={styles.title}>CODE CHECKER</h1>
             <p className={styles.subtitle}>Verify member access by checking transaction codes</p>
           </div>
 

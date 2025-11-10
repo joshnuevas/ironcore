@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Users, TrendingUp, AlertCircle, CheckCircle, Edit2, Eye, X } from "lucide-react";
+import { Users, TrendingUp, AlertCircle, CheckCircle, Edit2, Eye, X, ArrowLeft } from "lucide-react";
 import styles from "./AdminSlotChecker.module.css";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -200,6 +200,15 @@ const AdminSlotChecker = ({ onLogout }) => {
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
+          {/* Back Button */}
+          <button
+            onClick={() => window.location.href = '/admin'}
+            className={styles.backButton}
+          >
+            <ArrowLeft className={styles.backIcon} />
+            <span>Back to Admin Dashboard</span>
+          </button>
+
           {/* Header */}
           <div className={styles.headerSection}>
             <h1 className={styles.title}>SLOT CHECKER</h1>

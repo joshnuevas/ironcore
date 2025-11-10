@@ -1,36 +1,12 @@
-import React, { useState } from "react";
-import { MapPin, Mail, Phone, Send } from "lucide-react";
+import React from "react";
+import { MapPin, Mail, Phone, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar"; // ✅ Reuse global Navbar
+import Navbar from "../components/Navbar";
 import styles from "./ContactPage.module.css";
-import landingStyles from "./LandingPage.module.css"; // ✅ For animated background
+import landingStyles from "./LandingPage.module.css";
 
 const ContactPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-  const [submissionStatus, setSubmissionStatus] = useState(null);
   const navigate = useNavigate();
-
-  // ✅ Handle form changes
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // ✅ Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmissionStatus("submitting");
-
-    setTimeout(() => {
-      console.log("Form Submitted:", formData);
-      setFormData({ name: "", email: "", message: "" });
-      setSubmissionStatus("success");
-      setTimeout(() => setSubmissionStatus(null), 3000);
-    }, 1500);
-  };
 
   return (
     <div className={styles.contactContainer}>
@@ -55,68 +31,38 @@ const ContactPage = () => {
           {/* ✅ Contact Information */}
           <div className={styles.infoGrid}>
             <div className={styles.infoItem}>
-              <MapPin size={28} className={styles.infoIcon} />
-              <p className={styles.infoText}>123 Muscle Ave, Metacity, CA 90210</p>
+              <div className={styles.iconWrapper}>
+                <MapPin size={32} className={styles.infoIcon} />
+              </div>
+              <h3 className={styles.infoLabel}>Location</h3>
+              <p className={styles.infoText}>Cebu City, Philippines</p>
             </div>
+            
             <div className={styles.infoItem}>
-              <Phone size={28} className={styles.infoIcon} />
-              <p className={styles.infoText}>(555) 555-CORE</p>
+              <div className={styles.iconWrapper}>
+                <Phone size={32} className={styles.infoIcon} />
+              </div>
+              <h3 className={styles.infoLabel}>Phone</h3>
+              <p className={styles.infoText}>(032) 555-IRON</p>
             </div>
+            
             <div className={styles.infoItem}>
-              <Mail size={28} className={styles.infoIcon} />
-              <p className={styles.infoText}>sweat@ironcoregym.com</p>
+              <div className={styles.iconWrapper}>
+                <Mail size={32} className={styles.infoIcon} />
+              </div>
+              <h3 className={styles.infoLabel}>Email</h3>
+              <p className={styles.infoText}>info@ironcorefitness.com</p>
+            </div>
+            
+            <div className={styles.infoItem}>
+              <div className={styles.iconWrapper}>
+                <Clock size={32} className={styles.infoIcon} />
+              </div>
+              <h3 className={styles.infoLabel}>Hours</h3>
+              <p className={styles.infoText}>Mon-Fri: 5AM - 10PM</p>
+              <p className={styles.infoText}>Sat-Sun: 6AM - 8PM</p>
             </div>
           </div>
-
-          {/* ✅ Contact Form */}
-          <form onSubmit={handleSubmit} className={styles.contactForm}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Your Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              className={styles.formInput}
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Your Email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className={styles.formInput}
-            />
-            <textarea
-              name="message"
-              placeholder="Your Message (Let us know your fitness goals!)"
-              value={formData.message}
-              onChange={handleChange}
-              required
-              rows="5"
-              className={styles.formTextarea}
-            />
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={submissionStatus === "submitting"}
-            >
-              {submissionStatus === "submitting" ? (
-                "SENDING..."
-              ) : (
-                <>
-                  <Send size={18} /> SEND MESSAGE
-                </>
-              )}
-            </button>
-
-            {submissionStatus === "success" && (
-              <p className={styles.successMessage}>
-                Message sent successfully! We will be in touch soon.
-              </p>
-            )}
-          </form>
         </div>
       </div>
     </div>

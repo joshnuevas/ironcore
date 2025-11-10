@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import { User, Mail, Edit2, Save, X, Camera } from "lucide-react";
+import { User, Mail, Edit2, Save, X, Camera, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import styles from "./ProfilePage.module.css";
 
 const ProfilePage = () => {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState({
     username: "",
     email: "",
     profilePicture: "",
+    isAdmin: false,
   });
   const [editMode, setEditMode] = useState({
     username: false,
@@ -40,10 +43,14 @@ const ProfilePage = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("User data from API:", data);
+        console.log("Is admin from API:", data.isAdmin);
+        
         setUserData({
           username: data.username,
           email: data.email,
           profilePicture: data.profilePicture || "",
+          isAdmin: data.isAdmin || false,
         });
         setEditValues({
           username: data.username,
@@ -166,6 +173,14 @@ const ProfilePage = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  // Check if user is admin from API response
+  const isAdmin = userData.isAdmin === true;
+  console.log("Is admin?", isAdmin);
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -188,6 +203,16 @@ const ProfilePage = () => {
       </div>
 
       <div className={styles.content}>
+        {isAdmin && (
+          <button 
+            className={styles.backButton}
+            onClick={handleBack}
+          >
+            <ArrowLeft className={styles.backIcon} />
+            <span>Back</span>
+          </button>
+        )}
+
         <div className={styles.profileCard}>
           <div className={styles.header}>
             <div className={styles.avatarContainer}>
@@ -225,6 +250,10 @@ const ProfilePage = () => {
             </div>
             <h1 className={styles.title}>My Profile</h1>
             <p className={styles.subtitle}>Manage your account information</p>
+            {/* Debug info - remove this after fixing */}
+            <p style={{ color: '#9ca3af', fontSize: '0.8rem', marginTop: '0.5rem' }}>
+              Is Admin: {userData.isAdmin ? 'Yes (true)' : 'No (false)'} | Back button visible: {isAdmin ? 'Yes' : 'No'}
+            </p>
           </div>
 
           {message.text && (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Clock, Users, Edit, Save, X } from "lucide-react";
+import { Calendar, Clock, Users, Edit, Save, X, ArrowLeft } from "lucide-react";
 import styles from "./AdminScheduleViewer.module.css";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -151,6 +151,15 @@ const AdminScheduleViewer = ({ onLogout }) => {
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
+          {/* Back Button */}
+          <button
+            onClick={() => window.location.href = '/admin'}
+            className={styles.backButton}
+          >
+            <ArrowLeft className={styles.backIcon} />
+            <span>Back to Admin Dashboard</span>
+          </button>
+
           {/* Header */}
           <div className={styles.headerSection}>
             <h1 className={styles.title}>SCHEDULE VIEWER</h1>
