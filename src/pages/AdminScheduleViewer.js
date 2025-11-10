@@ -188,13 +188,13 @@ const AdminScheduleViewer = ({ onLogout }) => {
                                   onChange={(e) => setEditForm({...editForm, day: e.target.value})}
                                   className={styles.editSelect}
                                 >
-                                  <option value="MONDAY">Monday</option>
-                                  <option value="TUESDAY">Tuesday</option>
-                                  <option value="WEDNESDAY">Wednesday</option>
-                                  <option value="THURSDAY">Thursday</option>
-                                  <option value="FRIDAY">Friday</option>
-                                  <option value="SATURDAY">Saturday</option>
-                                  <option value="SUNDAY">Sunday</option>
+                                  <option value="Monday">Monday</option>
+                                  <option value="Tuesday">Tuesday</option>
+                                  <option value="Wednesday">Wednesday</option>
+                                  <option value="Thursday">Thursday</option>
+                                  <option value="Friday">Friday</option>
+                                  <option value="Saturday">Saturday</option>
+                                  <option value="Sunday">Sunday</option>
                                 </select>
                               </div>
                               <div className={styles.editRow}>
