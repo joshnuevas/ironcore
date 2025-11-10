@@ -11,7 +11,7 @@ const MembershipPage = () => {
   const plans = [
     {
       name: "SILVER",
-      price: "₱1,600",
+      price: "₱1,199",
       period: "/Month",
       icon: "💪",
       features: [
@@ -25,7 +25,7 @@ const MembershipPage = () => {
     },
     {
       name: "GOLD",
-      price: "₱1,600",
+      price: "₱1,699",
       period: "/Month",
       icon: "🏆",
       features: [
@@ -39,7 +39,7 @@ const MembershipPage = () => {
     },
     {
       name: "PLATINUM",
-      price: "₱2,099",
+      price: "₱2,299",
       period: "/Month",
       icon: "👑",
       features: [
