@@ -329,6 +329,20 @@
   border: 2px solid rgba(249, 115, 22, 0.3);
 }
 
+@keyframes floatIcon {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.planIcon span {
+  display: inline-block;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
 .planName {
   font-size: 1.75rem;
   font-weight: 700;
