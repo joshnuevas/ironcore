@@ -75,153 +75,6 @@
   }
 }
 
-/* Navbar */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  background-color: rgba(17, 24, 39, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(31, 41, 55, 0.5);
-  animation: slideDown 0.6s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.navContainer {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
-/* Logo */
-.logoSection {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.logoIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: linear-gradient(to bottom right, #f97316, #dc2626);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
-  animation: glow 2s ease-in-out infinite;
-}
-
-@keyframes glow {
-  0%,
-  100% {
-    box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
-  }
-  50% {
-    box-shadow: 0 8px 20px 0 rgba(249, 115, 22, 0.5);
-  }
-}
-
-.dumbbellIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: white;
-}
-
-.logoText {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  letter-spacing: -0.025em;
-}
-
-.logoAccent {
-  color: #f97316;
-}
-
-/* Nav Links */
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  justify-content: center;
-}
-
-.navLink {
-  padding: 0.625rem 1.25rem;
-  color: #d1d5db;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  transition: all 0.3s;
-  border-radius: 0.5rem;
-  position: relative;
-}
-
-.navLink:hover {
-  color: #f97316;
-  background-color: rgba(249, 115, 22, 0.1);
-}
-
-.navLinkActive {
-  color: #f97316;
-  background-color: rgba(249, 115, 22, 0.15);
-}
-
-.navLinkActive::after {
-  content: "";
-  position: absolute;
-  bottom: 0.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1.5rem;
-  height: 2px;
-  background: linear-gradient(to right, #f97316, #dc2626);
-  border-radius: 2px;
-}
-
-/* Logout Button */
-.logoutButton {
-  padding: 0.625rem 1.5rem;
-  background: transparent;
-  border: 2px solid #f97316;
-  color: #f97316;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.logoutButton:hover {
-  background: linear-gradient(to right, #f97316, #dc2626);
-  color: white;
-  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
-  transform: translateY(-2px);
-}
-
 /* Content Section */
 .content {
   position: relative;
@@ -290,7 +143,6 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  animation: fadeInUp 0.8s ease-out both;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   opacity: 0;
   animation: slideUpFade 0.8s ease-out forwards;
@@ -307,23 +159,19 @@
   }
 }
 
-.classCard:hover::after {
-  opacity: 1;
-}
-
 .classCard:hover {
   transform: translateY(-6px);
   border-color: rgba(249, 115, 22, 0.5);
   box-shadow: 0 20px 45px rgba(249, 115, 22, 0.25);
 }
 
-.classCard:hover .iconWrapper {
-  transform: scale(1.2) rotate(10deg);
+.classCard:hover .classImage {
+  transform: scale(1.1);
 }
 
 /* Class Image Container */
 .classImageContainer {
-  height: 200px;
+  height: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -331,7 +179,16 @@
   overflow: hidden;
 }
 
-/* Gradient Classes */
+/* ✅ Class Image */
+.classImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.5s ease;
+}
+
+/* Keep gradient classes for buttons only */
 .gradientHiit {
   background: linear-gradient(135deg, #f97316, #dc2626);
 }
@@ -354,37 +211,6 @@
 
 .gradientBoxing {
   background: linear-gradient(135deg, #f97316, #e11d48);
-}
-
-/* Icon Wrapper */
-@keyframes floatIcon {
-  0%, 100% {
-    transform: translateY(0);
-    filter: drop-shadow(0 0 8px rgba(249, 115, 22, 0.4));
-  }
-  50% {
-    transform: translateY(-8px);
-    filter: drop-shadow(0 0 15px rgba(249, 115, 22, 0.7));
-  }
-}
-
-.iconWrapper {
-  width: 5rem;
-  height: 5rem;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.4s ease;
-  animation: floatIcon 3s ease-in-out infinite;
-}
-
-.classIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  color: white;
 }
 
 /* Class Content */
@@ -518,4 +344,19 @@
   font-weight: 600;
   font-size: 0.875rem;
   margin-right: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+  }
+
+  .classImageContainer {
+    height: 200px;
+  }
+
+  .classesGrid {
+    grid-template-columns: 1fr;
+  }
 }

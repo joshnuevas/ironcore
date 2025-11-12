@@ -1,5 +1,4 @@
 import React from "react";
-import { Zap, Music, Bike, Flower2, Activity, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar"; // ✅ Reused global Navbar
 import styles from "./ClassesPage.module.css";
@@ -14,9 +13,8 @@ const ClassesPage = () => {
       title: "HIIT",
       description:
         "Short bursts of intense exercise followed by rest. Great for fat burning and endurance.",
-      icon: Zap,
+      image: "/images/hiit.png", // ✅ Replace with your image path
       gradientClass: styles.gradientHiit,
-      // ✅ Added detailed data for ClassDetailsPage
       detailedData: {
         name: "HIIT Training",
         icon: "🔥",
@@ -39,9 +37,8 @@ const ClassesPage = () => {
       title: "ZUMBA",
       description:
         "Dance-based cardio workout set to music. Fun, energetic, and great for all fitness levels.",
-      icon: Music,
+      image: "/images/zumba.png", // ✅ Replace with your image path
       gradientClass: styles.gradientZumba,
-      // ✅ Added detailed data for ClassDetailsPage
       detailedData: {
         name: "Zumba Dance",
         icon: "💃",
@@ -64,9 +61,8 @@ const ClassesPage = () => {
       title: "SPIN",
       description:
         "High-energy cardio workout on stationary bikes. Focuses on stamina, leg strength, and endurance.",
-      icon: Bike,
+      image: "/images/spin.png", // ✅ Replace with your image path
       gradientClass: styles.gradientSpin,
-      // ✅ Added detailed data for ClassDetailsPage
       detailedData: {
         name: "Spin Class",
         icon: "🚴",
@@ -89,9 +85,8 @@ const ClassesPage = () => {
       title: "YOGA",
       description:
         "Build strength, flexibility, and balance. Relieve stress and improve core stability.",
-      icon: Flower2,
+      image: "/images/yoga.png", // ✅ Replace with your image path
       gradientClass: styles.gradientYoga,
-      // ✅ Added detailed data for ClassDetailsPage
       detailedData: {
         name: "Yoga Flow",
         icon: "🧘",
@@ -114,9 +109,8 @@ const ClassesPage = () => {
       title: "PILATES",
       description:
         "Low-impact exercises that strengthen muscles while improving postural alignment and flexibility.",
-      icon: Activity,
+      image: "/images/pilates.png", // ✅ Replace with your image path
       gradientClass: styles.gradientPilates,
-      // ✅ Added detailed data for ClassDetailsPage
       detailedData: {
         name: "Pilates Core",
         icon: "💪",
@@ -139,9 +133,8 @@ const ClassesPage = () => {
       title: "BOXING",
       description:
         "High-energy boxing workout combining cardio, strength training, and stress relief. No experience needed.",
-      icon: Target,
+      image: "/images/boxing.png", // ✅ Replace with your image path
       gradientClass: styles.gradientBoxing,
-      // ✅ Added detailed data for ClassDetailsPage
       detailedData: {
         name: "Boxing Fitness",
         icon: "🥊",
@@ -167,7 +160,7 @@ const ClassesPage = () => {
       state: {
         classData: {
           ...classItem.detailedData,
-          id: classItem.id,  // ⭐ Add the id to classData
+          id: classItem.id,
         },
       },
     });
@@ -196,7 +189,6 @@ const ClassesPage = () => {
 
         <div className={styles.classesGrid}>
           {classes.map((classItem, index) => {
-            const Icon = classItem.icon;
             return (
               <div
                 key={classItem.id}
@@ -204,9 +196,12 @@ const ClassesPage = () => {
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
                 <div className={`${styles.classImageContainer} ${classItem.gradientClass}`}>
-                  <div className={styles.iconWrapper}>
-                    <Icon className={styles.classIcon} />
-                  </div>
+                  <div className={styles.imageOverlay}></div>
+                  <img 
+                    src={classItem.image} 
+                    alt={classItem.title}
+                    className={styles.classImage}
+                  />
                 </div>
 
                 <div className={styles.classContent}>
