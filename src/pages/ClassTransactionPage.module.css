@@ -625,6 +625,83 @@
   transform: translateY(0);
 }
 
+/* Add these styles at the end of your CSS file */
+
+/* Warning Modal Styles */
+.warningHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.warningIcon {
+  color: #f59e0b;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.warningMessage {
+  color: #d1d5db;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.warningMessage strong {
+  color: #f97316;
+  font-weight: 700;
+}
+
+.warningNote {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin: 1.5rem 0;
+}
+
+.warningNote p {
+  color: #fbbf24;
+  margin: 0;
+  font-size: 0.95rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.okButton {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(to right, #f97316, #dc2626);
+  border: none;
+  border-radius: 0.75rem;
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+}
+
+.okButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(249, 115, 22, 0.6);
+}
+
+.okButton:active {
+  transform: translateY(0);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .checkoutGrid {

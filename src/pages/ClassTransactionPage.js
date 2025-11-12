@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, Clock, Users } from "lucide-react";
+import { Calendar, Clock, Users, AlertCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import styles from "./ClassTransactionPage.module.css";
@@ -7,6 +7,8 @@ import axios from "axios";
 
 const ClassTransactionPage = ({ onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [duplicateEnrollmentInfo, setDuplicateEnrollmentInfo] = useState(null);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [schedules, setSchedules] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -70,10 +72,36 @@ const ClassTransactionPage = ({ onLogout }) => {
     fetchSchedules();
   }, [classData?.id]);
 
-  const handleEnrollNow = () => {
+  // Check for active enrollment before proceeding
+  const handleEnrollNow = async () => {
     if (!selectedSchedule) return alert("Please select a schedule first");
     if (!currentUser) return alert("User info not loaded");
-    setShowConfirmModal(true);
+
+    try {
+      // Check if user already has an active enrollment for this class
+      const response = await axios.get(
+        "http://localhost:8080/api/transactions/check-active-enrollment",
+        {
+          params: {
+            userId: currentUser.id,
+            classId: classData.id,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (response.data.hasActiveEnrollment) {
+        // User already has an active enrollment
+        setDuplicateEnrollmentInfo(response.data);
+        setShowDuplicateModal(true);
+      } else {
+        // No active enrollment, proceed to confirmation
+        setShowConfirmModal(true);
+      }
+    } catch (error) {
+      console.error("Error checking enrollment:", error);
+      alert("Failed to verify enrollment status. Please try again.");
+    }
   };
 
   const handleConfirmPayment = async () => {
@@ -118,6 +146,7 @@ const ClassTransactionPage = ({ onLogout }) => {
   };
 
   const handleCloseModal = () => setShowConfirmModal(false);
+  const handleCloseDuplicateModal = () => setShowDuplicateModal(false);
 
   if (userLoading) {
     return (
@@ -277,6 +306,47 @@ const ClassTransactionPage = ({ onLogout }) => {
           </div>
         </div>
       </div>
+
+      {/* Duplicate Enrollment Warning Modal */}
+      {showDuplicateModal && duplicateEnrollmentInfo && (
+        <div className={styles.modalOverlay} onClick={handleCloseDuplicateModal}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.closeButton} onClick={handleCloseDuplicateModal}>
+              ×
+            </button>
+            
+            <div className={styles.warningHeader}>
+              <AlertCircle className={styles.warningIcon} size={48} />
+              <h2 className={styles.modalTitle}>Active Enrollment Found</h2>
+            </div>
+            
+            <p className={styles.warningMessage}>
+              You already have an upcoming or ongoing class enrollment for <strong>{duplicateEnrollmentInfo.className}</strong>.
+            </p>
+
+            <div className={styles.modalDetails}>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Schedule:</span>
+                <span className={styles.detailValue}>
+                  {duplicateEnrollmentInfo.scheduleDay}, {duplicateEnrollmentInfo.scheduleTime}
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Date:</span>
+                <span className={styles.detailValue}>{duplicateEnrollmentInfo.scheduleDate}</span>
+              </div>
+            </div>
+
+            <div className={styles.warningNote}>
+              <p>Please complete your current session before enrolling in a new one.</p>
+            </div>
+
+            <button onClick={handleCloseDuplicateModal} className={styles.okButton}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal */}
       {showConfirmModal && selectedSchedule && currentUser && (
