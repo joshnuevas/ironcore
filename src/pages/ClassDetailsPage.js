@@ -130,7 +130,7 @@ const ClassDetailsPage = ({ onLogout }) => {
                     </span>
                     <span className={styles.metaBadge}>
                       <Users size={16} />
-                      Max {classData.maxParticipants} people
+                      Class Size: Up to {classData.maxParticipants} Participants
                     </span>
                     <span className={`${styles.metaBadge} ${styles.intensityBadge}`}>
                       <Dumbbell size={16} />

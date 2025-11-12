@@ -19,6 +19,11 @@ const AdminSlotChecker = ({ onLogout }) => {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [removeError, setRemoveError] = useState(null);
 
+  // ⭐ NEW: Confirmation modal states
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [userToRemove, setUserToRemove] = useState(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+
   useEffect(() => {
     fetchSchedules();
   }, []);
@@ -60,28 +65,50 @@ const AdminSlotChecker = ({ onLogout }) => {
     await fetchEnrolledUsers(schedule.id);
   };
 
-  const handleRemoveUser = async (transactionId) => {
-    if (!window.confirm("Mark this user's session as completed? This will free up the slot.")) {
-      return;
-    }
+  // ⭐ NEW: Show confirmation modal
+  const handleRemoveUser = (user) => {
+    setUserToRemove(user);
+    setShowConfirmModal(true);
+    setRemoveError(null);
+  };
+
+  // ⭐ NEW: Confirm removal
+  const handleConfirmRemoval = async () => {
+    if (!userToRemove) return;
 
     try {
+      setIsRemoving(true);
       setRemoveError(null);
+      
       const response = await axios.put(
-        `http://localhost:8080/api/admin/schedules/${selectedSchedule.id}/users/${transactionId}/complete`,
+        `http://localhost:8080/api/admin/schedules/${selectedSchedule.id}/users/${userToRemove.transactionId}/complete`,
         {},
         { withCredentials: true }
       );
 
+      // Refresh data without page reload
       await fetchEnrolledUsers(selectedSchedule.id);
       await fetchSchedules();
 
-      setSaveSuccess("Session marked as completed");
+      setSaveSuccess("Session marked as completed successfully");
       setTimeout(() => setSaveSuccess(null), 3000);
+
+      // Close confirmation modal
+      setShowConfirmModal(false);
+      setUserToRemove(null);
     } catch (error) {
       console.error("Failed to complete session:", error);
       setRemoveError(error.response?.data?.message || "Failed to mark session as completed");
+    } finally {
+      setIsRemoving(false);
     }
+  };
+
+  // ⭐ NEW: Cancel removal
+  const handleCancelRemoval = () => {
+    setShowConfirmModal(false);
+    setUserToRemove(null);
+    setRemoveError(null);
   };
 
   const handleCloseModal = () => {
@@ -464,7 +491,7 @@ const AdminSlotChecker = ({ onLogout }) => {
                         </div>
                       </div>
                       <button
-                        onClick={() => handleRemoveUser(user.transactionId)}
+                        onClick={() => handleRemoveUser(user)}
                         className={styles.removeBtn}
                         title="Mark session as completed"
                       >
@@ -474,6 +501,42 @@ const AdminSlotChecker = ({ onLogout }) => {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ⭐ NEW: Confirmation Modal */}
+      {showConfirmModal && userToRemove && (
+        <div className={styles.confirmOverlay} onClick={handleCancelRemoval}>
+          <div className={styles.confirmModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.confirmIcon}>
+              <CheckCircle size={48} />
+            </div>
+            <h2 className={styles.confirmTitle}>Complete Session?</h2>
+            <p className={styles.confirmMessage}>
+              Mark <strong>{userToRemove.username}'s</strong> session as completed? 
+              This will free up the slot for new enrollments.
+            </p>
+            <div className={styles.confirmDetails}>
+              <p className={styles.confirmEmail}>{userToRemove.email}</p>
+              <p className={styles.confirmTransaction}>Transaction: {userToRemove.transactionCode}</p>
+            </div>
+            <div className={styles.confirmButtons}>
+              <button
+                onClick={handleConfirmRemoval}
+                className={styles.confirmBtn}
+                disabled={isRemoving}
+              >
+                {isRemoving ? "Completing..." : "Yes, Complete Session"}
+              </button>
+              <button
+                onClick={handleCancelRemoval}
+                className={styles.confirmCancelBtn}
+                disabled={isRemoving}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>

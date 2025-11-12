@@ -46,7 +46,7 @@ const ClassesPage = () => {
         price: "₱400",
         duration: "60 mins",
         intensity: "Medium",
-        maxParticipants: 20,
+        maxParticipants: 15,
         trainer: {
           name: "Coach Maria Santos",
           image: "👩‍🏫",
@@ -94,7 +94,7 @@ const ClassesPage = () => {
         price: "₱400",
         duration: "60 mins",
         intensity: "Low",
-        maxParticipants: 20,
+        maxParticipants: 15,
         trainer: {
           name: "Coach Linda Chen",
           image: "👩‍🏫",
@@ -118,7 +118,7 @@ const ClassesPage = () => {
         price: "₱450",
         duration: "50 mins",
         intensity: "Low-Medium",
-        maxParticipants: 18,
+        maxParticipants: 15,
         trainer: {
           name: "Coach Emily Rodriguez",
           image: "👩‍🏫",
@@ -142,7 +142,7 @@ const ClassesPage = () => {
         price: "₱500",
         duration: "55 mins",
         intensity: "High",
-        maxParticipants: 12,
+        maxParticipants: 15,
         trainer: {
           name: "Coach Mark Johnson",
           image: "👨‍🏫",
