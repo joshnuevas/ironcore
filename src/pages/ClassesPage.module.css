@@ -282,20 +282,25 @@
 
 /* Class Card */
 .classCard {
-  background: rgba(17, 24, 39, 0.6);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
   border-radius: 1rem;
   overflow: hidden;
-  border: 1px solid rgba(249, 115, 22, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   animation: fadeInUp 0.8s ease-out both;
-  transition: all 0.4s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.classCard:hover::after {
+  opacity: 1;
 }
 
 .classCard:hover {
-  transform: translateY(-8px);
+  transform: translateY(-6px);
   border-color: rgba(249, 115, 22, 0.5);
-  box-shadow: 0 20px 40px rgba(249, 115, 22, 0.2);
+  box-shadow: 0 20px 45px rgba(249, 115, 22, 0.25);
 }
 
 .classCard:hover .iconWrapper {
