@@ -116,6 +116,23 @@
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.25s ease;
+  position:relative;
+  overflow: hidden;
+}
+
+.bookButton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.2);
+  transition: left 0.3s ease;
+}
+
+.bookButton:hover::after {
+  left: 100%;
 }
 
 .bookButton:hover {
