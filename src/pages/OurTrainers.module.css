@@ -2,7 +2,7 @@
 
 .pageWrapper {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #111827, #1f2937, #000000);
+  background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
   color: white;
 }
 
