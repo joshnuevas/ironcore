@@ -9,7 +9,7 @@ const trainers = [
     name: "Coach Sarah Martinez",
     location: "HIIT & Cardio Specialist",
     rating: 5,
-    image: "/images/sarah-martinez.jpg",
+    image: "/images/sarah_martinez.png",
     description:
       "With 8 years of experience, Coach Sarah specializes in high-intensity interval training and cardio workouts. Her energetic approach and focus on fat burning and endurance makes her classes challenging yet rewarding for all fitness levels.",
   },
@@ -17,7 +17,7 @@ const trainers = [
     name: "Coach Maria Santos",
     location: "Dance & Cardio",
     rating: 5,
-    image: "/images/maria-santos.jpg",
+    image: "/images/maria_santos.png",
     description:
       "Coach Maria brings 7 years of dance and fitness expertise to every Zumba session. Her infectious energy and passion for dance-based cardio creates a fun, welcoming environment where everyone feels confident moving to the beat.",
   },
@@ -25,7 +25,7 @@ const trainers = [
     name: "Coach Anna Lee",
     location: "Cardio & Endurance",
     rating: 5,
-    image: "/images/anna-lee.jpg",
+    image: "/images/anna_lee.png",
     description:
       "With 6 years of experience in cycling and endurance training, Coach Anna leads high-energy spin classes that build stamina and leg strength. Her motivating coaching style pushes you to reach new performance levels.",
   },
@@ -33,7 +33,7 @@ const trainers = [
     name: "Coach Linda Chen",
     location: "Yoga & Meditation",
     rating: 5,
-    image: "/images/linda-chen.jpg",
+    image: "/images/linda_chen.png",
     description:
       "A master yoga instructor with 10 years of experience, Coach Linda guides students through mindful movement practices that build strength, flexibility, and inner peace. Her calming presence and expert instruction create transformative yoga experiences.",
   },
@@ -41,7 +41,7 @@ const trainers = [
     name: "Coach Emily Rodriguez",
     location: "Pilates & Core Training",
     rating: 5,
-    image: "/images/emily-rodriguez.jpg",
+    image: "/images/emily_rodriguez.png",
     description:
       "Coach Emily has dedicated 9 years to mastering Pilates and core strengthening techniques. Her precise instruction and focus on proper alignment helps clients develop a strong, stable core while improving overall flexibility and posture.",
   },
@@ -49,7 +49,7 @@ const trainers = [
     name: "Coach Mark Johnson",
     location: "Boxing & Combat Fitness",
     rating: 5,
-    image: "/images/mark-johnson.jpg",
+    image: "/images/mark_johnson.png",
     description:
       "With 11 years in boxing and combat fitness, Coach Mark delivers powerful, high-energy workouts that combine cardio, strength training, and stress relief. His expertise makes boxing accessible and exciting for all experience levels.",
   },

@@ -51,7 +51,8 @@
 .trainerImage {
   height: 400px;
   background-size: cover;
-  background-position: center;
+  background-position: center 30%; /* ✅ Changed from 'center' to 'center 30%' */
+  background-repeat: no-repeat;
 }
 
 .trainerInfo {

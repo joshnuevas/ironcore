@@ -64,7 +64,8 @@
 .image {
   height: 320px;
   background-size: cover;
-  background-position: center;
+  background-position: center 30%; /* ✅ Changed to focus on upper-middle portion */
+  background-repeat: no-repeat;
   transition: transform 0.5s ease;
 }
 
@@ -117,7 +118,7 @@
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.25s ease;
-  position:relative;
+  position: relative;
   overflow: hidden;
 }
 
