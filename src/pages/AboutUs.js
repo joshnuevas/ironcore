@@ -51,8 +51,8 @@ const AboutUs = () => {
 
   const stats = [
     { number: "5000+", label: "Active Members" },
-    { number: "50+", label: "Expert Trainers" },
-    { number: "100+", label: "Classes Weekly" },
+    { number: "6", label: "Expert Trainers" },
+    { number: "10+", label: "Classes Weekly" },
     { number: "10+", label: "Years Strong" },
   ];
 

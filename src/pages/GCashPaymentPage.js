@@ -11,12 +11,14 @@ const GCashPaymentPage = ({ onLogout }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [pin, setPin] = useState("");
+  const [completedTransaction, setCompletedTransaction] = useState(null);
   
   // Get payment details from previous page
   const paymentDetails = location.state || {
     plan: "GOLD",
     amount: 1650,
     transactionId: null,
+    transactionCode: null,
   };
 
   const merchantDetails = {
@@ -51,13 +53,12 @@ const GCashPaymentPage = ({ onLogout }) => {
 
         console.log("Transaction updated:", response.data);
         
+        // Store the completed transaction data
+        setCompletedTransaction(response.data);
+        
         // Show success animation
         setShowSuccess(true);
-        
-        // Redirect after 2 seconds
-        setTimeout(() => {
-          navigate("/landing");
-        }, 2000);
+        setIsProcessing(false);
       } catch (error) {
         console.error("Failed to update transaction:", error);
         alert("Payment failed. Please try again.");
@@ -69,6 +70,11 @@ const GCashPaymentPage = ({ onLogout }) => {
   const handlePinChange = (e) => {
     const value = e.target.value.replace(/\D/g, "").slice(0, 4);
     setPin(value);
+  };
+
+  // ⭐ NEW: Handle confirmation button click
+  const handleConfirmSuccess = () => {
+    navigate("/landing");
   };
 
   return (
@@ -175,7 +181,7 @@ const GCashPaymentPage = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* Success Modal */}
+      {/* ⭐ UPDATED: Success Modal with Confirmation Button */}
       {showSuccess && (
         <div className={styles.successOverlay}>
           <div className={styles.successModal}>
@@ -184,17 +190,58 @@ const GCashPaymentPage = ({ onLogout }) => {
             </div>
             <h2 className={styles.successTitle}>Payment Successful!</h2>
             <p className={styles.successMessage}>
-              Your enrollment has been confirmed.
+              {paymentDetails.className 
+                ? `You're enrolled in ${paymentDetails.className}!` 
+                : "Your membership has been activated!"}
             </p>
             <div className={styles.successAmount}>₱{paymentDetails.amount.toLocaleString()}</div>
             
-            {/* ⭐ ADD THIS: Display transaction code */}
-            {paymentDetails.transactionCode && (
+            {/* ⭐ UPDATED: Display transaction code from both sources */}
+            {(completedTransaction?.transactionCode || paymentDetails.transactionCode) && (
               <div className={styles.transactionCodeBox}>
                 <span className={styles.codeLabel}>Transaction Code:</span>
-                <span className={styles.codeValue}>{paymentDetails.transactionCode}</span>
+                <span className={styles.codeValue}>
+                  {completedTransaction?.transactionCode || paymentDetails.transactionCode}
+                </span>
+                <p className={styles.codeHint}>Save this code for your records</p>
               </div>
             )}
+
+            {/* ⭐ UPDATED: Additional details for class enrollment */}
+            {paymentDetails.className && (
+              <div className={styles.enrollmentDetails}>
+                <div className={styles.detailRow}>
+                  <span className={styles.detailLabel}>Class:</span>
+                  <span className={styles.detailValue}>{paymentDetails.className}</span>
+                </div>
+                {paymentDetails.scheduleDay && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Day:</span>
+                    <span className={styles.detailValue}>{paymentDetails.scheduleDay}</span>
+                  </div>
+                )}
+                {paymentDetails.scheduleTime && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Time:</span>
+                    <span className={styles.detailValue}>{paymentDetails.scheduleTime}</span>
+                  </div>
+                )}
+                {paymentDetails.scheduleDate && (
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Date:</span>
+                    <span className={styles.detailValue}>{paymentDetails.scheduleDate}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ⭐ NEW: Confirmation Button */}
+            <button 
+              onClick={handleConfirmSuccess} 
+              className={styles.confirmButton}
+            >
+              Got it!
+            </button>
           </div>
         </div>
       )}

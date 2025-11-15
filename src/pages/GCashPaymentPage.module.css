@@ -346,31 +346,6 @@
   animation: spin 1s linear infinite;
 }
 
-.transactionCodeBox {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: #f3f4f6;
-  border-radius: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.codeLabel {
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.codeValue {
-  font-size: 1.25rem;
-  font-weight: 900;
-  color: #0066ff;
-  font-family: 'Courier New', monospace;
-  letter-spacing: 0.1em;
-}
-
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -404,6 +379,7 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
   animation: fadeIn 0.3s ease-out;
 }
 
@@ -419,11 +395,13 @@
 .successModal {
   background: white;
   border-radius: 2rem;
-  padding: 3rem 2rem;
-  max-width: 400px;
-  width: 90%;
+  padding: 3rem 2.5rem;
+  max-width: 500px;
+  width: 100%;
   text-align: center;
   animation: scaleIn 0.5s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes scaleIn {
@@ -466,6 +444,7 @@
   font-size: 1rem;
   color: #6b7280;
   margin: 0 0 1.5rem 0;
+  line-height: 1.5;
 }
 
 .successAmount {
@@ -475,6 +454,107 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  margin-bottom: 1rem;
+}
+
+/* ⭐ Transaction Code Box */
+.transactionCodeBox {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.codeLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.codeValue {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #0066ff;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.15em;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 2px dashed #0066ff;
+}
+
+.codeHint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* ⭐ Enrollment Details */
+.enrollmentDetails {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detailLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.detailValue {
+  font-size: 0.938rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+/* ⭐ Confirmation Button */
+.confirmButton {
+  width: 100%;
+  padding: 1.25rem 2rem;
+  margin-top: 2rem;
+  background: linear-gradient(135deg, #0066ff, #0099ff);
+  border: none;
+  border-radius: 1rem;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 102, 255, 0.4);
+}
+
+.confirmButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 102, 255, 0.5);
+}
+
+.confirmButton:active {
+  transform: translateY(-1px);
 }
 
 /* Responsive */
@@ -490,6 +570,14 @@
 
   .contentContainer {
     padding: 0 1rem;
+  }
+
+  .successModal {
+    padding: 2.5rem 2rem;
+  }
+
+  .codeValue {
+    font-size: 1.25rem;
   }
 }
 
@@ -508,5 +596,23 @@
 
   .successModal {
     padding: 2rem 1.5rem;
+  }
+
+  .successTitle {
+    font-size: 1.5rem;
+  }
+
+  .successAmount {
+    font-size: 2rem;
+  }
+
+  .codeValue {
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .confirmButton {
+    font-size: 1rem;
+    padding: 1rem 1.5rem;
   }
 }
