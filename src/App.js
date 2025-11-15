@@ -21,10 +21,11 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import GCashPaymentPage from "./pages/GCashPaymentPage";
 import ClassTransactionPage from "./pages/ClassTransactionPage";
 import ClassDetailsPage from "./pages/ClassDetailsPage";
-import AdminLandingPage from "./pages/AdminLandingPage"; // NEW IMPORT
+import AdminLandingPage from "./pages/AdminLandingPage";
 import AdminCodeChecker from "./pages/AdminCodeChecker";
 import AdminScheduleViewer from "./pages/AdminScheduleViewer";
 import AdminSlotChecker from "./pages/AdminSlotChecker";
+import ClassSelectionPage from "./pages/ClassSelectionPage";
 
 function App() {
   return (
@@ -135,8 +136,17 @@ function App() {
           }
         />
 
+        {/* Class Selection Route */}
+        <Route
+          path="/class-selection"
+          element={
+            <ProtectedRoute>
+              <ClassSelectionPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Admin routes - Protected by ProtectedAdminRoute */}
-        {/* NEW ROUTE - Admin Landing/Dashboard */}
         <Route
           path="/admin"
           element={

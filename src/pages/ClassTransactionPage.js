@@ -141,6 +141,11 @@ const ClassTransactionPage = ({ onLogout }) => {
             plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.timeSlot}`,
             amount: total,
             transactionId: response.data.id,
+            transactionCode: response.data.transactionCode,
+            className: classData.name,
+            scheduleDay: selectedSchedule.day,
+            scheduleTime: selectedSchedule.timeSlot,
+            scheduleDate: selectedSchedule.date,
           },
         });
       }
@@ -159,7 +164,24 @@ const ClassTransactionPage = ({ onLogout }) => {
   };
 
   const handleCloseModal = () => setShowConfirmModal(false);
-  const handleCloseDuplicateModal = () => setShowDuplicateModal(false);
+  const handleCloseDuplicateModal = () => {
+    setShowDuplicateModal(false);
+    setDuplicateEnrollmentInfo(null);
+  };
+
+  // Format date helper
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      return new Date(dateString).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch (error) {
+      return dateString;
+    }
+  };
 
   // Loading state
   if (userLoading) {
@@ -329,7 +351,7 @@ const ClassTransactionPage = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* Duplicate Enrollment Warning Modal */}
+      {/* ⭐ UPDATED: Duplicate Enrollment Warning Modal - Different for membership vs regular classes */}
       {showDuplicateModal && duplicateEnrollmentInfo && (
         <div className={styles.modalOverlay} onClick={handleCloseDuplicateModal}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -339,30 +361,74 @@ const ClassTransactionPage = ({ onLogout }) => {
             
             <div className={styles.warningHeader}>
               <AlertCircle className={styles.warningIcon} size={48} />
-              <h2 className={styles.modalTitle}>Active Enrollment Found</h2>
+              <h2 className={styles.modalTitle}>
+                {duplicateEnrollmentInfo.scheduleDay 
+                  ? "Class Session Still Active" 
+                  : "Membership Class Already Selected"}
+              </h2>
             </div>
             
-            <p className={styles.warningMessage}>
-              You already have an upcoming or ongoing class enrollment for{" "}
-              <strong>{duplicateEnrollmentInfo.className}</strong>.
-            </p>
+            {/* ⭐ For Regular Class Enrollments (with schedule) */}
+            {duplicateEnrollmentInfo.scheduleDay ? (
+              <>
+                <p className={styles.warningMessage}>
+                  You already have an active enrollment for{" "}
+                  <strong>{duplicateEnrollmentInfo.className}</strong>. Please complete your current session before enrolling in a new one.
+                </p>
 
-            <div className={styles.modalDetails}>
-              <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Schedule:</span>
-                <span className={styles.detailValue}>
-                  {duplicateEnrollmentInfo.scheduleDay}, {duplicateEnrollmentInfo.scheduleTime}
-                </span>
-              </div>
-              <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Date:</span>
-                <span className={styles.detailValue}>{duplicateEnrollmentInfo.scheduleDate}</span>
-              </div>
-            </div>
+                <div className={styles.modalDetails}>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Scheduled:</span>
+                    <span className={styles.detailValue}>
+                      {duplicateEnrollmentInfo.scheduleDay}, {duplicateEnrollmentInfo.scheduleTime}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Date:</span>
+                    <span className={styles.detailValue}>{duplicateEnrollmentInfo.scheduleDate}</span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Access Code:</span>
+                    <span className={styles.detailValue}>{duplicateEnrollmentInfo.transactionCode}</span>
+                  </div>
+                </div>
 
-            <div className={styles.warningNote}>
-              <p>Please complete your current session before enrolling in a new one.</p>
-            </div>
+                <div className={styles.warningNote}>
+                  <p>You can enroll in a new session after completing this one.</p>
+                </div>
+              </>
+            ) : (
+              /* ⭐ For Membership-Included Classes (no schedule) */
+              <>
+                <p className={styles.warningMessage}>
+                  You've already selected <strong>{duplicateEnrollmentInfo.className}</strong> as part of your{" "}
+                  <strong>{duplicateEnrollmentInfo.membershipType}</strong> membership.
+                </p>
+
+                <div className={styles.modalDetails}>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Membership:</span>
+                    <span className={styles.detailValue}>
+                      {duplicateEnrollmentInfo.membershipType}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Valid Until:</span>
+                    <span className={styles.detailValue}>
+                      {formatDate(duplicateEnrollmentInfo.membershipExpiryDate)}
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Access Code:</span>
+                    <span className={styles.detailValue}>{duplicateEnrollmentInfo.transactionCode}</span>
+                  </div>
+                </div>
+
+                <div className={styles.warningNote}>
+                  <p>This class is already included in your active membership until the expiry date.</p>
+                </div>
+              </>
+            )}
 
             <button onClick={handleCloseDuplicateModal} className={styles.okButton}>
               Got it

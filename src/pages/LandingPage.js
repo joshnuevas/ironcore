@@ -50,7 +50,7 @@ const LandingPage = () => {
     navigate("/contact");
   };
 
-  // ⭐ NEW: Format date helper function
+  // Format date helper function
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     
@@ -80,7 +80,7 @@ const LandingPage = () => {
       {/* Hero Section */}
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
-          {/* Welcome message using currentUser */}
+          {/* Welcome message */}
           {currentUser && (
             <div className={styles.welcomeMessage}>
               Welcome back, <span className={styles.userName}>{currentUser.username}</span>!
@@ -118,14 +118,14 @@ const LandingPage = () => {
                   {/* Card Header */}
                   <div className={styles.cardHeader}>
                     <div className={styles.cardIcon}>
-                      {transaction.membershipType ? (
+                      {transaction.membershipType && !transaction.scheduleDay ? (
                         <Award size={24} />
                       ) : (
                         <Calendar size={24} />
                       )}
                     </div>
                     <div className={styles.cardType}>
-                      {transaction.membershipType ? "MEMBERSHIP" : "CLASS"}
+                      {transaction.membershipType && !transaction.scheduleDay ? "MEMBERSHIP" : "CLASS"}
                     </div>
                   </div>
 
@@ -135,8 +135,8 @@ const LandingPage = () => {
                       {transaction.className || transaction.membershipType}
                     </h3>
 
-                    {/* Class Details */}
-                    {transaction.className && (
+                    {/* Class Details - Only for classes with schedule */}
+                    {transaction.className && transaction.scheduleDay && (
                       <div className={styles.cardDetails}>
                         <div className={styles.detailRow}>
                           <Calendar size={16} />
@@ -151,23 +151,33 @@ const LandingPage = () => {
                       </div>
                     )}
 
-                    {/* ⭐ UPDATED: Membership Details with formatted date */}
-                    {transaction.membershipType && (
+                    {/* Pure Membership Details - Only for memberships without schedule */}
+                    {transaction.membershipType && !transaction.scheduleDay && !transaction.className && (
                       <div className={styles.cardDetails}>
                         <div className={styles.detailRow}>
                           <CheckCircle size={16} />
-                          <span>
-                            Active until {formatDate(transaction.membershipExpiryDate)}
-                          </span>
+                          <span>Active until {formatDate(transaction.membershipExpiryDate)}</span>
                         </div>
                         {transaction.membershipActivatedDate && (
                           <div className={styles.detailRow}>
                             <Calendar size={16} />
-                            <span>
-                              Started: {formatDate(transaction.membershipActivatedDate)}
-                            </span>
+                            <span>Started: {formatDate(transaction.membershipActivatedDate)}</span>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Membership-Included Classes - Classes with membershipType but no schedule */}
+                    {transaction.className && !transaction.scheduleDay && transaction.membershipType && (
+                      <div className={styles.cardDetails}>
+                        <div className={styles.detailRow}>
+                          <CheckCircle size={16} />
+                          <span>Included in {transaction.membershipType} membership</span>
+                        </div>
+                        <div className={styles.detailRow}>
+                          <Calendar size={16} />
+                          <span>Valid until {formatDate(transaction.membershipExpiryDate)}</span>
+                        </div>
                       </div>
                     )}
 

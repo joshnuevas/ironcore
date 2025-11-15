@@ -72,9 +72,21 @@ const GCashPaymentPage = ({ onLogout }) => {
     setPin(value);
   };
 
-  // ⭐ NEW: Handle confirmation button click
+  // ⭐ UPDATED: Handle confirmation button click
   const handleConfirmSuccess = () => {
-    navigate("/landing");
+    // Check if it's a membership transaction
+    if (completedTransaction?.membershipType) {
+      // Redirect to class selection page
+      navigate("/class-selection", {
+        state: {
+          membershipType: completedTransaction.membershipType,
+          transactionId: completedTransaction.id,
+        },
+      });
+    } else {
+      // For class enrollments, go to landing page
+      navigate("/landing");
+    }
   };
 
   return (

@@ -19,7 +19,6 @@ const MembershipPage = () => {
       period: "/Month",
       icon: "💪",
       features: [
-        "Unlimited Classes",
         "Access to Gym Floor",
         "Nutrition Plan",
         "Locker Access",
@@ -33,7 +32,6 @@ const MembershipPage = () => {
       period: "/Month",
       icon: "🏆",
       features: [
-        "Unlimited Classes",
         "Access to Gym Floor",
         "Nutrition & Fitness Plan",
         "1 Session Trainer",
@@ -51,7 +49,6 @@ const MembershipPage = () => {
         "Access to Gym Floor",
         "Nutrition & Fitness Plan",
         "1 Session Trainer",
-        "Unlimited Classes",
       ],
       popular: false,
     },
