@@ -11,7 +11,6 @@ const TransactionPage = ({ onLogout }) => {
   const [userLoading, setUserLoading] = useState(true);
   const [activeMembership, setActiveMembership] = useState(null);
   const [showMembershipWarning, setShowMembershipWarning] = useState(false);
-  const [isCheckingMembership, setIsCheckingMembership] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,50 +51,9 @@ const TransactionPage = ({ onLogout }) => {
     fetchCurrentUser();
   }, [navigate]);
 
-  useEffect(() => {
-    const checkActiveMembership = async () => {
-      if (!currentUser) return;
-
-      try {
-        setIsCheckingMembership(true);
-        const response = await axios.get(
-          `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
-          { withCredentials: true }
-        );
-
-        if (response.data.hasActiveMembership) {
-          const expiryDate = new Date(response.data.membershipExpiryDate);
-          const now = new Date();
-          
-          if (expiryDate > now) {
-            setActiveMembership(response.data);
-            setShowMembershipWarning(true);
-          } else {
-            setActiveMembership(null);
-          }
-        } else {
-          setActiveMembership(null);
-        }
-      } catch (error) {
-        console.error("Error checking membership:", error);
-      } finally {
-        setIsCheckingMembership(false);
-      }
-    };
-
-    if (currentUser) {
-      checkActiveMembership();
-    }
-  }, [currentUser]);
-
   const handleBuyNow = () => {
     if (!currentUser) {
       alert("User information not loaded. Please try again.");
-      return;
-    }
-
-    if (activeMembership) {
-      setShowMembershipWarning(true);
       return;
     }
 
@@ -104,18 +62,12 @@ const TransactionPage = ({ onLogout }) => {
 
   const handleCloseWarning = () => {
     setShowMembershipWarning(false);
-    navigate("/landing");
+    navigate("/membership");
   };
 
   const handleConfirmPayment = async () => {
     if (!currentUser) {
       alert("User information not loaded.");
-      return;
-    }
-
-    if (activeMembership) {
-      setShowSuccessModal(false);
-      setShowMembershipWarning(true);
       return;
     }
 
@@ -153,6 +105,7 @@ const TransactionPage = ({ onLogout }) => {
     } catch (error) {
       console.error("Error:", error);
       
+      // Backend caught active membership - show warning
       if (error.response?.status === 409 && error.response?.data?.error === "ACTIVE_MEMBERSHIP_EXISTS") {
         setShowSuccessModal(false);
         setActiveMembership(error.response.data);
@@ -178,7 +131,7 @@ const TransactionPage = ({ onLogout }) => {
     });
   };
 
-  if (userLoading || isCheckingMembership) {
+  if (userLoading) {
     return (
       <div className={styles.transactionContainer}>
         <Navbar activeNav="MEMBERSHIP" onLogout={onLogout} />
@@ -186,7 +139,7 @@ const TransactionPage = ({ onLogout }) => {
           <div className={styles.contentContainer}>
             <div className={styles.loadingState}>
               <div className={styles.spinner}></div>
-              <p>{userLoading ? "Loading user information..." : "Checking membership status..."}</p>
+              <p>Loading user information...</p>
             </div>
           </div>
         </div>
@@ -210,19 +163,6 @@ const TransactionPage = ({ onLogout }) => {
             <h1 className={styles.title}>CHECKOUT</h1>
             <p className={styles.subtitle}>Complete your membership purchase</p>
           </div>
-
-          {activeMembership && (
-            <div className={styles.warningBanner}>
-              <AlertCircle className={styles.bannerIcon} />
-              <div>
-                <h3 className={styles.bannerTitle}>Active Membership Detected</h3>
-                <p className={styles.bannerText}>
-                  You have an active {activeMembership.membershipType} membership that expires on{" "}
-                  {formatExpiryDate(activeMembership.membershipExpiryDate)}
-                </p>
-              </div>
-            </div>
-          )}
 
           <div className={styles.checkoutGrid}>
             <div className={styles.summaryCard}>
@@ -264,9 +204,9 @@ const TransactionPage = ({ onLogout }) => {
                 <button 
                   onClick={handleBuyNow} 
                   className={styles.buyNowButton}
-                  disabled={!currentUser || activeMembership}
+                  disabled={!currentUser}
                 >
-                  {activeMembership ? "Active Membership Exists" : currentUser ? "Buy Now" : "Loading..."}
+                  {currentUser ? "Buy Now" : "Loading..."}
                 </button>
               </div>
             </div>
@@ -323,7 +263,7 @@ const TransactionPage = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* Compact Warning Modal */}
+      {/* Backend Error - Active Membership Warning Modal */}
       {showMembershipWarning && activeMembership && (
         <div className={styles.modalOverlay}>
           <div className={styles.compactWarningModal} onClick={(e) => e.stopPropagation()}>
@@ -377,69 +317,59 @@ const TransactionPage = ({ onLogout }) => {
         </div>
       )}
 
-      {/* Confirmation Modal */}
-      {showSuccessModal && currentUser && !activeMembership && (
+      {/* Compact Confirmation Modal */}
+      {showSuccessModal && currentUser && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.closeButton} onClick={handleCloseModal}>×</button>
+          <div className={styles.compactConfirmModal} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.compactCloseButton} onClick={handleCloseModal}>×</button>
             
-            <h2 className={styles.modalTitle}>Order Details</h2>
-            <p className={styles.modalSubtitle}>Please confirm your information is correct</p>
+            <h2 className={styles.compactConfirmTitle}>Order Details</h2>
+            <p className={styles.compactConfirmSubtitle}>Please confirm your information is correct</p>
 
-            <div className={styles.modalDetails}>
-              <div className={styles.modalSection}>
-                <div className={styles.planDisplay}>
-                  <span className={styles.planIconLarge}>{plan.icon}</span>
-                  <div>
-                    <h3 className={styles.modalPlanName}>{plan.name} Membership</h3>
-                    <p className={styles.modalPlanType}>Monthly Subscription</p>
-                  </div>
+            <div className={styles.compactConfirmDetails}>
+              <div className={styles.compactPlanDisplay}>
+                <span className={styles.compactPlanIcon}>{plan.icon}</span>
+                <div>
+                  <h3 className={styles.compactPlanName}>{plan.name} Membership</h3>
+                  <p className={styles.compactPlanType}>Monthly Subscription</p>
                 </div>
               </div>
 
-              <div className={styles.divider}></div>
+              <div className={styles.compactDivider}></div>
 
-              <div className={styles.modalSection}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Name:</span>
-                  <span className={styles.detailValue}>{currentUser.username}</span>
-                </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Email:</span>
-                  <span className={styles.detailValue}>{currentUser.email}</span>
-                </div>
+              <div className={styles.compactConfirmRow}>
+                <span className={styles.compactConfirmLabel}>Name:</span>
+                <span className={styles.compactConfirmValue}>{currentUser.username}</span>
+              </div>
+              <div className={styles.compactConfirmRow}>
+                <span className={styles.compactConfirmLabel}>Email:</span>
+                <span className={styles.compactConfirmValue}>{currentUser.email}</span>
               </div>
 
-              <div className={styles.divider}></div>
+              <div className={styles.compactDivider}></div>
 
-              <div className={styles.modalSection}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Pay with:</span>
-                  <span className={styles.detailValue}>
-                    <span className={styles.gcashBadge}>💳 GCash</span>
-                  </span>
-                </div>
+              <div className={styles.compactConfirmRow}>
+                <span className={styles.compactConfirmLabel}>Pay with:</span>
+                <span className={styles.compactGcashBadge}>💳 GCash</span>
               </div>
 
-              <div className={styles.divider}></div>
+              <div className={styles.compactDivider}></div>
 
-              <div className={styles.modalSection}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Price:</span>
-                  <span className={styles.detailValue}>₱{subtotal}</span>
-                </div>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>VAT (12%)</span>
-                  <span className={styles.detailValue}>₱{vat}</span>
-                </div>
-                <div className={styles.totalDetailRow}>
-                  <span className={styles.totalLabel}>Total Payment</span>
-                  <span className={styles.totalValue}>₱{total}</span>
-                </div>
+              <div className={styles.compactConfirmRow}>
+                <span className={styles.compactConfirmLabel}>Price:</span>
+                <span className={styles.compactConfirmValue}>₱{subtotal}</span>
+              </div>
+              <div className={styles.compactConfirmRow}>
+                <span className={styles.compactConfirmLabel}>VAT (12%):</span>
+                <span className={styles.compactConfirmValue}>₱{vat}</span>
+              </div>
+              <div className={styles.compactTotalRow}>
+                <span className={styles.compactTotalLabel}>Total Payment</span>
+                <span className={styles.compactTotalValue}>₱{total}</span>
               </div>
             </div>
 
-            <button onClick={handleConfirmPayment} className={styles.confirmButton}>
+            <button onClick={handleConfirmPayment} className={styles.compactButton}>
               Confirm and go to payment
             </button>
           </div>

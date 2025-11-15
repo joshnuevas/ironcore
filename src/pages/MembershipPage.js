@@ -1,12 +1,16 @@
-import React from "react";
-import { Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Check, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar"; // ✅ Reuse Navbar component
+import Navbar from "../components/Navbar";
 import styles from "./MembershipPage.module.css";
-import landingStyles from "./LandingPage.module.css"; // ✅ For animated background
+import landingStyles from "./LandingPage.module.css";
+import axios from "axios";
 
 const MembershipPage = () => {
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+  const [activeMembership, setActiveMembership] = useState(null);
+  const [showWarningModal, setShowWarningModal] = useState(false);
 
   const plans = [
     {
@@ -53,19 +57,85 @@ const MembershipPage = () => {
     },
   ];
 
+  // Fetch current user
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/users/me", {
+          withCredentials: true,
+        });
+        setCurrentUser(res.data);
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
+  // Handle Join Now click
+  const handleJoinNow = async (plan) => {
+    if (!currentUser) {
+      alert("Please log in to continue.");
+      navigate("/login");
+      return;
+    }
+
+    try {
+      // Check for active membership
+      const response = await axios.get(
+        `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
+        { withCredentials: true }
+      );
+
+      if (response.data.hasActiveMembership) {
+        const expiryDate = new Date(response.data.membershipExpiryDate);
+        const now = new Date();
+
+        if (expiryDate > now) {
+          // Active membership exists - show warning modal
+          setActiveMembership(response.data);
+          setShowWarningModal(true);
+        } else {
+          // Membership expired - allow navigation
+          navigate("/transaction", { state: { plan } });
+        }
+      } else {
+        // No active membership - allow navigation
+        navigate("/transaction", { state: { plan } });
+      }
+    } catch (error) {
+      console.error("Error checking membership:", error);
+      // If check fails, still allow navigation
+      navigate("/transaction", { state: { plan } });
+    }
+  };
+
+  const handleCloseWarning = () => {
+    setShowWarningModal(false);
+    setActiveMembership(null);
+  };
+
+  const formatExpiryDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <div className={styles.membershipContainer}>
-      {/* ✅ Animated background from LandingPage */}
       <div className={landingStyles.backgroundOverlay}>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
       </div>
 
-      {/* ✅ Reusable Navbar */}
       <Navbar activeNav="MEMBERSHIP" />
 
-      {/* ✅ Page Content */}
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
@@ -75,7 +145,6 @@ const MembershipPage = () => {
             </p>
           </div>
 
-          {/* ✅ Membership Plans */}
           <div className={styles.plansGrid}>
             {plans.map((plan, index) => (
               <div
@@ -107,7 +176,7 @@ const MembershipPage = () => {
                 </ul>
 
                 <button
-                  onClick={() => navigate("/transaction", { state: { plan } })}
+                  onClick={() => handleJoinNow(plan)}
                   className={`${styles.joinButton} ${
                     !plan.popular ? styles.joinButtonOutline : ""
                   }`}
@@ -119,6 +188,64 @@ const MembershipPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Warning Modal */}
+      {showWarningModal && activeMembership && (
+        <div className={styles.modalOverlay} onClick={handleCloseWarning}>
+          <div className={styles.compactWarningModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.warningIconWrapper}>
+              <AlertCircle className={styles.warningIcon} />
+            </div>
+
+            <h2 className={styles.compactTitle}>Active Membership Found</h2>
+            <p className={styles.compactSubtitle}>You already have an active membership</p>
+
+            <div className={styles.compactDetails}>
+              <div className={styles.compactInfoBox}>
+                <div className={styles.compactRow}>
+                  <span className={styles.compactLabel}>Plan:</span>
+                  <span className={styles.compactHighlight}>
+                    {activeMembership.membershipType}
+                  </span>
+                </div>
+
+                {activeMembership.membershipActivatedDate && (
+                  <div className={styles.compactRow}>
+                    <span className={styles.compactLabel}>Activated:</span>
+                    <span className={styles.compactValue}>
+                      {formatExpiryDate(activeMembership.membershipActivatedDate)}
+                    </span>
+                  </div>
+                )}
+
+                {activeMembership.membershipExpiryDate && (
+                  <div className={styles.compactRow}>
+                    <span className={styles.compactLabel}>Expires:</span>
+                    <span className={styles.compactValue}>
+                      {formatExpiryDate(activeMembership.membershipExpiryDate)}
+                    </span>
+                  </div>
+                )}
+
+                <div className={styles.compactRow}>
+                  <span className={styles.compactLabel}>Code:</span>
+                  <span className={styles.compactCode}>
+                    {activeMembership.transactionCode}
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.compactWarning}>
+                <p>You can purchase a new membership after your current one expires.</p>
+              </div>
+            </div>
+
+            <button onClick={handleCloseWarning} className={styles.compactButton}>
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

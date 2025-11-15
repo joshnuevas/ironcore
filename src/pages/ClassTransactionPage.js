@@ -18,14 +18,12 @@ const ClassTransactionPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Class data passed from previous page
   const classData = location.state?.classData;
 
   const classPrice = parseInt(classData.price.replace(/[₱,]/g, ""));
   const processingFee = 20;
   const total = classPrice + processingFee;
 
-  // Validate class data
   useEffect(() => {
     if (!classData?.id) {
       alert("Class information is missing. Redirecting to classes page.");
@@ -33,7 +31,6 @@ const ClassTransactionPage = ({ onLogout }) => {
     }
   }, [classData, navigate]);
 
-  // Fetch current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -52,7 +49,6 @@ const ClassTransactionPage = ({ onLogout }) => {
     fetchCurrentUser();
   }, []);
 
-  // Fetch schedules for this class
   useEffect(() => {
     const fetchSchedules = async () => {
       if (!classData?.id) return;
@@ -72,13 +68,11 @@ const ClassTransactionPage = ({ onLogout }) => {
     fetchSchedules();
   }, [classData?.id]);
 
-  // Check for active enrollment before proceeding
   const handleEnrollNow = async () => {
     if (!selectedSchedule) return alert("Please select a schedule first");
     if (!currentUser) return alert("User info not loaded");
 
     try {
-      // Check if user already has an active enrollment for this class
       const response = await axios.get(
         "http://localhost:8080/api/transactions/check-active-enrollment",
         {
@@ -91,11 +85,9 @@ const ClassTransactionPage = ({ onLogout }) => {
       );
 
       if (response.data.hasActiveEnrollment) {
-        // User already has an active enrollment
         setDuplicateEnrollmentInfo(response.data);
         setShowDuplicateModal(true);
       } else {
-        // No active enrollment, proceed to confirmation
         setShowConfirmModal(true);
       }
     } catch (error) {
@@ -141,7 +133,15 @@ const ClassTransactionPage = ({ onLogout }) => {
       }
     } catch (error) {
       console.error("Error saving transaction:", error);
-      alert(`Failed to save enrollment: ${error.response?.data?.message || error.message}`);
+      
+      // ⭐ Handle duplicate enrollment error from backend
+      if (error.response?.status === 409 && error.response?.data?.error === "ACTIVE_ENROLLMENT_EXISTS") {
+        setShowConfirmModal(false);
+        setDuplicateEnrollmentInfo(error.response.data);
+        setShowDuplicateModal(true);
+      } else {
+        alert(`Failed to save enrollment: ${error.response?.data?.message || error.message}`);
+      }
     }
   };
 
@@ -188,7 +188,6 @@ const ClassTransactionPage = ({ onLogout }) => {
           </div>
 
           <div className={styles.checkoutGrid}>
-            {/* Class Summary */}
             <div className={styles.summaryCard}>
               <h2 className={styles.summaryTitle}>Class Summary</h2>
               <div className={styles.classDetails}>
@@ -240,7 +239,6 @@ const ClassTransactionPage = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* Schedule Selection */}
             <div className={styles.scheduleCard}>
               <h2 className={styles.formTitle}>Select Your Schedule</h2>
 
@@ -250,35 +248,41 @@ const ClassTransactionPage = ({ onLogout }) => {
                 <p>No schedules available yet.</p>
               ) : (
                 <div className={styles.scheduleList}>
-                  {schedules.map((schedule) => (
-                    <div
-                      key={schedule.id}
-                      className={`${styles.scheduleOption} ${
-                        selectedSchedule?.id === schedule.id
-                          ? styles.scheduleSelected
-                          : ""
-                      }`}
-                      onClick={() => setSelectedSchedule(schedule)}
-                    >
-                      <div className={styles.scheduleRadio}>
-                        {selectedSchedule?.id === schedule.id && (
-                          <div className={styles.scheduleRadioSelected}></div>
-                        )}
-                      </div>
-                      <div className={styles.scheduleInfo}>
-                        <div className={styles.scheduleTop}>
-                          <span className={styles.scheduleDay}>{schedule.day}</span>
-                          <span className={styles.scheduleSlots}>
-                            {schedule.maxParticipants - schedule.currentParticipants} slots left
-                          </span>
+                  {schedules.map((schedule) => {
+                    // ⭐ FIXED: Use enrolledCount instead of currentParticipants
+                    const slotsLeft = schedule.maxParticipants - (schedule.enrolledCount || 0);
+                    const isFull = slotsLeft <= 0;
+
+                    return (
+                      <div
+                        key={schedule.id}
+                        className={`${styles.scheduleOption} ${
+                          selectedSchedule?.id === schedule.id
+                            ? styles.scheduleSelected
+                            : ""
+                        } ${isFull ? styles.scheduleDisabled : ""}`}
+                        onClick={() => !isFull && setSelectedSchedule(schedule)}
+                      >
+                        <div className={styles.scheduleRadio}>
+                          {selectedSchedule?.id === schedule.id && (
+                            <div className={styles.scheduleRadioSelected}></div>
+                          )}
                         </div>
-                        <div className={styles.scheduleTime}>{schedule.time}</div>
-                        <div className={styles.scheduleDate}>
-                          <Calendar size={14} /> {schedule.date}
+                        <div className={styles.scheduleInfo}>
+                          <div className={styles.scheduleTop}>
+                            <span className={styles.scheduleDay}>{schedule.day}</span>
+                            <span className={isFull ? styles.scheduleSlotsFull : styles.scheduleSlots}>
+                              {isFull ? "FULL" : `${slotsLeft} slots left`}
+                            </span>
+                          </div>
+                          <div className={styles.scheduleTime}>{schedule.timeSlot || schedule.time}</div>
+                          <div className={styles.scheduleDate}>
+                            <Calendar size={14} /> {schedule.date}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -362,7 +366,7 @@ const ClassTransactionPage = ({ onLogout }) => {
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Schedule:</span>
                 <span className={styles.detailValue}>
-                  {selectedSchedule.day}, {selectedSchedule.time}
+                  {selectedSchedule.day}, {selectedSchedule.timeSlot || selectedSchedule.time}
                 </span>
               </div>
               <div className={styles.detailRow}>
