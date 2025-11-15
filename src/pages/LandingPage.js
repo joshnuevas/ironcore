@@ -28,12 +28,31 @@ const LandingPage = () => {
           { withCredentials: true }
         );
 
-        // Filter for active (COMPLETED/PAID) and not yet completed sessions
-        const active = transactionsRes.data.filter(
-          (t) =>
-            (t.paymentStatus === "COMPLETED" || t.paymentStatus === "PAID") &&
-            !t.sessionCompleted
-        );
+        // ⭐ UPDATED: Filter for active transactions with proper membership activation check
+        const active = transactionsRes.data.filter((t) => {
+          const isPaid = t.paymentStatus === "COMPLETED" || t.paymentStatus === "PAID";
+          const notCompleted = !t.sessionCompleted;
+          
+          // For pure memberships (no className, no scheduleDay)
+          if (t.membershipType && !t.scheduleDay && !t.className) {
+            // Only show if admin has activated it (membershipActivatedDate exists)
+            return isPaid && notCompleted && t.membershipActivatedDate !== null;
+          }
+          
+          // For membership-included classes (has className, has membershipType, no scheduleDay)
+          if (t.className && t.membershipType && !t.scheduleDay) {
+            // Only show if membership has been activated by admin
+            return isPaid && notCompleted && t.membershipActivatedDate !== null;
+          }
+          
+          // For regular class enrollments (has className and scheduleDay)
+          if (t.className && t.scheduleDay) {
+            return isPaid && notCompleted;
+          }
+          
+          // Default: show if paid and not completed
+          return isPaid && notCompleted;
+        });
 
         setActiveTransactions(active);
       } catch (error) {
