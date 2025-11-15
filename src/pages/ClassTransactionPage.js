@@ -20,10 +20,11 @@ const ClassTransactionPage = ({ onLogout }) => {
 
   const classData = location.state?.classData;
 
-  const classPrice = parseInt(classData.price.replace(/[₱,]/g, ""));
+  const classPrice = parseInt(classData?.price?.replace(/[₱,]/g, "") || "0");
   const processingFee = 20;
   const total = classPrice + processingFee;
 
+  // Validate class data
   useEffect(() => {
     if (!classData?.id) {
       alert("Class information is missing. Redirecting to classes page.");
@@ -31,6 +32,7 @@ const ClassTransactionPage = ({ onLogout }) => {
     }
   }, [classData, navigate]);
 
+  // Fetch current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -49,6 +51,7 @@ const ClassTransactionPage = ({ onLogout }) => {
     fetchCurrentUser();
   }, []);
 
+  // Fetch schedules for this class
   useEffect(() => {
     const fetchSchedules = async () => {
       if (!classData?.id) return;
@@ -68,9 +71,17 @@ const ClassTransactionPage = ({ onLogout }) => {
     fetchSchedules();
   }, [classData?.id]);
 
+  // Check for active enrollment before proceeding
   const handleEnrollNow = async () => {
-    if (!selectedSchedule) return alert("Please select a schedule first");
-    if (!currentUser) return alert("User info not loaded");
+    if (!selectedSchedule) {
+      alert("Please select a schedule first");
+      return;
+    }
+    
+    if (!currentUser) {
+      alert("User info not loaded");
+      return;
+    }
 
     try {
       const response = await axios.get(
@@ -96,6 +107,7 @@ const ClassTransactionPage = ({ onLogout }) => {
     }
   };
 
+  // Handle payment confirmation
   const handleConfirmPayment = async () => {
     if (!selectedSchedule || !currentUser) {
       alert("Missing required information");
@@ -123,9 +135,10 @@ const ClassTransactionPage = ({ onLogout }) => {
       );
 
       if (response.status === 200 || response.status === 201) {
+        // Navigate to GCash payment with proper schedule details
         navigate("/gcash-payment", {
           state: {
-            plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.time}`,
+            plan: `${classData.name} - ${selectedSchedule.day} ${selectedSchedule.timeSlot}`,
             amount: total,
             transactionId: response.data.id,
           },
@@ -134,7 +147,7 @@ const ClassTransactionPage = ({ onLogout }) => {
     } catch (error) {
       console.error("Error saving transaction:", error);
       
-      // ⭐ Handle duplicate enrollment error from backend
+      // Handle duplicate enrollment error from backend
       if (error.response?.status === 409 && error.response?.data?.error === "ACTIVE_ENROLLMENT_EXISTS") {
         setShowConfirmModal(false);
         setDuplicateEnrollmentInfo(error.response.data);
@@ -148,23 +161,29 @@ const ClassTransactionPage = ({ onLogout }) => {
   const handleCloseModal = () => setShowConfirmModal(false);
   const handleCloseDuplicateModal = () => setShowDuplicateModal(false);
 
+  // Loading state
   if (userLoading) {
     return (
       <div className={styles.transactionContainer}>
         <Navbar activeNav="CLASSES" onLogout={onLogout} />
         <div className={styles.contentSection}>
-          <div className={styles.loadingMessage}>Loading user information...</div>
+          <div className={styles.contentContainer}>
+            <div className={styles.loadingMessage}>Loading user information...</div>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (userError) {
     return (
       <div className={styles.transactionContainer}>
         <Navbar activeNav="CLASSES" onLogout={onLogout} />
         <div className={styles.contentSection}>
-          <div className={styles.errorMessage}>{userError}</div>
+          <div className={styles.contentContainer}>
+            <div className={styles.errorMessage}>{userError}</div>
+          </div>
         </div>
       </div>
     );
@@ -188,6 +207,7 @@ const ClassTransactionPage = ({ onLogout }) => {
           </div>
 
           <div className={styles.checkoutGrid}>
+            {/* Class Summary Card */}
             <div className={styles.summaryCard}>
               <h2 className={styles.summaryTitle}>Class Summary</h2>
               <div className={styles.classDetails}>
@@ -206,7 +226,7 @@ const ClassTransactionPage = ({ onLogout }) => {
                   </div>
                   <div className={styles.infoItem}>
                     <Users className={styles.infoIcon} />
-                    <span>Up to 15 people</span>
+                    <span>Up to {classData.maxParticipants} people</span>
                   </div>
                 </div>
 
@@ -239,17 +259,17 @@ const ClassTransactionPage = ({ onLogout }) => {
               </div>
             </div>
 
+            {/* Schedule Selection Card */}
             <div className={styles.scheduleCard}>
               <h2 className={styles.formTitle}>Select Your Schedule</h2>
 
               {loadingSchedules ? (
-                <p>Loading schedules...</p>
+                <p className={styles.loadingText}>Loading schedules...</p>
               ) : schedules.length === 0 ? (
-                <p>No schedules available yet.</p>
+                <p className={styles.noSchedules}>No schedules available yet.</p>
               ) : (
                 <div className={styles.scheduleList}>
                   {schedules.map((schedule) => {
-                    // ⭐ FIXED: Use enrolledCount instead of currentParticipants
                     const slotsLeft = schedule.maxParticipants - (schedule.enrolledCount || 0);
                     const isFull = slotsLeft <= 0;
 
@@ -257,9 +277,7 @@ const ClassTransactionPage = ({ onLogout }) => {
                       <div
                         key={schedule.id}
                         className={`${styles.scheduleOption} ${
-                          selectedSchedule?.id === schedule.id
-                            ? styles.scheduleSelected
-                            : ""
+                          selectedSchedule?.id === schedule.id ? styles.scheduleSelected : ""
                         } ${isFull ? styles.scheduleDisabled : ""}`}
                         onClick={() => !isFull && setSelectedSchedule(schedule)}
                       >
@@ -275,7 +293,7 @@ const ClassTransactionPage = ({ onLogout }) => {
                               {isFull ? "FULL" : `${slotsLeft} slots left`}
                             </span>
                           </div>
-                          <div className={styles.scheduleTime}>{schedule.timeSlot || schedule.time}</div>
+                          <div className={styles.scheduleTime}>{schedule.timeSlot}</div>
                           <div className={styles.scheduleDate}>
                             <Calendar size={14} /> {schedule.date}
                           </div>
@@ -325,7 +343,8 @@ const ClassTransactionPage = ({ onLogout }) => {
             </div>
             
             <p className={styles.warningMessage}>
-              You already have an upcoming or ongoing class enrollment for <strong>{duplicateEnrollmentInfo.className}</strong>.
+              You already have an upcoming or ongoing class enrollment for{" "}
+              <strong>{duplicateEnrollmentInfo.className}</strong>.
             </p>
 
             <div className={styles.modalDetails}>
@@ -366,7 +385,7 @@ const ClassTransactionPage = ({ onLogout }) => {
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Schedule:</span>
                 <span className={styles.detailValue}>
-                  {selectedSchedule.day}, {selectedSchedule.timeSlot || selectedSchedule.time}
+                  {selectedSchedule.day}, {selectedSchedule.timeSlot}
                 </span>
               </div>
               <div className={styles.detailRow}>
