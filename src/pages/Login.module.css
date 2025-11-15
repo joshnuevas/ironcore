@@ -1,13 +1,25 @@
 /* ===== Login Container ===== */
 .loginContainer {
   min-height: 100vh;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ===== Left Section - Branding ===== */
+.leftSection {
+  flex: 1;
   background: linear-gradient(-45deg, #111827, #1f2937, #000000, #0f172a);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 3rem;
   position: relative;
   overflow: hidden;
 }
@@ -24,8 +36,115 @@
   }
 }
 
-* {
-  box-sizing: border-box;
+.brandingContent {
+  max-width: 600px;
+  width: 100%;
+  position: relative;
+  z-index: 10;
+}
+
+.logoHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.logoContainer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(to bottom right, #f97316, #dc2626);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
+  animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
+  }
+  50% {
+    box-shadow: 0 10px 30px 0 rgba(249, 115, 22, 0.5);
+  }
+}
+
+.logoIcon {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.brandTitle {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: white;
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.brandAccent {
+  color: #f97316;
+}
+
+.heroContent {
+  margin-bottom: 3rem;
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.heroDescription {
+  font-size: 1.125rem;
+  color: #9ca3af;
+  line-height: 1.6;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.featureIcon {
+  width: 3rem;
+  height: 3rem;
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f97316;
+  flex-shrink: 0;
+}
+
+.featureText h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  margin: 0 0 0.25rem 0;
+}
+
+.featureText p {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* ===== Animated Background ===== */
@@ -81,87 +200,36 @@
   }
 }
 
-/* ===== Login Card Wrapper ===== */
-.loginCardWrapper {
-  width: 100%;
-  max-width: 28rem;
-  position: relative;
-  z-index: 10;
-}
-
-/* ===== Login Card ===== */
-.loginCard {
-  background-color: rgba(17, 24, 39, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  border: 1px solid #1f2937;
-  padding: 2rem;
-  animation: slideUp 0.6s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== Header Section ===== */
-.loginHeader {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.logoContainer {
-  display: inline-flex;
+/* ===== Right Section - Form ===== */
+.rightSection {
+  flex: 1;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  background: linear-gradient(to bottom right, #f97316, #dc2626);
-  border-radius: 0.75rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
-  animation: glow 2s ease-in-out infinite;
+  padding: 3rem;
 }
 
-@keyframes glow {
-  0%,
-  100% {
-    box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
-  }
-  50% {
-    box-shadow: 0 10px 30px 0 rgba(249, 115, 22, 0.5);
-  }
+.formContainer {
+  max-width: 480px;
+  width: 100%;
 }
 
-.logoIcon {
-  width: 2rem;
-  height: 2rem;
-  color: white;
+.formHeader {
+  margin-bottom: 2.5rem;
 }
 
-.brandTitle {
-  font-size: 1.875rem;
-  font-weight: bold;
-  color: white;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
+.formTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.5rem 0;
 }
 
-.brandAccent {
-  color: #f97316;
-}
-
-.welcomeText {
-  color: #9ca3af;
-  font-size: 0.875rem;
+.formSubtitle {
+  font-size: 1rem;
+  color: #d1d5db;
+  margin: 0;
 }
 
 /* ===== Form Styles ===== */
@@ -178,8 +246,8 @@
 
 .formLabel {
   font-size: 0.875rem;
-  font-weight: 500;
-  color: #d1d5db;
+  font-weight: 600;
+  color: #f3f4f6;
   margin-bottom: 0.5rem;
 }
 
@@ -201,28 +269,29 @@
 .icon {
   height: 1.25rem;
   width: 1.25rem;
-  color: #6b7280;
+  color: #d1d5db;
 }
 
 .formInput {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  background-color: #1f2937;
-  border: 1px solid #374151;
+  background-color: #374151;
+  border: 1.5px solid #4b5563;
   border-radius: 0.5rem;
-  color: white;
+  color: #ffffff;
   font-size: 1rem;
   transition: all 0.2s;
 }
 
 .formInput::placeholder {
-  color: #6b7280;
+  color: #9ca3af;
 }
 
 .formInput:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #f97316;
-  border-color: transparent;
+  border-color: #f97316;
+  background-color: #4b5563;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
 }
 
 .passwordInput {
@@ -237,7 +306,7 @@
   padding-right: 0.75rem;
   display: flex;
   align-items: center;
-  color: #6b7280;
+  color: #d1d5db;
   background: none;
   border: none;
   cursor: pointer;
@@ -245,7 +314,7 @@
 }
 
 .passwordToggle:hover {
-  color: #d1d5db;
+  color: #e5e7eb;
 }
 
 /* ===== Form Options ===== */
@@ -263,8 +332,8 @@
 .checkbox {
   height: 1rem;
   width: 1rem;
-  background-color: #1f2937;
-  border: 1px solid #374151;
+  background-color: #374151;
+  border: 1.5px solid #4b5563;
   border-radius: 0.25rem;
   cursor: pointer;
 }
@@ -272,12 +341,14 @@
 .checkboxLabel {
   margin-left: 0.5rem;
   font-size: 0.875rem;
-  color: #9ca3af;
+  color: #f3f4f6;
+  cursor: pointer;
 }
 
 .forgotPassword {
   font-size: 0.875rem;
   color: #f97316;
+  font-weight: 600;
   background: none;
   border: none;
   cursor: pointer;
@@ -285,16 +356,16 @@
 }
 
 .forgotPassword:hover {
-  color: #fb923c;
+  color: #ea580c;
 }
 
 /* ===== Error Message ===== */
 .errorMessage {
   padding: 0.75rem;
-  background-color: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: 0.5rem;
-  color: #fca5a5;
+  color: #dc2626;
   font-size: 0.875rem;
   text-align: center;
 }
@@ -304,19 +375,20 @@
   width: 100%;
   background: linear-gradient(to right, #f97316, #dc2626);
   color: white;
-  padding: 0.75rem;
+  padding: 0.875rem;
   border-radius: 0.5rem;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 10px 15px -3px rgba(249, 115, 22, 0.3);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
   font-size: 1rem;
 }
 
 .submitButton:hover:not(:disabled) {
   background: linear-gradient(to right, #ea580c, #b91c1c);
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
 }
 
 .submitButton:disabled {
@@ -326,30 +398,30 @@
 
 /* ===== Divider ===== */
 .divider {
-  margin-top: 1.5rem;
+  margin: 1.5rem 0;
   display: flex;
   align-items: center;
 }
 
 .dividerLine {
   flex: 1;
-  border-top: 1px solid #374151;
+  border-top: 1px solid #4b5563;
 }
 
 .dividerText {
   padding: 0 1rem;
-  color: #6b7280;
+  color: #9ca3af;
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* ===== Sign Up Section ===== */
 .signupSection {
-  margin-top: 1.5rem;
   text-align: center;
 }
 
 .signupText {
-  color: #9ca3af;
+  color: #d1d5db;
   font-size: 0.875rem;
 }
 
@@ -363,19 +435,18 @@
 }
 
 .signupLink:hover {
-  color: #fb923c;
-  text-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
+  color: #ea580c;
 }
 
 /* ===== Footer ===== */
 .footer {
   margin-top: 2rem;
   text-align: center;
-  color: #6b7280;
+  color: #9ca3af;
   font-size: 0.75rem;
 }
 
-/* ===== Success Modal Overlay ===== */
+/* ===== Role Selection Modal ===== */
 .modalOverlay {
   position: fixed;
   inset: 0;
@@ -386,80 +457,10 @@
   z-index: 100;
 }
 
-.modalContent {
-  background: rgba(17, 24, 39, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 2rem 3rem;
-  border-radius: 1rem;
-  text-align: center;
-  color: #fff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  animation: fadeInUp 0.5s ease-out;
-}
-
-.modalContent h2 {
-  margin-bottom: 1rem;
-  color: #22c55e;
-}
-
-.modalContent p {
-  margin-bottom: 2rem;
-  font-size: 1rem;
-  color: #d1d5db;
-}
-
-.continueButton {
-  background: linear-gradient(to right, #f97316, #dc2626);
-  padding: 0.75rem 2rem;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s;
-}
-
-.continueButton:hover {
-  background: linear-gradient(to right, #ea580c, #b91c1c);
-  transform: translateY(-2px);
-}
-
-/* ===== Animations ===== */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 640px) {
-  .loginCard {
-    padding: 1.5rem;
-  }
-
-  .brandTitle {
-    font-size: 1.5rem;
-  }
-
-  .formOptions {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-}
-
-/* Role Selection Modal */
 .roleModalContent {
-  background: rgba(17, 24, 39, 0.95);
-  backdrop-filter: blur(20px);
+  background: #ffffff;
   padding: 2.5rem;
   border-radius: 1rem;
-  border: 1px solid rgba(31, 41, 55, 0.5);
   text-align: center;
   max-width: 28rem;
   width: 90%;
@@ -469,12 +470,12 @@
 .roleModalTitle {
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: #111827;
   margin-bottom: 0.5rem;
 }
 
 .roleModalDescription {
-  color: #9ca3af;
+  color: #6b7280;
   margin-bottom: 2rem;
   font-size: 0.875rem;
 }
@@ -496,26 +497,26 @@
   transition: all 0.3s;
   font-size: 1rem;
   font-weight: 600;
-  background: rgba(31, 41, 55, 0.5);
+  background: #ffffff;
 }
 
 .adminRoleButton {
   border-color: #8b5cf6;
-  color: #c4b5fd;
+  color: #7c3aed;
 }
 
 .adminRoleButton:hover {
-  background: rgba(139, 92, 246, 0.2);
+  background: #f5f3ff;
   transform: translateX(5px);
 }
 
 .userRoleButton {
   border-color: #f97316;
-  color: #fdba74;
+  color: #ea580c;
 }
 
 .userRoleButton:hover {
-  background: rgba(249, 115, 22, 0.2);
+  background: #fff7ed;
   transform: translateX(5px);
 }
 
@@ -537,4 +538,73 @@
 .roleButtonDesc {
   font-size: 0.75rem;
   opacity: 0.7;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .loginContainer {
+    flex-direction: column;
+  }
+
+  .leftSection {
+    min-height: 40vh;
+    padding: 2rem;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .features {
+    display: none;
+  }
+
+  .rightSection {
+    min-height: 60vh;
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .leftSection {
+    min-height: 30vh;
+    padding: 1.5rem;
+  }
+
+  .brandTitle {
+    font-size: 1.875rem;
+  }
+
+  .heroTitle {
+    font-size: 1.5rem;
+  }
+
+  .heroDescription {
+    font-size: 1rem;
+  }
+
+  .rightSection {
+    padding: 1.5rem;
+  }
+
+  .formTitle {
+    font-size: 1.5rem;
+  }
+
+  .formOptions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
 }

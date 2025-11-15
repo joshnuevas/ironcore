@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dumbbell, Eye, EyeOff, Mail, Lock, Shield, User } from "lucide-react";
+import { Dumbbell, Eye, EyeOff, Mail, Lock, Shield, User, TrendingUp, Users, Award } from "lucide-react";
 import styles from "./Login.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -85,24 +85,70 @@ const Login = () => {
 
   return (
     <div className={styles.loginContainer}>
-      {/* Background animation */}
-      <div className={styles.backgroundOverlay}>
-        <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
-      </div>
-
-      <div className={styles.loginCardWrapper}>
-        <div className={styles.loginCard}>
-          <div className={styles.loginHeader}>
+      {/* Left Side - Branding */}
+      <div className={styles.leftSection}>
+        <div className={styles.brandingContent}>
+          <div className={styles.logoHeader}>
             <div className={styles.logoContainer}>
               <Dumbbell className={styles.logoIcon} />
             </div>
             <h1 className={styles.brandTitle}>
               IRON<span className={styles.brandAccent}>CORE</span>
             </h1>
-            <p className={styles.welcomeText}>
-              Welcome back! Sign in to continue
+          </div>
+
+          <div className={styles.heroContent}>
+            <h2 className={styles.heroTitle}>Transform Your Fitness Journey</h2>
+            <p className={styles.heroDescription}>
+              Join thousands of members achieving their fitness goals with professional trainers, 
+              state-of-the-art equipment, and personalized workout plans.
             </p>
+          </div>
+
+          <div className={styles.features}>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}>
+                <TrendingUp size={24} />
+              </div>
+              <div className={styles.featureText}>
+                <h3>Track Progress</h3>
+                <p>Monitor your fitness journey with detailed analytics</p>
+              </div>
+            </div>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}>
+                <Users size={24} />
+              </div>
+              <div className={styles.featureText}>
+                <h3>Expert Trainers</h3>
+                <p>Work with certified professionals dedicated to your success</p>
+              </div>
+            </div>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}>
+                <Award size={24} />
+              </div>
+              <div className={styles.featureText}>
+                <h3>Premium Classes</h3>
+                <p>Access exclusive fitness classes and training programs</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Background animation */}
+        <div className={styles.backgroundOverlay}>
+          <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
+          <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
+        </div>
+      </div>
+
+      {/* Right Side - Form */}
+      <div className={styles.rightSection}>
+        <div className={styles.formContainer}>
+          <div className={styles.formHeader}>
+            <h2 className={styles.formTitle}>Welcome Back</h2>
+            <p className={styles.formSubtitle}>Sign in to your account to continue</p>
           </div>
 
           <form className={styles.loginForm} onSubmit={handleSubmit}>
@@ -202,10 +248,10 @@ const Login = () => {
               </button>
             </p>
           </div>
-        </div>
 
-        <div className={styles.footer}>
-          <p>© 2025 IronCore. All rights reserved.</p>
+          <div className={styles.footer}>
+            <p>© 2025 IronCore. All rights reserved.</p>
+          </div>
         </div>
       </div>
 

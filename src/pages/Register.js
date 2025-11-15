@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Dumbbell, Eye, EyeOff, Mail, Lock, User, Check, X } from "lucide-react";
+import { Dumbbell, Eye, EyeOff, Mail, Lock, User, Check, X, TrendingUp, Users, Award } from "lucide-react";
 import styles from "./Register.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -134,28 +134,72 @@ const Register = () => {
 
   return (
     <div className={styles.registerContainer}>
-      {/* Background animation */}
-      <div className={styles.backgroundOverlay}>
-        <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
-      </div>
-
-      <div className={styles.registerCardWrapper}>
-        <div className={styles.registerCard}>
-          {/* Header */}
-          <div className={styles.registerHeader}>
+      {/* Left Side - Branding */}
+      <div className={styles.leftSection}>
+        <div className={styles.brandingContent}>
+          <div className={styles.logoHeader}>
             <div className={styles.logoContainer}>
               <Dumbbell className={styles.logoIcon} />
             </div>
             <h1 className={styles.brandTitle}>
               IRON<span className={styles.brandAccent}>CORE</span>
             </h1>
-            <p className={styles.welcomeText}>
-              Create your account and start your fitness journey
+          </div>
+
+          <div className={styles.heroContent}>
+            <h2 className={styles.heroTitle}>Start Your Transformation Today</h2>
+            <p className={styles.heroDescription}>
+              Create your account and unlock access to premium fitness classes, expert trainers, 
+              and personalized workout plans designed to help you reach your goals.
             </p>
           </div>
 
-          {/* Form */}
+          <div className={styles.features}>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}>
+                <TrendingUp size={24} />
+              </div>
+              <div className={styles.featureText}>
+                <h3>Track Progress</h3>
+                <p>Monitor your fitness journey with detailed analytics</p>
+              </div>
+            </div>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}>
+                <Users size={24} />
+              </div>
+              <div className={styles.featureText}>
+                <h3>Expert Trainers</h3>
+                <p>Work with certified professionals dedicated to your success</p>
+              </div>
+            </div>
+            <div className={styles.featureItem}>
+              <div className={styles.featureIcon}>
+                <Award size={24} />
+              </div>
+              <div className={styles.featureText}>
+                <h3>Premium Classes</h3>
+                <p>Access exclusive fitness classes and training programs</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Background animation */}
+        <div className={styles.backgroundOverlay}>
+          <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
+          <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
+        </div>
+      </div>
+
+      {/* Right Side - Form */}
+      <div className={styles.rightSection}>
+        <div className={styles.formContainer}>
+          <div className={styles.formHeader}>
+            <h2 className={styles.formTitle}>Create Account</h2>
+            <p className={styles.formSubtitle}>Join IronCore and start your fitness journey</p>
+          </div>
+
           <form className={styles.registerForm} onSubmit={handleSubmit}>
             {error && <div className={styles.errorMessage}>{error}</div>}
             {success && <div className={styles.successMessage}>{success}</div>}
@@ -402,10 +446,10 @@ const Register = () => {
               </button>
             </p>
           </div>
-        </div>
 
-        <div className={styles.footer}>
-          <p>© 2025 IronCore. All rights reserved.</p>
+          <div className={styles.footer}>
+            <p>© 2025 IronCore. All rights reserved.</p>
+          </div>
         </div>
       </div>
     </div>
