@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Check } from "lucide-react";
+import { Check, AlertCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import styles from "./TransactionPage.module.css";
@@ -9,10 +9,12 @@ const TransactionPage = ({ onLogout }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
+  const [activeMembership, setActiveMembership] = useState(null);
+  const [showMembershipWarning, setShowMembershipWarning] = useState(false);
+  const [isCheckingMembership, setIsCheckingMembership] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get selected plan or use default
   const plan = location.state?.plan || {
     name: "GOLD",
     price: "₱1,600",
@@ -30,7 +32,6 @@ const TransactionPage = ({ onLogout }) => {
   const vat = Math.round(subtotal * 0.12);
   const total = subtotal + vat;
 
-  // Fetch current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -51,18 +52,70 @@ const TransactionPage = ({ onLogout }) => {
     fetchCurrentUser();
   }, [navigate]);
 
+  useEffect(() => {
+    const checkActiveMembership = async () => {
+      if (!currentUser) return;
+
+      try {
+        setIsCheckingMembership(true);
+        const response = await axios.get(
+          `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
+          { withCredentials: true }
+        );
+
+        if (response.data.hasActiveMembership) {
+          const expiryDate = new Date(response.data.membershipExpiryDate);
+          const now = new Date();
+          
+          if (expiryDate > now) {
+            setActiveMembership(response.data);
+            setShowMembershipWarning(true);
+          } else {
+            setActiveMembership(null);
+          }
+        } else {
+          setActiveMembership(null);
+        }
+      } catch (error) {
+        console.error("Error checking membership:", error);
+      } finally {
+        setIsCheckingMembership(false);
+      }
+    };
+
+    if (currentUser) {
+      checkActiveMembership();
+    }
+  }, [currentUser]);
+
   const handleBuyNow = () => {
     if (!currentUser) {
       alert("User information not loaded. Please try again.");
       return;
     }
+
+    if (activeMembership) {
+      setShowMembershipWarning(true);
+      return;
+    }
+
     setShowSuccessModal(true);
   };
 
-  // Create transaction and navigate to payment
+  const handleCloseWarning = () => {
+    setShowMembershipWarning(false);
+    navigate("/landing");
+  };
+
   const handleConfirmPayment = async () => {
     if (!currentUser) {
       alert("User information not loaded.");
+      return;
+    }
+
+    if (activeMembership) {
+      setShowSuccessModal(false);
+      setShowMembershipWarning(true);
       return;
     }
 
@@ -78,8 +131,6 @@ const TransactionPage = ({ onLogout }) => {
         paymentStatus: "PENDING",
       };
 
-      console.log("=== SENDING MEMBERSHIP PAYLOAD ===", payload);
-
       const response = await axios.post(
         "http://localhost:8080/api/transactions",
         payload,
@@ -89,22 +140,26 @@ const TransactionPage = ({ onLogout }) => {
         }
       );
 
-      console.log("=== RESPONSE ===", response.data);
-
       if (response.status === 200 || response.status === 201) {
-        // ⭐ Navigate to payment page with transaction ID and code
         navigate("/gcash-payment", {
           state: {
             plan: `${plan.name} Membership`,
             amount: total,
             transactionId: response.data.id,
-            transactionCode: response.data.transactionCode, // ⭐ ADD THIS
+            transactionCode: response.data.transactionCode,
           },
         });
       }
     } catch (error) {
-      console.error("=== FULL ERROR ===", error);
-      alert(`Failed to create membership transaction.\nError: ${error.response?.data?.message || error.message}`);
+      console.error("Error:", error);
+      
+      if (error.response?.status === 409 && error.response?.data?.error === "ACTIVE_MEMBERSHIP_EXISTS") {
+        setShowSuccessModal(false);
+        setActiveMembership(error.response.data);
+        setShowMembershipWarning(true);
+      } else {
+        alert(`Failed to create membership transaction.\nError: ${error.response?.data?.message || error.message}`);
+      }
     }
   };
 
@@ -112,15 +167,26 @@ const TransactionPage = ({ onLogout }) => {
     setShowSuccessModal(false);
   };
 
-  // Show loading state
-  if (userLoading) {
+  const formatExpiryDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  };
+
+  if (userLoading || isCheckingMembership) {
     return (
       <div className={styles.transactionContainer}>
         <Navbar activeNav="MEMBERSHIP" onLogout={onLogout} />
         <div className={styles.contentSection}>
           <div className={styles.contentContainer}>
-            <div style={{ textAlign: "center", padding: "2rem" }}>
-              Loading user information...
+            <div className={styles.loadingState}>
+              <div className={styles.spinner}></div>
+              <p>{userLoading ? "Loading user information..." : "Checking membership status..."}</p>
             </div>
           </div>
         </div>
@@ -130,17 +196,14 @@ const TransactionPage = ({ onLogout }) => {
 
   return (
     <div className={styles.transactionContainer}>
-      {/* Background */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
 
-      {/* Navbar reuse */}
       <Navbar activeNav="MEMBERSHIP" onLogout={onLogout} />
 
-      {/* Content Section */}
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
@@ -148,8 +211,20 @@ const TransactionPage = ({ onLogout }) => {
             <p className={styles.subtitle}>Complete your membership purchase</p>
           </div>
 
+          {activeMembership && (
+            <div className={styles.warningBanner}>
+              <AlertCircle className={styles.bannerIcon} />
+              <div>
+                <h3 className={styles.bannerTitle}>Active Membership Detected</h3>
+                <p className={styles.bannerText}>
+                  You have an active {activeMembership.membershipType} membership that expires on{" "}
+                  {formatExpiryDate(activeMembership.membershipExpiryDate)}
+                </p>
+              </div>
+            </div>
+          )}
+
           <div className={styles.checkoutGrid}>
-            {/* Order Summary */}
             <div className={styles.summaryCard}>
               <h2 className={styles.summaryTitle}>Order Summary</h2>
 
@@ -189,14 +264,13 @@ const TransactionPage = ({ onLogout }) => {
                 <button 
                   onClick={handleBuyNow} 
                   className={styles.buyNowButton}
-                  disabled={!currentUser}
+                  disabled={!currentUser || activeMembership}
                 >
-                  {currentUser ? "Buy Now" : "Loading..."}
+                  {activeMembership ? "Active Membership Exists" : currentUser ? "Buy Now" : "Loading..."}
                 </button>
               </div>
             </div>
 
-            {/* Payment Info Card */}
             <div className={styles.infoCard}>
               <h2 className={styles.formTitle}>Payment Information</h2>
               
@@ -249,8 +323,62 @@ const TransactionPage = ({ onLogout }) => {
         </div>
       </div>
 
+      {/* Compact Warning Modal */}
+      {showMembershipWarning && activeMembership && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.compactWarningModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.warningIconWrapper}>
+              <AlertCircle className={styles.warningIcon} />
+            </div>
+            
+            <h2 className={styles.compactTitle}>Active Membership Found</h2>
+            <p className={styles.compactSubtitle}>You already have an active membership</p>
+
+            <div className={styles.compactDetails}>
+              <div className={styles.compactInfoBox}>
+                <div className={styles.compactRow}>
+                  <span className={styles.compactLabel}>Plan:</span>
+                  <span className={styles.compactHighlight}>{activeMembership.membershipType}</span>
+                </div>
+                
+                {activeMembership.membershipActivatedDate && (
+                  <div className={styles.compactRow}>
+                    <span className={styles.compactLabel}>Activated:</span>
+                    <span className={styles.compactValue}>
+                      {formatExpiryDate(activeMembership.membershipActivatedDate)}
+                    </span>
+                  </div>
+                )}
+                
+                {activeMembership.membershipExpiryDate && (
+                  <div className={styles.compactRow}>
+                    <span className={styles.compactLabel}>Expires:</span>
+                    <span className={styles.compactValue}>
+                      {formatExpiryDate(activeMembership.membershipExpiryDate)}
+                    </span>
+                  </div>
+                )}
+                
+                <div className={styles.compactRow}>
+                  <span className={styles.compactLabel}>Code:</span>
+                  <span className={styles.compactCode}>{activeMembership.transactionCode}</span>
+                </div>
+              </div>
+
+              <div className={styles.compactWarning}>
+                <p>You can purchase a new membership after your current one expires.</p>
+              </div>
+            </div>
+
+            <button onClick={handleCloseWarning} className={styles.compactButton}>
+              Got it, take me back
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Modal */}
-      {showSuccessModal && currentUser && (
+      {showSuccessModal && currentUser && !activeMembership && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button className={styles.closeButton} onClick={handleCloseModal}>×</button>
@@ -301,7 +429,7 @@ const TransactionPage = ({ onLogout }) => {
                   <span className={styles.detailValue}>₱{subtotal}</span>
                 </div>
                 <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>VAT (12%):</span>
+                  <span className={styles.detailLabel}>VAT (12%)</span>
                   <span className={styles.detailValue}>₱{vat}</span>
                 </div>
                 <div className={styles.totalDetailRow}>

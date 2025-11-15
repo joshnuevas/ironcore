@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, CheckCircle, XCircle, Calendar, CreditCard, User, Mail, Package, ArrowLeft } from "lucide-react";
+import { Search, CheckCircle, XCircle, Calendar, CreditCard, User, Mail, Package, ArrowLeft, Clock } from "lucide-react";
 import styles from "./AdminCodeChecker.module.css";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -52,6 +52,25 @@ const AdminCodeChecker = ({ onLogout }) => {
       hour: "2-digit",
       minute: "2-digit"
     });
+  };
+
+  // ⭐ NEW: Calculate days remaining until expiry
+  const getDaysRemaining = (expiryDate) => {
+    if (!expiryDate) return null;
+    const now = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  // ⭐ NEW: Check if membership was just activated
+  const isNewlyActivated = (activatedDate) => {
+    if (!activatedDate) return false;
+    const activated = new Date(activatedDate);
+    const now = new Date();
+    const diffMinutes = (now - activated) / (1000 * 60);
+    return diffMinutes < 5; // Consider "newly activated" if within 5 minutes
   };
 
   return (
@@ -137,6 +156,15 @@ const AdminCodeChecker = ({ onLogout }) => {
                     <div>
                       <h2 className={styles.statusTitle}>Access Granted</h2>
                       <p className={styles.statusMessage}>{result.message}</p>
+                      
+                      {/* ⭐ NEW: Show "Membership Activated" notification */}
+                      {result.type === "MEMBERSHIP" && 
+                       result.membershipActivatedDate && 
+                       isNewlyActivated(result.membershipActivatedDate) && (
+                        <div className={styles.activationNotice}>
+                          🎉 Membership just activated! Timer started.
+                        </div>
+                      )}
                     </div>
                   </>
                 ) : (
@@ -198,13 +226,62 @@ const AdminCodeChecker = ({ onLogout }) => {
                     )}
                     
                     {result.type === "MEMBERSHIP" && (
-                      <div className={styles.detailItem}>
-                        <Package className={styles.detailIcon} />
-                        <div>
-                          <span className={styles.detailLabel}>Membership</span>
-                          <span className={styles.detailValue}>{result.membershipType}</span>
+                      <>
+                        <div className={styles.detailItem}>
+                          <Package className={styles.detailIcon} />
+                          <div>
+                            <span className={styles.detailLabel}>Membership</span>
+                            <span className={styles.detailValue}>{result.membershipType}</span>
+                          </div>
                         </div>
-                      </div>
+                        
+                        {/* ⭐ NEW: Show Activation Date */}
+                        {result.membershipActivatedDate && (
+                          <div className={styles.detailItem}>
+                            <Clock className={styles.detailIcon} />
+                            <div>
+                              <span className={styles.detailLabel}>Activated On</span>
+                              <span className={styles.detailValue}>
+                                {formatDate(result.membershipActivatedDate)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* ⭐ NEW: Show Expiry Date and Days Remaining */}
+                        {result.membershipExpiryDate && (
+                          <>
+                            <div className={styles.detailItem}>
+                              <Calendar className={styles.detailIcon} />
+                              <div>
+                                <span className={styles.detailLabel}>Expires On</span>
+                                <span className={styles.detailValue}>
+                                  {formatDate(result.membershipExpiryDate)}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            {/* ⭐ NEW: Days Remaining Badge */}
+                            <div className={styles.detailItem}>
+                              <div>
+                                <span className={styles.detailLabel}>Time Remaining</span>
+                                <span className={`${styles.badge} ${
+                                  getDaysRemaining(result.membershipExpiryDate) > 7 
+                                    ? styles.successBadge 
+                                    : getDaysRemaining(result.membershipExpiryDate) > 0
+                                    ? styles.warningBadge
+                                    : styles.expiredBadge
+                                }`}>
+                                  {getDaysRemaining(result.membershipExpiryDate) > 0
+                                    ? `${getDaysRemaining(result.membershipExpiryDate)} days left`
+                                    : "EXPIRED"
+                                  }
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </>
                     )}
                     
                     <div className={styles.detailItem}>
