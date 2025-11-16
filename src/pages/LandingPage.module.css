@@ -690,6 +690,51 @@
   font-weight: 700;
 }
 
+/* ⭐ NEW: Pending/Unactivated Styles */
+.sectionTitlePending {
+  background: linear-gradient(to right, #eab308, #f59e0b) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.codeCardPending {
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.codeCardPending:hover {
+  border-color: rgba(234, 179, 8, 0.6);
+  box-shadow: 0 20px 40px rgba(234, 179, 8, 0.2);
+}
+
+.cardIconPending {
+  background: linear-gradient(135deg, #eab308, #f59e0b) !important;
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.4) !important;
+}
+
+.cardTypePending {
+  color: #eab308 !important;
+  background: rgba(234, 179, 8, 0.1) !important;
+}
+
+.transactionCodeBoxPending {
+  background: rgba(234, 179, 8, 0.1) !important;
+  border-color: rgba(234, 179, 8, 0.3) !important;
+}
+
+.transactionCodeBoxPending .codeValue {
+  color: #eab308 !important;
+}
+
+.transactionCodeBoxPending svg {
+  color: #eab308 !important;
+}
+
+.statusBadgePending {
+  background: rgba(234, 179, 8, 0.15) !important;
+  color: #eab308 !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .quoteMain {
