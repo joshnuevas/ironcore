@@ -46,24 +46,19 @@ const AttendanceChecker = () => {
   };
 
   const calculateStats = (membersList) => {
-    const total = membersList.length;
-    const today = new Date().toISOString().split('T')[0];
-    
-    // Count how many members attended today
-    let todayCount = 0;
-    membersList.forEach(member => {
-      if (member.recentAttendance && member.recentAttendance.some(a => 
-        a.attendanceDate === today && a.checkedIn
-      )) {
-        todayCount++;
-      }
-    });
-    
-    setStats({
-      totalMembers: total,
-      totalAttendanceToday: todayCount
-    });
-  };
+  const total = membersList.length;
+  
+  // Count how many members have checked in today
+  // The backend already filters to today's date and includes checkedIn status
+  const todayCount = membersList.filter(member => 
+    member.checkedIn === true
+  ).length;
+  
+  setStats({
+    totalMembers: total,
+    totalAttendanceToday: todayCount
+  });
+};
 
   const filterMembers = () => {
     if (!searchTerm) {
