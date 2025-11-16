@@ -10,7 +10,7 @@
   box-sizing: border-box;
 }
 
-/* Animated Background - Simplified */
+/* Animated Background */
 .backgroundOverlay {
   position: absolute;
   inset: 0;
@@ -59,115 +59,6 @@
     transform: translate(20px, -20px);
     opacity: 0.12;
   }
-}
-
-/* Navbar */
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  background-color: rgba(17, 24, 39, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(31, 41, 55, 0.5);
-  animation: slideDown 0.5s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.navContainer {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
-/* Logo */
-.logoSection {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.logoIcon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: linear-gradient(to bottom right, #f97316, #dc2626);
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.3);
-}
-
-.dumbbellIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: white;
-}
-.logoText {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  letter-spacing: -0.025em;
-}
-.logoAccent {
-  color: #f97316;
-}
-
-/* Nav Links */
-.navLinks {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1;
-  justify-content: center;
-}
-.navLink {
-  padding: 0.625rem 1.25rem;
-  color: #d1d5db;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  transition: all 0.25s ease;
-  border-radius: 0.5rem;
-  position: relative;
-}
-.navLink:hover {
-  color: #f97316;
-  background-color: rgba(249, 115, 22, 0.1);
-}
-.navLinkActive {
-  color: #f97316;
-  background-color: rgba(249, 115, 22, 0.15);
-}
-.navLinkActive::after {
-  content: "";
-  position: absolute;
-  bottom: 0.25rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1.5rem;
-  height: 2px;
-  background: linear-gradient(to right, #f97316, #dc2626);
-  border-radius: 2px;
 }
 
 /* Content Section */
@@ -222,12 +113,12 @@
   letter-spacing: 0.05em;
 }
 
-/* Plans Grid */
+/* Plans Grid - 4 Column Layout */
 .plansGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
-  max-width: 1200px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -236,12 +127,14 @@
   backdrop-filter: blur(20px);
   border: 1px solid rgba(31, 41, 55, 0.5);
   border-radius: 1.5rem;
-  padding: 2.5rem;
+  padding: 2rem;
   position: relative;
   overflow: hidden;
   transition: transform 0.5s ease, box-shadow 0.4s ease;
   opacity: 0;
   animation: fadeInUp 0.8s ease-out forwards;
+  display: flex;
+  flex-direction: column;
 }
 
 .planCard:nth-child(1) {
@@ -256,8 +149,12 @@
   animation-delay: 0.3s;
 }
 
+.planCard:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
 .planCard:hover {
-  transform: rotateY(6deg) rotateX(3deg) scale(1.03);
+  transform: translateY(-10px) scale(1.02);
   box-shadow: 0 25px 60px rgba(249, 115, 22, 0.4);
   border: 1px solid #f97316;
 }
@@ -315,6 +212,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.05em;
+  z-index: 10;
 }
 
 .planIcon {
@@ -344,7 +242,7 @@
 }
 
 .planName {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: white;
   margin-bottom: 0.5rem;
@@ -352,7 +250,7 @@
 }
 
 .planPrice {
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: 900;
   color: #f97316;
   text-align: center;
@@ -360,7 +258,7 @@
 }
 
 .planPeriod {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #9ca3af;
   text-align: center;
   margin-bottom: 2rem;
@@ -369,7 +267,8 @@
 .featuresList {
   list-style: none;
   padding: 0;
-  margin: 0 0 2rem 0;
+  margin: 0 0 auto 0;
+  flex-grow: 1;
 }
 
 .featureItem {
@@ -378,7 +277,7 @@
   gap: 0.75rem;
   color: #d1d5db;
   margin-bottom: 1rem;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .checkIcon {
@@ -403,6 +302,7 @@
   box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);
   position: relative;
   overflow: hidden;
+  margin-top: 1.5rem;
 }
 
 .joinButton::after {
@@ -440,130 +340,6 @@
   background: #f97316;
   color: white;
   box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
-}
-
-/* Logout Button */
-.logoutButton {
-  padding: 0.625rem 1.5rem;
-  background: transparent;
-  border: 2px solid #f97316;
-  color: #f97316;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.logoutButton:hover {
-  background: linear-gradient(to right, #f97316, #dc2626);
-  color: white;
-  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
-  transform: translateY(-2px);
-}
-
-/* Logout Modal */
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  animation: fadeInOverlay 0.2s ease-out;
-}
-
-@keyframes fadeInOverlay {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.modalContent {
-  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-  padding: 2rem;
-  border-radius: 1rem;
-  border: 1px solid rgba(249, 115, 22, 0.2);
-  text-align: center;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-  color: white;
-  animation: scaleIn 0.3s ease-out;
-  max-width: 400px;
-  width: 90%;
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.modalContent h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  background: linear-gradient(to right, white, #f97316);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.modalContent p {
-  margin-bottom: 2rem;
-  color: #9ca3af;
-}
-
-.modalButtons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-}
-
-.modalConfirm,
-.modalCancel {
-  padding: 0.75rem 2rem;
-  border-radius: 0.5rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  border: none;
-}
-
-.modalConfirm {
-  background: linear-gradient(to right, #f97316, #dc2626);
-  color: white;
-}
-
-.modalConfirm:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4);
-}
-
-.modalCancel {
-  background: transparent;
-  border: 2px solid rgba(107, 114, 128, 0.5);
-  color: #d1d5db;
-}
-
-.modalCancel:hover {
-  background: rgba(107, 114, 128, 0.2);
-  border-color: #6b7280;
-}
-
-.welcomeText {
-  color: #f97316;
-  font-weight: 600;
-  font-size: 0.875rem;
-  margin-right: 1rem;
 }
 
 /* Modal Overlay */
@@ -748,8 +524,88 @@
   transform: translateY(0);
 }
 
-/* Responsive */
+/* Responsive Design */
+
+/* Large Desktop - 4 columns */
+@media (min-width: 1200px) {
+  .plansGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Medium Desktop - 3 columns */
+@media (max-width: 1199px) and (min-width: 992px) {
+  .plansGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Tablet - 2 columns */
+@media (max-width: 991px) and (min-width: 768px) {
+  .plansGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .title {
+    font-size: 3rem;
+  }
+  
+  .planCardPopular {
+    transform: scale(1);
+  }
+}
+
+/* Mobile - 1 column */
+@media (max-width: 767px) {
+  .plansGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+  }
+  
+  .planCardPopular {
+    transform: scale(1);
+  }
+  
+  .planCard {
+    padding: 1.5rem;
+  }
+  
+  .planName {
+    font-size: 1.375rem;
+  }
+  
+  .planPrice {
+    font-size: 2.25rem;
+  }
+  
+  .bgBlur {
+    width: 25rem;
+    height: 25rem;
+  }
+}
+
+/* Extra Small Mobile */
 @media (max-width: 480px) {
+  .contentContainer {
+    padding: 0 1rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+  }
+  
+  .subtitle {
+    font-size: 0.875rem;
+  }
+  
   .compactWarningModal {
     padding: 1.25rem;
   }
@@ -770,27 +626,4 @@
   .compactCode {
     font-size: 0.688rem;
   }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .title {
-    font-size: 2.5rem;
-  }
-  .subtitle {
-    font-size: 1rem;
-  }
-  .navLinks {
-    display: none;
-  }
-  .plansGrid {
-    grid-template-columns: 1fr;
-  }
-  .planCardPopular {
-    transform: scale(1);
-  }
-  .bgBlur {
-    width: 25rem;
-    height: 25rem;
-  }
-}
+} 

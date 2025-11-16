@@ -16,15 +16,15 @@ const TransactionPage = ({ onLogout }) => {
 
   const plan = location.state?.plan || {
     name: "GOLD",
-    price: "₱1,600",
+    price: "₱1,699",
     icon: "🏆",
     features: [
-      "5 Classes per Week",
       "Access to Gym Floor",
       "Nutrition & Fitness Plan",
-      "1 Personal Training Session",
-      "Premium Equipment Access",
+      "1 Session Trainer",
+      "5 Classes",
     ],
+    isSession: false,
   };
 
   const subtotal = parseInt(plan.price.replace(/[₱,]/g, ""));
@@ -76,7 +76,7 @@ const TransactionPage = ({ onLogout }) => {
         userId: currentUser.id,
         classId: null,
         scheduleId: null,
-        membershipType: plan.name,
+        membershipType: plan.isSession ? "SESSION" : plan.name, // ⭐ Handle session
         processingFee: vat,
         totalAmount: total,
         paymentMethod: "GCash",
@@ -95,7 +95,7 @@ const TransactionPage = ({ onLogout }) => {
       if (response.status === 200 || response.status === 201) {
         navigate("/gcash-payment", {
           state: {
-            plan: `${plan.name} Membership`,
+            plan: plan.isSession ? `${plan.name} - 1 Day Pass` : `${plan.name} Membership`,
             amount: total,
             transactionId: response.data.id,
             transactionCode: response.data.transactionCode,
@@ -105,8 +105,8 @@ const TransactionPage = ({ onLogout }) => {
     } catch (error) {
       console.error("Error:", error);
       
-      // Backend caught active membership - show warning
-      if (error.response?.status === 409 && error.response?.data?.error === "ACTIVE_MEMBERSHIP_EXISTS") {
+      // Backend caught active membership - show warning (only for memberships, not sessions)
+      if (!plan.isSession && error.response?.status === 409 && error.response?.data?.error === "ACTIVE_MEMBERSHIP_EXISTS") {
         setShowSuccessModal(false);
         setActiveMembership(error.response.data);
         setShowMembershipWarning(true);
@@ -161,7 +161,11 @@ const TransactionPage = ({ onLogout }) => {
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
             <h1 className={styles.title}>CHECKOUT</h1>
-            <p className={styles.subtitle}>Complete your membership purchase</p>
+            <p className={styles.subtitle}>
+              {plan.isSession 
+                ? "Complete your session purchase" 
+                : "Complete your membership purchase"}
+            </p>
           </div>
 
           <div className={styles.checkoutGrid}>
@@ -173,7 +177,9 @@ const TransactionPage = ({ onLogout }) => {
                   <span className={styles.planIcon}>{plan.icon}</span>
                   <div>
                     <h3 className={styles.planName}>{plan.name}</h3>
-                    <p className={styles.planType}>Monthly Membership</p>
+                    <p className={styles.planType}>
+                      {plan.isSession ? "One-Time Session" : "Monthly Membership"}
+                    </p>
                   </div>
                 </div>
 
@@ -224,14 +230,20 @@ const TransactionPage = ({ onLogout }) => {
                 </div>
 
                 <div className={styles.infoSection}>
-                  <h3 className={styles.infoLabel}>Membership Details</h3>
+                  <h3 className={styles.infoLabel}>
+                    {plan.isSession ? "Session Details" : "Membership Details"}
+                  </h3>
                   <div className={styles.infoItem}>
                     <span className={styles.infoKey}>Plan:</span>
-                    <span className={styles.infoValue}>{plan.name} Membership</span>
+                    <span className={styles.infoValue}>
+                      {plan.isSession ? `${plan.name} - 1 Day Pass` : `${plan.name} Membership`}
+                    </span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoKey}>Duration:</span>
-                    <span className={styles.infoValue}>1 Month</span>
+                    <span className={styles.infoValue}>
+                      {plan.isSession ? "1 Day" : "1 Month"}
+                    </span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoKey}>Price:</span>
@@ -330,8 +342,12 @@ const TransactionPage = ({ onLogout }) => {
               <div className={styles.compactPlanDisplay}>
                 <span className={styles.compactPlanIcon}>{plan.icon}</span>
                 <div>
-                  <h3 className={styles.compactPlanName}>{plan.name} Membership</h3>
-                  <p className={styles.compactPlanType}>Monthly Subscription</p>
+                  <h3 className={styles.compactPlanName}>
+                    {plan.isSession ? `${plan.name} - 1 Day Pass` : `${plan.name} Membership`}
+                  </h3>
+                  <p className={styles.compactPlanType}>
+                    {plan.isSession ? "One-Time Session" : "Monthly Subscription"}
+                  </p>
                 </div>
               </div>
 

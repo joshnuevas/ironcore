@@ -92,6 +92,7 @@ const ClassSelectionPage = ({ onLogout }) => {
     setShowConfirmModal(true);
   };
 
+  // ⭐ RESTORED: Original backend endpoint
   const handleFinalConfirm = async () => {
     setIsSubmitting(true);
 
@@ -103,6 +104,8 @@ const ClassSelectionPage = ({ onLogout }) => {
         classIds: selectedClasses.map((c) => c.id),
       };
 
+      console.log("Sending payload:", payload); // Debug
+
       await axios.post(
         "http://localhost:8080/api/membership-classes/assign",
         payload,
@@ -113,7 +116,8 @@ const ClassSelectionPage = ({ onLogout }) => {
       navigate("/landing");
     } catch (error) {
       console.error("Failed to save class selections:", error);
-      alert("Failed to save your selections. Please try again.");
+      console.error("Error response:", error.response?.data);
+      alert(`Failed to save your selections. ${error.response?.data?.message || "Please try again."}`);
       setIsSubmitting(false);
     }
   };

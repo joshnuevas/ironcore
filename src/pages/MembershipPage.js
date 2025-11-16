@@ -14,6 +14,20 @@ const MembershipPage = () => {
 
   const plans = [
     {
+      name: "SESSION",
+      price: "₱200",
+      period: "/Day",
+      icon: "⚡",
+      features: [
+        "1 Day Gym Access",
+        "All Equipment Available",
+        "Locker Access",
+        "Perfect for Trial",
+      ],
+      popular: false,
+      isSession: true, // ⭐ Mark this as a session
+    },
+    {
       name: "SILVER",
       price: "₱1,199",
       period: "/Month",
@@ -25,6 +39,7 @@ const MembershipPage = () => {
         "3 Classes",
       ],
       popular: false,
+      isSession: false,
     },
     {
       name: "GOLD",
@@ -38,6 +53,7 @@ const MembershipPage = () => {
         "5 Classes",
       ],
       popular: true,
+      isSession: false,
     },
     {
       name: "PLATINUM",
@@ -51,6 +67,7 @@ const MembershipPage = () => {
         "1 Session Trainer",
       ],
       popular: false,
+      isSession: false,
     },
   ];
 
@@ -77,8 +94,14 @@ const MembershipPage = () => {
       return;
     }
 
+    // ⭐ NEW: Skip membership check for sessions - they can buy multiple
+    if (plan.isSession) {
+      navigate("/transaction", { state: { plan } });
+      return;
+    }
+
+    // For memberships, check if they have active membership
     try {
-      // Check for active membership
       const response = await axios.get(
         `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
         { withCredentials: true }
@@ -149,7 +172,7 @@ const MembershipPage = () => {
                 className={`${styles.planCard} ${
                   plan.popular ? styles.planCardPopular : ""
                 }`}
-                style={{ animationDelay: `${index * 0.2}s` }}
+                style={{ animationDelay: `${index * 0.15}s` }}
               >
                 {plan.popular && (
                   <div className={styles.popularBadge}>MOST POPULAR</div>
@@ -178,7 +201,7 @@ const MembershipPage = () => {
                     !plan.popular ? styles.joinButtonOutline : ""
                   }`}
                 >
-                  JOIN NOW
+                  {plan.isSession ? "BUY NOW" : "JOIN NOW"}
                 </button>
               </div>
             ))}

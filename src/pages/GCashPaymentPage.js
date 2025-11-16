@@ -72,19 +72,30 @@ const GCashPaymentPage = ({ onLogout }) => {
     setPin(value);
   };
 
-  // ⭐ UPDATED: Handle confirmation button click
+  // ⭐ FIXED: Handle confirmation button click
   const handleConfirmSuccess = () => {
-    // Check if it's a membership transaction
-    if (completedTransaction?.membershipType) {
-      // Redirect to class selection page
+    const isSession = completedTransaction?.membershipType === "SESSION";
+    
+    if (isSession) {
+      // ⭐ SESSION: Go to landing page
+      navigate("/landing", {
+        state: {
+          fromPayment: true,
+          sessionPurchased: true,
+          message: "Session purchased! Show your code at the gym for access.",
+          transactionCode: completedTransaction.transactionCode,
+        },
+      });
+    } else if (completedTransaction?.membershipType) {
+      // ⭐ FIXED: MEMBERSHIP - Pass transactionId (not transactionCode)
       navigate("/class-selection", {
         state: {
           membershipType: completedTransaction.membershipType,
-          transactionId: completedTransaction.id,
+          transactionId: completedTransaction.id, // ⭐ Use ID, not code
         },
       });
     } else {
-      // For class enrollments, go to landing page
+      // ⭐ CLASS ENROLLMENT: Go to landing page
       navigate("/landing");
     }
   };
@@ -193,7 +204,7 @@ const GCashPaymentPage = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* ⭐ UPDATED: Success Modal with Confirmation Button */}
+      {/* ⭐ Success Modal */}
       {showSuccess && (
         <div className={styles.successOverlay}>
           <div className={styles.successModal}>
@@ -202,24 +213,30 @@ const GCashPaymentPage = ({ onLogout }) => {
             </div>
             <h2 className={styles.successTitle}>Payment Successful!</h2>
             <p className={styles.successMessage}>
-              {paymentDetails.className 
+              {completedTransaction?.membershipType === "SESSION"
+                ? "Your 1-day gym session is ready!"
+                : paymentDetails.className 
                 ? `You're enrolled in ${paymentDetails.className}!` 
-                : "Your membership has been activated!"}
+                : "Your membership payment is complete!"}
             </p>
             <div className={styles.successAmount}>₱{paymentDetails.amount.toLocaleString()}</div>
             
-            {/* ⭐ UPDATED: Display transaction code from both sources */}
+            {/* Transaction Code */}
             {(completedTransaction?.transactionCode || paymentDetails.transactionCode) && (
               <div className={styles.transactionCodeBox}>
                 <span className={styles.codeLabel}>Transaction Code:</span>
                 <span className={styles.codeValue}>
                   {completedTransaction?.transactionCode || paymentDetails.transactionCode}
                 </span>
-                <p className={styles.codeHint}>Save this code for your records</p>
+                <p className={styles.codeHint}>
+                  {completedTransaction?.membershipType === "SESSION"
+                    ? "Show this code at the gym for 1-day access"
+                    : "Save this code for your records"}
+                </p>
               </div>
             )}
 
-            {/* ⭐ UPDATED: Additional details for class enrollment */}
+            {/* Additional details for class enrollment */}
             {paymentDetails.className && (
               <div className={styles.enrollmentDetails}>
                 <div className={styles.detailRow}>
@@ -247,12 +264,16 @@ const GCashPaymentPage = ({ onLogout }) => {
               </div>
             )}
 
-            {/* ⭐ NEW: Confirmation Button */}
+            {/* ⭐ Confirmation Button */}
             <button 
               onClick={handleConfirmSuccess} 
               className={styles.confirmButton}
             >
-              Got it!
+              {completedTransaction?.membershipType === "SESSION"
+                ? "Go to Dashboard"
+                : completedTransaction?.membershipType
+                ? "Select Your Classes"
+                : "Got it!"}
             </button>
           </div>
         </div>

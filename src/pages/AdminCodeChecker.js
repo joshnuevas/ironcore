@@ -7,6 +7,7 @@ import axios from "axios";
 const AdminCodeChecker = ({ onLogout }) => {
   const [transactionCode, setTransactionCode] = useState("");
   const [result, setResult] = useState(null);
+  const [relatedClasses, setRelatedClasses] = useState([]); // ⭐ NEW: Store related class transactions
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,6 +22,7 @@ const AdminCodeChecker = ({ onLogout }) => {
     setIsLoading(true);
     setError("");
     setResult(null);
+    setRelatedClasses([]); // ⭐ Reset related classes
 
     try {
       const response = await axios.get(
@@ -29,6 +31,29 @@ const AdminCodeChecker = ({ onLogout }) => {
       );
 
       setResult(response.data);
+
+      // ⭐ NEW: If it's a membership, fetch related class transactions
+      if (response.data.valid && response.data.type === "MEMBERSHIP") {
+        try {
+          const userId = response.data.transaction.user.id;
+          
+          // Fetch all transactions for this user
+          const userTransactionsResponse = await axios.get(
+            `http://localhost:8080/api/transactions/user/${userId}`,
+            { withCredentials: true }
+          );
+
+          // Filter for completed class transactions (not memberships)
+          const classTransactions = userTransactionsResponse.data.filter(
+            (txn) => txn.classId && txn.paymentStatus === "COMPLETED"
+          );
+
+          setRelatedClasses(classTransactions);
+        } catch (classError) {
+          console.error("Error fetching related classes:", classError);
+          // Don't show error to user, just continue without classes
+        }
+      }
     } catch (err) {
       console.error("Error checking transaction:", err);
       setError("Failed to check transaction code. Please try again.");
@@ -40,6 +65,7 @@ const AdminCodeChecker = ({ onLogout }) => {
   const handleReset = () => {
     setTransactionCode("");
     setResult(null);
+    setRelatedClasses([]);
     setError("");
   };
 
@@ -54,7 +80,6 @@ const AdminCodeChecker = ({ onLogout }) => {
     });
   };
 
-  // ⭐ NEW: Calculate days remaining until expiry
   const getDaysRemaining = (expiryDate) => {
     if (!expiryDate) return null;
     const now = new Date();
@@ -64,13 +89,12 @@ const AdminCodeChecker = ({ onLogout }) => {
     return diffDays;
   };
 
-  // ⭐ NEW: Check if membership was just activated
   const isNewlyActivated = (activatedDate) => {
     if (!activatedDate) return false;
     const activated = new Date(activatedDate);
     const now = new Date();
     const diffMinutes = (now - activated) / (1000 * 60);
-    return diffMinutes < 5; // Consider "newly activated" if within 5 minutes
+    return diffMinutes < 5;
   };
 
   return (
@@ -157,7 +181,6 @@ const AdminCodeChecker = ({ onLogout }) => {
                       <h2 className={styles.statusTitle}>Access Granted</h2>
                       <p className={styles.statusMessage}>{result.message}</p>
                       
-                      {/* ⭐ NEW: Show "Membership Activated" notification */}
                       {result.type === "MEMBERSHIP" && 
                        result.membershipActivatedDate && 
                        isNewlyActivated(result.membershipActivatedDate) && (
@@ -235,7 +258,6 @@ const AdminCodeChecker = ({ onLogout }) => {
                           </div>
                         </div>
                         
-                        {/* ⭐ NEW: Show Activation Date */}
                         {result.membershipActivatedDate && (
                           <div className={styles.detailItem}>
                             <Clock className={styles.detailIcon} />
@@ -248,7 +270,6 @@ const AdminCodeChecker = ({ onLogout }) => {
                           </div>
                         )}
                         
-                        {/* ⭐ NEW: Show Expiry Date and Days Remaining */}
                         {result.membershipExpiryDate && (
                           <>
                             <div className={styles.detailItem}>
@@ -261,7 +282,6 @@ const AdminCodeChecker = ({ onLogout }) => {
                               </div>
                             </div>
                             
-                            {/* ⭐ NEW: Days Remaining Badge */}
                             <div className={styles.detailItem}>
                               <div>
                                 <span className={styles.detailLabel}>Time Remaining</span>
@@ -316,6 +336,41 @@ const AdminCodeChecker = ({ onLogout }) => {
                         <span className={styles.detailValue}>{formatDate(result.paymentDate)}</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ⭐ NEW: Display Related Classes (for Memberships) */}
+              {result.type === "MEMBERSHIP" && relatedClasses.length > 0 && (
+                <div className={styles.relatedClassesSection}>
+                  <h3 className={styles.classesSectionTitle}>
+                    📚 Included Classes ({relatedClasses.length})
+                  </h3>
+                  <div className={styles.classesGrid}>
+                    {relatedClasses.map((classTransaction) => (
+                      <div key={classTransaction.id} className={styles.classCard}>
+                        <div className={styles.classHeader}>
+                          <Package className={styles.classIcon} />
+                          <h4 className={styles.className}>
+                            {classTransaction.gymClass?.name || "Class"}
+                          </h4>
+                        </div>
+                        <div className={styles.classDetails}>
+                          <div className={styles.classDetail}>
+                            <span className={styles.classLabel}>Code:</span>
+                            <span className={styles.classCode}>
+                              {classTransaction.transactionCode}
+                            </span>
+                          </div>
+                          <div className={styles.classDetail}>
+                            <span className={styles.classLabel}>Status:</span>
+                            <span className={`${styles.badge} ${styles.successBadge}`}>
+                              {classTransaction.paymentStatus}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
