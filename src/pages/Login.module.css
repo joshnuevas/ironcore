@@ -458,7 +458,7 @@
 }
 
 .roleModalContent {
-  background: #ffffff;
+  background: #111827;
   padding: 2.5rem;
   border-radius: 1rem;
   text-align: center;
@@ -470,12 +470,12 @@
 .roleModalTitle {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #111827;
+  color: #ffffff;
   margin-bottom: 0.5rem;
 }
 
 .roleModalDescription {
-  color: #6b7280;
+  color: #767e8d;
   margin-bottom: 2rem;
   font-size: 0.875rem;
 }
@@ -497,7 +497,7 @@
   transition: all 0.3s;
   font-size: 1rem;
   font-weight: 600;
-  background: #ffffff;
+  background: #111827;
 }
 
 .adminRoleButton {
@@ -506,8 +506,10 @@
 }
 
 .adminRoleButton:hover {
-  background: #f5f3ff;
-  transform: translateX(5px);
+  background: #7c3aed;
+  color: white;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.6);
+  transform: translateX(6px) scale(1.02);
 }
 
 .userRoleButton {
@@ -516,8 +518,10 @@
 }
 
 .userRoleButton:hover {
-  background: #fff7ed;
-  transform: translateX(5px);
+  background: #ea580c;
+  color: white;
+  box-shadow: 0 0 12px rgba(234, 88, 12, 0.6);
+  transform: translateX(6px) scale(1.02);
 }
 
 .roleIcon {
