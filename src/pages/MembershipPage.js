@@ -25,7 +25,7 @@ const MembershipPage = () => {
         "Perfect for Trial",
       ],
       popular: false,
-      isSession: true, // ⭐ Mark this as a session
+      isSession: true,
     },
     {
       name: "SILVER",
@@ -94,13 +94,7 @@ const MembershipPage = () => {
       return;
     }
 
-    // ⭐ NEW: Skip membership check for sessions - they can buy multiple
-    if (plan.isSession) {
-      navigate("/transaction", { state: { plan } });
-      return;
-    }
-
-    // For memberships, check if they have active membership
+    // Check for active membership for both sessions and memberships
     try {
       const response = await axios.get(
         `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
@@ -112,17 +106,15 @@ const MembershipPage = () => {
         const now = new Date();
 
         if (expiryDate > now) {
-          // Active membership exists - show warning modal
+          // Active membership exists - show warning modal for ANY plan
           setActiveMembership(response.data);
           setShowWarningModal(true);
-        } else {
-          // Membership expired - allow navigation
-          navigate("/transaction", { state: { plan } });
+          return; // Block both sessions and memberships
         }
-      } else {
-        // No active membership - allow navigation
-        navigate("/transaction", { state: { plan } });
       }
+
+      // No active membership - allow navigation
+      navigate("/transaction", { state: { plan } });
     } catch (error) {
       console.error("Error checking membership:", error);
       // If check fails, still allow navigation
@@ -256,7 +248,7 @@ const MembershipPage = () => {
               </div>
 
               <div className={styles.compactWarning}>
-                <p>You can purchase a new membership after your current one expires.</p>
+                <p>You can purchase a new membership or session after your current one expires.</p>
               </div>
             </div>
 
