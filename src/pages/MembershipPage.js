@@ -71,7 +71,7 @@ const MembershipPage = () => {
     },
   ];
 
-  // Fetch current user
+  // Fetch current user and active membership
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -94,7 +94,13 @@ const MembershipPage = () => {
       return;
     }
 
-    // Check for active membership for both sessions and memberships
+    // Sessions can always be purchased - skip membership check
+    if (plan.isSession) {
+      navigate("/transaction", { state: { plan } });
+      return;
+    }
+
+    // For memberships (SILVER, GOLD, PLATINUM), check if they have active membership
     try {
       const response = await axios.get(
         `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
@@ -105,15 +111,16 @@ const MembershipPage = () => {
         const expiryDate = new Date(response.data.membershipExpiryDate);
         const now = new Date();
 
-        if (expiryDate > now) {
-          // Active membership exists - show warning modal for ANY plan
+        // Only block if they have an active MONTHLY membership (not SESSION)
+        if (expiryDate > now && response.data.membershipType !== "SESSION") {
+          // Active monthly membership exists - show warning modal
           setActiveMembership(response.data);
           setShowWarningModal(true);
-          return; // Block both sessions and memberships
+          return;
         }
       }
 
-      // No active membership - allow navigation
+      // No active monthly membership - allow navigation
       navigate("/transaction", { state: { plan } });
     } catch (error) {
       console.error("Error checking membership:", error);
@@ -239,12 +246,14 @@ const MembershipPage = () => {
                   </div>
                 )}
 
-                <div className={styles.compactRow}>
-                  <span className={styles.compactLabel}>Code:</span>
-                  <span className={styles.compactCode}>
-                    {activeMembership.transactionCode}
-                  </span>
-                </div>
+                {activeMembership.transactionCode && (
+                  <div className={styles.compactRow}>
+                    <span className={styles.compactLabel}>Code:</span>
+                    <span className={styles.compactCode}>
+                      {activeMembership.transactionCode}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className={styles.compactWarning}>
