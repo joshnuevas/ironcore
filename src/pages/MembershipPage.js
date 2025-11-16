@@ -94,13 +94,7 @@ const MembershipPage = () => {
       return;
     }
 
-    // Sessions can always be purchased - skip membership check
-    if (plan.isSession) {
-      navigate("/transaction", { state: { plan } });
-      return;
-    }
-
-    // For memberships (SILVER, GOLD, PLATINUM), check if they have active membership
+    // Check for active membership for all plans
     try {
       const response = await axios.get(
         `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
@@ -111,16 +105,26 @@ const MembershipPage = () => {
         const expiryDate = new Date(response.data.membershipExpiryDate);
         const now = new Date();
 
-        // Only block if they have an active MONTHLY membership (not SESSION)
-        if (expiryDate > now && response.data.membershipType !== "SESSION") {
-          // Active monthly membership exists - show warning modal
-          setActiveMembership(response.data);
-          setShowWarningModal(true);
-          return;
+        if (expiryDate > now) {
+          const activeMembershipType = response.data.membershipType;
+          
+          // If user has monthly membership (SILVER/GOLD/PLATINUM), block everything
+          if (activeMembershipType !== "SESSION") {
+            setActiveMembership(response.data);
+            setShowWarningModal(true);
+            return;
+          }
+          
+          // If user has SESSION, only block other monthly memberships, allow more sessions
+          if (activeMembershipType === "SESSION" && !plan.isSession) {
+            setActiveMembership(response.data);
+            setShowWarningModal(true);
+            return;
+          }
         }
       }
 
-      // No active monthly membership - allow navigation
+      // No conflicts - allow navigation
       navigate("/transaction", { state: { plan } });
     } catch (error) {
       console.error("Error checking membership:", error);
@@ -257,7 +261,11 @@ const MembershipPage = () => {
               </div>
 
               <div className={styles.compactWarning}>
-                <p>You can purchase a new membership or session after your current one expires.</p>
+                <p>
+                  {activeMembership.membershipType === "SESSION"
+                    ? "You can purchase a membership after your session expires."
+                    : "You can purchase a new membership or session after your current one expires."}
+                </p>
               </div>
             </div>
 
