@@ -25,6 +25,7 @@ import AdminLandingPage from "./pages/AdminLandingPage";
 import AdminCodeChecker from "./pages/AdminCodeChecker";
 import AdminScheduleViewer from "./pages/AdminScheduleViewer";
 import AdminSlotChecker from "./pages/AdminSlotChecker";
+import AttendanceChecker from "./pages/AttendanceChecker";
 import ClassSelectionPage from "./pages/ClassSelectionPage";
 
 function App() {
@@ -176,6 +177,14 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminSlotChecker />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin/attendance-checker"
+          element={
+            <ProtectedAdminRoute>
+              <AttendanceChecker />
             </ProtectedAdminRoute>
           }
         />

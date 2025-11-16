@@ -65,6 +65,14 @@ const AdminLandingPage = () => {
       color: "green",
       path: "/admin/slot-checker",
     },
+    {
+      id: 4,
+      title: "Attendance Checker",
+      description: "Track member attendance based on active memberships",
+      icon: UserCheck,
+      color: "orange",
+      path: "/admin/attendance-checker",
+    },
   ];
 
   const handleCardClick = (path) => {
