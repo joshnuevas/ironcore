@@ -3,7 +3,8 @@
   min-height: 100vh;
   background: linear-gradient(to bottom right, #111827, #1f2937, #000000);
   position: relative;
-  overflow-x: hidden;
+  overflow-x: visible !important;
+  z-index: 1;
 }
 
 /* Animated Background */
@@ -12,6 +13,7 @@
   inset: 0;
   overflow: hidden;
   pointer-events: none;
+  z-index: 0;
 }
 
 .bgBlur {
@@ -188,6 +190,36 @@
   border-color: #f97316;
   background: rgba(249, 115, 22, 0.1);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* Back Button */
+.backButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  border-radius: 0.75rem;
+  color: #f97316;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.backButton:hover {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: #f97316;
+  transform: translateX(-5px);
+}
+
+.backIcon {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /* Members Section */

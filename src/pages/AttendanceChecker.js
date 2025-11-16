@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, UserCheck, Clock, Search, CheckCircle, XCircle, Plus, History } from "lucide-react";
+import { Calendar, UserCheck, Clock, Search, CheckCircle, XCircle, Plus, ArrowLeft, History } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./AttendanceChecker.module.css";
 import axios from "axios";
@@ -211,6 +211,15 @@ const AttendanceChecker = () => {
       </div>
 
       <div className={styles.contentWrapper}>
+        {/* Back Button */}
+        <button
+          onClick={() => window.location.href = '/admin'}
+          className={styles.backButton}
+        >
+
+          <ArrowLeft className={styles.backIcon} />
+          <span>Back to Admin Dashboard</span>
+        </button>
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.headerBadge}>
