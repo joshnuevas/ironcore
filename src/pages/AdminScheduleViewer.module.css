@@ -681,6 +681,19 @@
 
 .formSelect {
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px;
+
+  padding-right: 2.5rem;
+
+  transition: none !important;
+  background-position-x: right 0.75rem !important;
 }
 
 .formSelect option {
@@ -690,9 +703,12 @@
 
 .formInput:focus,
 .formSelect:focus {
-  outline: none;
-  border-color: rgba(255, 107, 53, 0.5);
-  background: rgba(255, 255, 255, 0.08);
+  /*outline: none;*/
+  /*border-color: rgba(255, 107, 53, 0.5);*/
+  /*background: rgba(255, 255, 255, 0.08);*/
+  background-image: inherit;
+  background-position: right 0.75rem center !important;
+  transition: none !important;
 }
 
 .formInput::placeholder {
