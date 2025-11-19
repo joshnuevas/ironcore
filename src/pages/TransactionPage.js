@@ -104,16 +104,21 @@ const TransactionPage = ({ onLogout }) => {
     }
 
     try {
+      // Get additional data from location.state if available
+      const { classId, scheduleId, className, scheduleDay, scheduleTime, scheduleDate } = location.state || {};
+
       const payload = {
         userId: currentUser.id,
-        classId: null,
-        scheduleId: null,
+        classId: classId || null, // ADD THIS - get from location.state
+        scheduleId: scheduleId || null, // This might already be there
         membershipType: plan.isSession ? "SESSION" : plan.name,
         processingFee: vat,
         totalAmount: total,
         paymentMethod: "GCash",
         paymentStatus: "PENDING",
       };
+
+      console.log("Creating transaction with payload:", payload); // Debug log
 
       const response = await axios.post(
         "http://localhost:8080/api/transactions",
@@ -133,6 +138,13 @@ const TransactionPage = ({ onLogout }) => {
             amount: total,
             transactionId: response.data.id,
             transactionCode: response.data.transactionCode,
+            // Pass along class/schedule info for reference
+            classId: classId,
+            className: className,
+            scheduleId: scheduleId,
+            scheduleDay: scheduleDay,
+            scheduleTime: scheduleTime,
+            scheduleDate: scheduleDate,
           },
         });
       }

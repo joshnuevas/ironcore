@@ -94,37 +94,37 @@ const MembershipPage = () => {
       return;
     }
 
-    // Check for active membership for all plans
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/transactions/check-active-membership?userId=${currentUser.id}`,
-        { withCredentials: true }
+        "http://localhost:8080/api/transactions/check-active-membership",
+        {
+          params: { userId: currentUser.id },
+          withCredentials: true,
+        }
       );
 
-      if (response.data.hasActiveMembership) {
-        const expiryDate = new Date(response.data.membershipExpiryDate);
-        const now = new Date();
+      const {
+        hasActiveMembership,
+        membershipType,
+        membershipActivatedDate,
+        membershipExpiryDate,
+        transactionCode,
+      } = response.data;
 
-        if (expiryDate > now) {
-          const activeMembershipType = response.data.membershipType;
-          
-          // If user has monthly membership (SILVER/GOLD/PLATINUM), block everything
-          if (activeMembershipType !== "SESSION") {
-            setActiveMembership(response.data);
-            setShowWarningModal(true);
-            return;
-          }
-          
-          // If user has SESSION, only block other monthly memberships, allow more sessions
-          if (activeMembershipType === "SESSION" && !plan.isSession) {
-            setActiveMembership(response.data);
-            setShowWarningModal(true);
-            return;
-          }
-        }
+      if (hasActiveMembership) {
+        // Build object for the modal
+        setActiveMembership({
+          membershipType,
+          membershipActivatedDate,
+          membershipExpiryDate,
+          transactionCode,
+        });
+
+        setShowWarningModal(true);
+        return;
       }
 
-      // No conflicts - allow navigation
+      // ✅ no active membership → allow purchase
       navigate("/transaction", { state: { plan } });
     } catch (error) {
       console.error("Error checking membership:", error);
@@ -132,6 +132,7 @@ const MembershipPage = () => {
       navigate("/transaction", { state: { plan } });
     }
   };
+
 
   const handleCloseWarning = () => {
     setShowWarningModal(false);
