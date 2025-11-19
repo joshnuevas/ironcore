@@ -7,14 +7,22 @@ import axios from "axios";
 
 const ClassTransactionPage = ({ onLogout }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // 🔹 Existing: duplicate enrollment (same class)
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [duplicateEnrollmentInfo, setDuplicateEnrollmentInfo] = useState(null);
+
+  // 🔹 NEW: schedule conflict (same date + time slot, any class)
+  const [showScheduleConflictModal, setShowScheduleConflictModal] = useState(false);
+  const [scheduleConflictInfo, setScheduleConflictInfo] = useState(null);
+
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [schedules, setSchedules] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState(null);
   const [loadingSchedules, setLoadingSchedules] = useState(true);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -71,20 +79,39 @@ const ClassTransactionPage = ({ onLogout }) => {
     fetchSchedules();
   }, [classData?.id]);
 
-  // Check for active enrollment before proceeding
+  // 🔍 Enroll button: check conflict → check active enrollment → confirm
   const handleEnrollNow = async () => {
     if (!selectedSchedule) {
       alert("Please select a schedule first");
       return;
     }
-    
+
     if (!currentUser) {
       alert("User info not loaded");
       return;
     }
 
     try {
-      const response = await axios.get(
+      // 1) Check schedule conflict (same date + time slot)
+      const conflictRes = await axios.get(
+        "http://localhost:8080/api/class-enrollments/check-conflict",
+        {
+          params: {
+            userId: currentUser.id,
+            scheduleId: selectedSchedule.id,
+          },
+          withCredentials: true,
+        }
+      );
+
+      if (conflictRes.data?.hasConflict) {
+        setScheduleConflictInfo(conflictRes.data);
+        setShowScheduleConflictModal(true);
+        return; // stop here, don't go to confirm modal
+      }
+
+      // 2) Check active enrollment in this class (your existing logic)
+      const activeRes = await axios.get(
         "http://localhost:8080/api/transactions/check-active-enrollment",
         {
           params: {
@@ -95,15 +122,15 @@ const ClassTransactionPage = ({ onLogout }) => {
         }
       );
 
-      if (response.data.hasActiveEnrollment) {
-        setDuplicateEnrollmentInfo(response.data);
+      if (activeRes.data.hasActiveEnrollment) {
+        setDuplicateEnrollmentInfo(activeRes.data);
         setShowDuplicateModal(true);
       } else {
         setShowConfirmModal(true);
       }
     } catch (error) {
-      console.error("Error checking enrollment:", error);
-      alert("Failed to verify enrollment status. Please try again.");
+      console.error("Error checking schedule/enrollment:", error);
+      alert("Failed to verify schedule. Please try again.");
     }
   };
 
@@ -151,22 +178,35 @@ const ClassTransactionPage = ({ onLogout }) => {
       }
     } catch (error) {
       console.error("Error saving transaction:", error);
-      
-      // Handle duplicate enrollment error from backend
-      if (error.response?.status === 409 && error.response?.data?.error === "ACTIVE_ENROLLMENT_EXISTS") {
+
+      // Handle duplicate enrollment error from backend (if you ever return 409)
+      if (
+        error.response?.status === 409 &&
+        error.response?.data?.error === "ACTIVE_ENROLLMENT_EXISTS"
+      ) {
         setShowConfirmModal(false);
         setDuplicateEnrollmentInfo(error.response.data);
         setShowDuplicateModal(true);
       } else {
-        alert(`Failed to save enrollment: ${error.response?.data?.message || error.message}`);
+        alert(
+          `Failed to save enrollment: ${
+            error.response?.data?.message || error.message
+          }`
+        );
       }
     }
   };
 
   const handleCloseModal = () => setShowConfirmModal(false);
+
   const handleCloseDuplicateModal = () => {
     setShowDuplicateModal(false);
     setDuplicateEnrollmentInfo(null);
+  };
+
+  const handleCloseScheduleConflictModal = () => {
+    setShowScheduleConflictModal(false);
+    setScheduleConflictInfo(null);
   };
 
   // Format date helper
@@ -190,7 +230,9 @@ const ClassTransactionPage = ({ onLogout }) => {
         <Navbar activeNav="CLASSES" onLogout={onLogout} />
         <div className={styles.contentSection}>
           <div className={styles.contentContainer}>
-            <div className={styles.loadingMessage}>Loading user information...</div>
+            <div className={styles.loadingMessage}>
+              Loading user information...
+            </div>
           </div>
         </div>
       </div>
@@ -225,7 +267,9 @@ const ClassTransactionPage = ({ onLogout }) => {
         <div className={styles.contentContainer}>
           <div className={styles.headerSection}>
             <h1 className={styles.title}>ENROLL IN CLASS</h1>
-            <p className={styles.subtitle}>Select your preferred schedule and complete enrollment</p>
+            <p className={styles.subtitle}>
+              Select your preferred schedule and complete enrollment
+            </p>
           </div>
 
           <div className={styles.checkoutGrid}>
@@ -237,7 +281,9 @@ const ClassTransactionPage = ({ onLogout }) => {
                   <span className={styles.classIcon}>{classData.icon}</span>
                   <div>
                     <h3 className={styles.className}>{classData.name}</h3>
-                    <p className={styles.classDescription}>{classData.description}</p>
+                    <p className={styles.classDescription}>
+                      {classData.description}
+                    </p>
                   </div>
                 </div>
 
@@ -292,14 +338,17 @@ const ClassTransactionPage = ({ onLogout }) => {
               ) : (
                 <div className={styles.scheduleList}>
                   {schedules.map((schedule) => {
-                    const slotsLeft = schedule.maxParticipants - (schedule.enrolledCount || 0);
+                    const slotsLeft =
+                      schedule.maxParticipants - (schedule.enrolledCount || 0);
                     const isFull = slotsLeft <= 0;
 
                     return (
                       <div
                         key={schedule.id}
                         className={`${styles.scheduleOption} ${
-                          selectedSchedule?.id === schedule.id ? styles.scheduleSelected : ""
+                          selectedSchedule?.id === schedule.id
+                            ? styles.scheduleSelected
+                            : ""
                         } ${isFull ? styles.scheduleDisabled : ""}`}
                         onClick={() => !isFull && setSelectedSchedule(schedule)}
                       >
@@ -310,12 +359,22 @@ const ClassTransactionPage = ({ onLogout }) => {
                         </div>
                         <div className={styles.scheduleInfo}>
                           <div className={styles.scheduleTop}>
-                            <span className={styles.scheduleDay}>{schedule.day}</span>
-                            <span className={isFull ? styles.scheduleSlotsFull : styles.scheduleSlots}>
+                            <span className={styles.scheduleDay}>
+                              {schedule.day}
+                            </span>
+                            <span
+                              className={
+                                isFull
+                                  ? styles.scheduleSlotsFull
+                                  : styles.scheduleSlots
+                              }
+                            >
                               {isFull ? "FULL" : `${slotsLeft} slots left`}
                             </span>
                           </div>
-                          <div className={styles.scheduleTime}>{schedule.timeSlot}</div>
+                          <div className={styles.scheduleTime}>
+                            {schedule.timeSlot}
+                          </div>
                           <div className={styles.scheduleDate}>
                             <Calendar size={14} /> {schedule.date}
                           </div>
@@ -332,11 +391,15 @@ const ClassTransactionPage = ({ onLogout }) => {
                   <div className={styles.userInfoList}>
                     <div className={styles.userInfoItem}>
                       <span className={styles.userInfoLabel}>Name:</span>
-                      <span className={styles.userInfoValue}>{currentUser.username}</span>
+                      <span className={styles.userInfoValue}>
+                        {currentUser.username}
+                      </span>
                     </div>
                     <div className={styles.userInfoItem}>
                       <span className={styles.userInfoLabel}>Email:</span>
-                      <span className={styles.userInfoValue}>{currentUser.email}</span>
+                      <span className={styles.userInfoValue}>
+                        {currentUser.email}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -351,45 +414,130 @@ const ClassTransactionPage = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* ⭐ UPDATED: Duplicate Enrollment Warning Modal - Different for membership vs regular classes */}
-      {showDuplicateModal && duplicateEnrollmentInfo && (
-        <div className={styles.modalOverlay} onClick={handleCloseDuplicateModal}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.closeButton} onClick={handleCloseDuplicateModal}>
+      {/* 🟡 Schedule Conflict Modal (same date + time, any class) */}
+      {showScheduleConflictModal && scheduleConflictInfo && (
+        <div
+          className={styles.modalOverlay}
+          onClick={handleCloseScheduleConflictModal}
+        >
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.closeButton}
+              onClick={handleCloseScheduleConflictModal}
+            >
               ×
             </button>
-            
+
+            <div className={styles.warningHeader}>
+              <AlertCircle className={styles.warningIcon} size={48} />
+              <h2 className={styles.modalTitle}>Schedule Conflict Found</h2>
+              <p className={styles.modalSubtitle}>
+                You already have a class booked at this time.
+              </p>
+            </div>
+
+            <div className={styles.modalDetails}>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Class:</span>
+                <span className={styles.detailValue}>
+                  {scheduleConflictInfo.className}
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Date:</span>
+                <span className={styles.detailValue}>
+                  {formatDate(scheduleConflictInfo.scheduleDate)}
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Time:</span>
+                <span className={styles.detailValue}>
+                  {scheduleConflictInfo.scheduleDay},{" "}
+                  {scheduleConflictInfo.scheduleTime}
+                </span>
+              </div>
+              <div className={styles.detailRow}>
+                <span className={styles.detailLabel}>Code:</span>
+                <span className={styles.detailValue}>
+                  {scheduleConflictInfo.transactionCode}
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.warningNote}>
+              <p>
+                You can book another class once this time slot is free or choose
+                a different schedule.
+              </p>
+            </div>
+
+            <button
+              onClick={handleCloseScheduleConflictModal}
+              className={styles.okButton}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 🔁 Duplicate Enrollment Warning Modal (same class) */}
+      {showDuplicateModal && duplicateEnrollmentInfo && (
+        <div
+          className={styles.modalOverlay}
+          onClick={handleCloseDuplicateModal}
+        >
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className={styles.closeButton}
+              onClick={handleCloseDuplicateModal}
+            >
+              ×
+            </button>
+
             <div className={styles.warningHeader}>
               <AlertCircle className={styles.warningIcon} size={48} />
               <h2 className={styles.modalTitle}>
-                {duplicateEnrollmentInfo.scheduleDay 
-                  ? "Class Session Still Active" 
+                {duplicateEnrollmentInfo.scheduleDay
+                  ? "Class Session Still Active"
                   : "Membership Class Already Selected"}
               </h2>
             </div>
-            
-            {/* ⭐ For Regular Class Enrollments (with schedule) */}
+
+            {/* Regular class with schedule */}
             {duplicateEnrollmentInfo.scheduleDay ? (
               <>
                 <p className={styles.warningMessage}>
                   You already have an active enrollment for{" "}
-                  <strong>{duplicateEnrollmentInfo.className}</strong>. Please complete your current session before enrolling in a new one.
+                  <strong>{duplicateEnrollmentInfo.className}</strong>. Please
+                  complete your current session before enrolling in a new one.
                 </p>
 
                 <div className={styles.modalDetails}>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Scheduled:</span>
                     <span className={styles.detailValue}>
-                      {duplicateEnrollmentInfo.scheduleDay}, {duplicateEnrollmentInfo.scheduleTime}
+                      {duplicateEnrollmentInfo.scheduleDay},{" "}
+                      {duplicateEnrollmentInfo.scheduleTime}
                     </span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Date:</span>
-                    <span className={styles.detailValue}>{duplicateEnrollmentInfo.scheduleDate}</span>
+                    <span className={styles.detailValue}>
+                      {duplicateEnrollmentInfo.scheduleDate}
+                    </span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Access Code:</span>
-                    <span className={styles.detailValue}>{duplicateEnrollmentInfo.transactionCode}</span>
+                    <span className={styles.detailValue}>
+                      {duplicateEnrollmentInfo.transactionCode}
+                    </span>
                   </div>
                 </div>
 
@@ -398,11 +546,13 @@ const ClassTransactionPage = ({ onLogout }) => {
                 </div>
               </>
             ) : (
-              /* ⭐ For Membership-Included Classes (no schedule) */
+              // Membership-included class (no per-session schedule)
               <>
                 <p className={styles.warningMessage}>
-                  You've already selected <strong>{duplicateEnrollmentInfo.className}</strong> as part of your{" "}
-                  <strong>{duplicateEnrollmentInfo.membershipType}</strong> membership.
+                  You've already selected{" "}
+                  <strong>{duplicateEnrollmentInfo.className}</strong> as part of
+                  your <strong>{duplicateEnrollmentInfo.membershipType}</strong>{" "}
+                  membership.
                 </p>
 
                 <div className={styles.modalDetails}>
@@ -420,17 +570,25 @@ const ClassTransactionPage = ({ onLogout }) => {
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Access Code:</span>
-                    <span className={styles.detailValue}>{duplicateEnrollmentInfo.transactionCode}</span>
+                    <span className={styles.detailValue}>
+                      {duplicateEnrollmentInfo.transactionCode}
+                    </span>
                   </div>
                 </div>
 
                 <div className={styles.warningNote}>
-                  <p>This class is already included in your active membership until the expiry date.</p>
+                  <p>
+                    This class is already included in your active membership
+                    until the expiry date.
+                  </p>
                 </div>
               </>
             )}
 
-            <button onClick={handleCloseDuplicateModal} className={styles.okButton}>
+            <button
+              onClick={handleCloseDuplicateModal}
+              className={styles.okButton}
+            >
               Got it
             </button>
           </div>
@@ -440,12 +598,17 @@ const ClassTransactionPage = ({ onLogout }) => {
       {/* Confirmation Modal */}
       {showConfirmModal && selectedSchedule && currentUser && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={styles.modalContent}
+            onClick={(e) => e.stopPropagation()}
+          >
             <button className={styles.closeButton} onClick={handleCloseModal}>
               ×
             </button>
             <h2 className={styles.modalTitle}>Confirm Enrollment</h2>
-            <p className={styles.modalSubtitle}>Please verify your class details</p>
+            <p className={styles.modalSubtitle}>
+              Please verify your class details
+            </p>
 
             <div className={styles.modalDetails}>
               <div className={styles.detailRow}>
@@ -456,7 +619,9 @@ const ClassTransactionPage = ({ onLogout }) => {
               </div>
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Date:</span>
-                <span className={styles.detailValue}>{selectedSchedule.date}</span>
+                <span className={styles.detailValue}>
+                  {selectedSchedule.date}
+                </span>
               </div>
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Duration:</span>
@@ -471,7 +636,10 @@ const ClassTransactionPage = ({ onLogout }) => {
               </div>
             </div>
 
-            <button onClick={handleConfirmPayment} className={styles.confirmButton}>
+            <button
+              onClick={handleConfirmPayment}
+              className={styles.confirmButton}
+            >
               Confirm and go to payment
             </button>
           </div>
