@@ -291,13 +291,23 @@ const AdminScheduleViewer = ({ onLogout }) => {
       });
 
       setDeleteConfirm(null);
-    } catch (error) {
+        } catch (error) {
       console.error("Failed to delete schedule:", error);
-      if (error.response?.status === 403) {
+
+      if (
+        error.response?.status === 409 &&
+        error.response?.data?.error === "SCHEDULE_HAS_ENROLLMENTS"
+      ) {
+        setSaveError(
+          error.response.data.message ||
+          "Cannot delete this schedule because there are active enrollments."
+        );
+      } else if (error.response?.status === 403) {
         setSaveError("Authentication error. Please refresh the page and try again.");
       } else {
         setSaveError(error.response?.data?.message || "Failed to delete schedule.");
       }
+
       setTimeout(() => setSaveError(null), 3000);
     }
   };
