@@ -80,8 +80,8 @@ const AdminSlotChecker = ({ onLogout }) => {
       setIsRemoving(true);
       setRemoveError(null);
       
-      const response = await axios.put(
-        `http://localhost:8080/api/admin/schedules/${selectedSchedule.id}/users/${userToRemove.transactionId}/complete`,
+      await axios.put(
+        `http://localhost:8080/api/admin/schedules/${selectedSchedule.id}/users/${userToRemove.enrollmentId}/complete`,
         {},
         { withCredentials: true }
       );

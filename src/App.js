@@ -26,7 +26,6 @@ import AdminCodeChecker from "./pages/AdminCodeChecker";
 import AdminScheduleViewer from "./pages/AdminScheduleViewer";
 import AdminSlotChecker from "./pages/AdminSlotChecker";
 import AttendanceChecker from "./pages/AttendanceChecker";
-import ClassSelectionPage from "./pages/ClassSelectionPage";
 
 function App() {
   return (
@@ -133,16 +132,6 @@ function App() {
           element={
             <ProtectedRoute>
               <ClassDetailsPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Class Selection Route */}
-        <Route
-          path="/class-selection"
-          element={
-            <ProtectedRoute>
-              <ClassSelectionPage />
             </ProtectedRoute>
           }
         />

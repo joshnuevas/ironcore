@@ -12,18 +12,30 @@ const GCashPaymentPage = ({ onLogout }) => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [pin, setPin] = useState("");
   const [completedTransaction, setCompletedTransaction] = useState(null);
-  
+
   // Get payment details from previous page
   const paymentDetails = location.state || {
     plan: "GOLD",
     amount: 1650,
     transactionId: null,
     transactionCode: null,
+    classId: null,
+    className: null,
+    scheduleId: null,
+    scheduleDay: null,
+    scheduleTime: null,
+    scheduleDate: null,
   };
 
   const merchantDetails = {
     name: "IronCore Fitness Gym",
     type: "Fitness & Wellness",
+  };
+
+  // Handle MPIN input
+  const handlePinChange = (e) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 4);
+    setPin(value);
   };
 
   // Simulate GCash payment
@@ -41,89 +53,89 @@ const GCashPaymentPage = ({ onLogout }) => {
 
     setIsProcessing(true);
 
-    // Simulate payment processing delay
-    setTimeout(async () => {
-      try {
-        // Update transaction status to COMPLETED
-        const response = await axios.put(
-          `http://localhost:8080/api/transactions/${paymentDetails.transactionId}/status?status=COMPLETED`,
-          {},
-          { withCredentials: true }
-        );
+    try {
+      // PATCH transaction status to COMPLETED
+      const response = await axios.put(
+        `http://localhost:8080/api/transactions/${paymentDetails.transactionId}/status?status=COMPLETED`,
+        {},
+        { withCredentials: true }
+      );
 
-        console.log("Transaction updated:", response.data);
-        
-        // Store the completed transaction data
-        setCompletedTransaction(response.data);
-        
-        // Show success animation
-        setShowSuccess(true);
-        setIsProcessing(false);
-      } catch (error) {
-        console.error("Failed to update transaction:", error);
-        alert("Payment failed. Please try again.");
-        setIsProcessing(false);
-      }
-    }, 2000);
+      console.log("Transaction updated:", response.data);
+      setCompletedTransaction(response.data);
+      setShowSuccess(true);
+
+    } catch (error) {
+      console.error("Failed to update transaction:", error);
+      alert("Payment failed. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handlePinChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 4);
-    setPin(value);
-  };
-
-  // ⭐ FIXED: Handle confirmation button click
+  // Handle success confirmation
   const handleConfirmSuccess = () => {
-    const isSession = completedTransaction?.membershipType === "SESSION";
-    
+    if (!completedTransaction) {
+      navigate("/landing");
+      return;
+    }
+
+    const isSession = completedTransaction.membershipType === "SESSION";
+    const isMembership = completedTransaction.membershipType && !isSession;
+    const isClass = completedTransaction.classId;
+
     if (isSession) {
-      // ⭐ SESSION: Go to landing page
+      // Session purchased
       navigate("/landing", {
         state: {
           fromPayment: true,
           sessionPurchased: true,
-          message: "Session purchased! Show your code at the gym for access.",
           transactionCode: completedTransaction.transactionCode,
         },
       });
-    } else if (completedTransaction?.membershipType) {
-      // ⭐ FIXED: MEMBERSHIP - Pass transactionId (not transactionCode)
+    } else if (isMembership) {
+      // Membership purchased
       navigate("/class-selection", {
         state: {
           membershipType: completedTransaction.membershipType,
-          transactionId: completedTransaction.id, // ⭐ Use ID, not code
+          transactionId: completedTransaction.id,
+        },
+      });
+    } else if (isClass) {
+      // Class enrollment purchased
+      navigate("/landing", {
+        state: {
+          fromPayment: true,
+          classEnrolled: true,
+          className: paymentDetails.className,
+          scheduleDate: paymentDetails.scheduleDate,
+          transactionCode: completedTransaction.transactionCode,
         },
       });
     } else {
-      // ⭐ CLASS ENROLLMENT: Go to landing page
       navigate("/landing");
     }
   };
 
   return (
     <div className={styles.paymentContainer}>
-      {/* Background */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
 
-      {/* Navbar */}
       <Navbar activeNav="CLASSES" onLogout={onLogout} />
 
-      {/* Content */}
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
-          {/* Back Button */}
           <button onClick={() => navigate(-1)} className={styles.backButton}>
             <ArrowLeft className={styles.backIcon} />
             Back
           </button>
 
-          {/* GCash Payment Interface */}
           <div className={styles.paymentCard}>
-            {/* GCash Header */}
+            {/* Header */}
             <div className={styles.gcashHeader}>
               <div className={styles.gcashLogo}>
                 <span className={styles.gcashIcon}>💳</span>
@@ -135,7 +147,7 @@ const GCashPaymentPage = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* Payment Details Card */}
+            {/* Payment Details */}
             <div className={styles.paymentDetailsCard}>
               <div className={styles.merchantSection}>
                 <div className={styles.merchantIcon}>🏋️</div>
@@ -162,7 +174,7 @@ const GCashPaymentPage = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* PIN Input Section */}
+            {/* PIN input */}
             <div className={styles.pinSection}>
               <label className={styles.pinLabel}>
                 <span>Enter your MPIN</span>
@@ -179,7 +191,7 @@ const GCashPaymentPage = ({ onLogout }) => {
               />
             </div>
 
-            {/* Payment Button */}
+            {/* Pay button */}
             <button
               onClick={handlePayNow}
               className={styles.payButton}
@@ -195,7 +207,6 @@ const GCashPaymentPage = ({ onLogout }) => {
               )}
             </button>
 
-            {/* Security Notice */}
             <div className={styles.securityNotice}>
               <Shield size={16} />
               <p>Your payment is secured with end-to-end encryption</p>
@@ -204,7 +215,7 @@ const GCashPaymentPage = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* ⭐ Success Modal */}
+      {/* Success Modal */}
       {showSuccess && (
         <div className={styles.successOverlay}>
           <div className={styles.successModal}>
@@ -215,13 +226,12 @@ const GCashPaymentPage = ({ onLogout }) => {
             <p className={styles.successMessage}>
               {completedTransaction?.membershipType === "SESSION"
                 ? "Your 1-day gym session is ready!"
-                : paymentDetails.className 
-                ? `You're enrolled in ${paymentDetails.className}!` 
+                : paymentDetails.className
+                ? `You're enrolled in ${paymentDetails.className}!`
                 : "Your membership payment is complete!"}
             </p>
             <div className={styles.successAmount}>₱{paymentDetails.amount.toLocaleString()}</div>
-            
-            {/* Transaction Code */}
+
             {(completedTransaction?.transactionCode || paymentDetails.transactionCode) && (
               <div className={styles.transactionCodeBox}>
                 <span className={styles.codeLabel}>Transaction Code:</span>
@@ -236,37 +246,8 @@ const GCashPaymentPage = ({ onLogout }) => {
               </div>
             )}
 
-            {/* Additional details for class enrollment */}
-            {paymentDetails.className && (
-              <div className={styles.enrollmentDetails}>
-                <div className={styles.detailRow}>
-                  <span className={styles.detailLabel}>Class:</span>
-                  <span className={styles.detailValue}>{paymentDetails.className}</span>
-                </div>
-                {paymentDetails.scheduleDay && (
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>Day:</span>
-                    <span className={styles.detailValue}>{paymentDetails.scheduleDay}</span>
-                  </div>
-                )}
-                {paymentDetails.scheduleTime && (
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>Time:</span>
-                    <span className={styles.detailValue}>{paymentDetails.scheduleTime}</span>
-                  </div>
-                )}
-                {paymentDetails.scheduleDate && (
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>Date:</span>
-                    <span className={styles.detailValue}>{paymentDetails.scheduleDate}</span>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ⭐ Confirmation Button */}
-            <button 
-              onClick={handleConfirmSuccess} 
+            <button
+              onClick={handleConfirmSuccess}
               className={styles.confirmButton}
             >
               {completedTransaction?.membershipType === "SESSION"
