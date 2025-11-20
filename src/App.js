@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LandingPage from "./pages/LandingPage";
@@ -45,6 +46,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/contact"
           element={
@@ -53,6 +55,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/membership"
           element={
@@ -61,6 +64,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/about"
           element={
@@ -69,6 +73,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/trainers"
           element={
@@ -77,6 +82,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/classes"
           element={
@@ -85,6 +91,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/transaction"
           element={
@@ -93,6 +100,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/gcash-payment"
           element={
@@ -101,13 +109,21 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* REDIRECT if /book-trainer has no ID */}
         <Route
           path="/book-trainer"
+          element={<Navigate to="/trainers" replace />}
+        />
+
+        {/* Dynamic Trainer Profile */}
+        <Route
+          path="/book-trainer/:trainerId"
           element={
             <ProtectedRoute>
               <BookTrainer />
             </ProtectedRoute>
-          }
+          } 
         />
         <Route
           path="/profile"
@@ -127,6 +143,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/class-details"
           element={
@@ -136,7 +153,7 @@ function App() {
           }
         />
 
-        {/* Admin routes - Protected by ProtectedAdminRoute */}
+        {/* Admin routes */}
         <Route
           path="/admin"
           element={
@@ -145,6 +162,7 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
+
         <Route
           path="/admin/code-checker"
           element={
@@ -153,6 +171,7 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
+
         <Route
           path="/admin/schedule-viewer"
           element={
@@ -161,6 +180,7 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
+
         <Route
           path="/admin/slot-checker"
           element={
@@ -169,6 +189,7 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
+
         <Route
           path="/admin/attendance-checker"
           element={
