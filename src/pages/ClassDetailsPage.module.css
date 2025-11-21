@@ -254,6 +254,14 @@
   justify-content: center;
   font-size: 3rem;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* NEW: image inside avatar */
+.trainerAvatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .trainerInfo {
@@ -291,6 +299,46 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: #f97316;
+}
+
+/* NEW: trainer tags layout */
+.trainerRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.trainerRowLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.8;
+  color: #e5e7eb;
+}
+
+.trainerTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.trainerTag,
+.trainerTagSecondary {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.trainerTag {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+}
+
+.trainerTagSecondary {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fed7aa;
 }
 
 /* Schedule List */
@@ -343,7 +391,7 @@
   text-align: right;
 }
 
-/* ⭐ NEW: Full Schedule Styles */
+/* Full Schedule Styles */
 .scheduleItemFull {
   opacity: 0.5;
   background: rgba(239, 68, 68, 0.1) !important;
@@ -361,7 +409,7 @@
   text-align: right;
 }
 
-/* ⭐ NEW: Loading and Empty States */
+/* Loading and Empty States */
 .loadingText {
   text-align: center;
   padding: 2rem;

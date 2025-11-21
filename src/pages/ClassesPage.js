@@ -1,184 +1,80 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar"; // ✅ Reused global Navbar
+import Navbar from "../components/Navbar";
 import styles from "./ClassesPage.module.css";
-import landingStyles from "./LandingPage.module.css"; // ✅ For animated background
+import landingStyles from "./LandingPage.module.css";
 
 const ClassesPage = () => {
   const navigate = useNavigate();
 
-  const classes = [
-    {
-      id: 1,
-      title: "HIIT",
-      description:
-        "Short bursts of intense exercise followed by rest. Great for fat burning and endurance.",
-      image: "/images/hiit.png", // ✅ Replace with your image path
-      gradientClass: styles.gradientHiit,
-      detailedData: {
-        name: "HIIT Training",
-        icon: "🔥",
-        description: "High-Intensity Interval Training",
-        price: "₱500",
-        duration: "45 mins",
-        intensity: "High",
-        maxParticipants: 15,
-        trainer: {
-          name: "Coach Sarah Martinez",
-          image: "👩‍🏫",
-          specialty: "HIIT & Cardio Specialist",
-          experience: "8 years",
-          rating: 4.9,
-        },
-      },
-    },
-    {
-      id: 2,
-      title: "ZUMBA",
-      description:
-        "Dance-based cardio workout set to music. Fun, energetic, and great for all fitness levels.",
-      image: "/images/zumba.png", // ✅ Replace with your image path
-      gradientClass: styles.gradientZumba,
-      detailedData: {
-        name: "Zumba Dance",
-        icon: "💃",
-        description: "Dance-based cardio workout set to music",
-        price: "₱400",
-        duration: "60 mins",
-        intensity: "Medium",
-        maxParticipants: 15,
-        trainer: {
-          name: "Coach Maria Santos",
-          image: "👩‍🏫",
-          specialty: "Dance & Cardio",
-          experience: "7 years",
-          rating: 4.8,
-        },
-      },
-    },
-    {
-      id: 3,
-      title: "SPIN",
-      description:
-        "High-energy cardio workout on stationary bikes. Focuses on stamina, leg strength, and endurance.",
-      image: "/images/spin.png", // ✅ Replace with your image path
-      gradientClass: styles.gradientSpin,
-      detailedData: {
-        name: "Spin Class",
-        icon: "🚴",
-        description: "High-energy cycling workout",
-        price: "₱450",
-        duration: "45 mins",
-        intensity: "Medium",
-        maxParticipants: 15,
-        trainer: {
-          name: "Coach Anna Lee",
-          image: "👩‍🏫",
-          specialty: "Cardio & Endurance",
-          experience: "6 years",
-          rating: 4.7,
-        },
-      },
-    },
-    {
-      id: 4,
-      title: "YOGA",
-      description:
-        "Build strength, flexibility, and balance. Relieve stress and improve core stability.",
-      image: "/images/yoga.png", // ✅ Replace with your image path
-      gradientClass: styles.gradientYoga,
-      detailedData: {
-        name: "Yoga Flow",
-        icon: "🧘",
-        description: "Mindful movement and flexibility",
-        price: "₱400",
-        duration: "60 mins",
-        intensity: "Low",
-        maxParticipants: 15,
-        trainer: {
-          name: "Coach Linda Chen",
-          image: "👩‍🏫",
-          specialty: "Yoga & Meditation",
-          experience: "10 years",
-          rating: 5.0,
-        },
-      },
-    },
-    {
-      id: 5,
-      title: "PILATES",
-      description:
-        "Low-impact exercises that strengthen muscles while improving postural alignment and flexibility.",
-      image: "/images/pilates.png", // ✅ Replace with your image path
-      gradientClass: styles.gradientPilates,
-      detailedData: {
-        name: "Pilates Core",
-        icon: "💪",
-        description: "Core strengthening and flexibility training",
-        price: "₱450",
-        duration: "50 mins",
-        intensity: "Low-Medium",
-        maxParticipants: 15,
-        trainer: {
-          name: "Coach Emily Rodriguez",
-          image: "👩‍🏫",
-          specialty: "Pilates & Core Training",
-          experience: "9 years",
-          rating: 4.9,
-        },
-      },
-    },
-    {
-      id: 6,
-      title: "BOXING",
-      description:
-        "High-energy boxing workout combining cardio, strength training, and stress relief. No experience needed.",
-      image: "/images/boxing.png", // ✅ Replace with your image path
-      gradientClass: styles.gradientBoxing,
-      detailedData: {
-        name: "Boxing Fitness",
-        icon: "🥊",
-        description: "Cardio boxing and strength training",
-        price: "₱500",
-        duration: "55 mins",
-        intensity: "High",
-        maxParticipants: 15,
-        trainer: {
-          name: "Coach Mark Johnson",
-          image: "👨‍🏫",
-          specialty: "Boxing & Combat Fitness",
-          experience: "11 years",
-          rating: 4.8,
-        },
-      },
-    },
-  ];
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // ✅ Handler to navigate to class details page
+  // Optional: map class names to gradient CSS classes
+  const GRADIENT_MAP = {
+    HIIT: styles.gradientHiit,
+    ZUMBA: styles.gradientZumba,
+    SPIN: styles.gradientSpin,
+    YOGA: styles.gradientYoga,
+    PILATES: styles.gradientPilates,
+    BOXING: styles.gradientBoxing,
+  };
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:8080/api/classes");
+        if (!response.ok) {
+          throw new Error("Failed to fetch classes");
+        }
+        const data = await response.json();
+
+        const mapped = data.map((cls) => {
+          const key = cls.name ? cls.name.toUpperCase() : "";
+          const gradientClass = GRADIENT_MAP[key] || styles.defaultGradient;
+
+          return {
+            id: cls.id,
+            title: cls.name,
+            description: cls.description,
+            image: cls.imageUrl || "/images/default-class.png",
+            gradientClass,
+          };
+        });
+
+        setClasses(mapped);
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Error loading classes");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+
   const handleJoinNow = (classItem) => {
     navigate("/class-details", {
       state: {
-        classData: {
-          ...classItem.detailedData,
-          id: classItem.id,
-        },
+        classId: classItem.id,
       },
     });
   };
 
   return (
     <div className={styles.classesContainer}>
-      {/* ✅ Reuse background animation */}
+      {/* Background animation */}
       <div className={landingStyles.backgroundOverlay}>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
       </div>
 
-      {/* ✅ Reuse Navbar component */}
       <Navbar activeNav="CLASSES" />
 
-      {/* ✅ Main Page Content */}
       <div className={styles.content}>
         <div className={styles.header}>
           <h1 className={styles.title}>OUR CLASSES</h1>
@@ -187,9 +83,14 @@ const ClassesPage = () => {
           </p>
         </div>
 
-        <div className={styles.classesGrid}>
-          {classes.map((classItem, index) => {
-            return (
+        {loading && <p className={styles.statusText}>Loading classes...</p>}
+        {error && !loading && (
+          <p className={styles.statusTextError}>Failed to load classes: {error}</p>
+        )}
+
+        {!loading && !error && (
+          <div className={styles.classesGrid}>
+            {classes.map((classItem, index) => (
               <div
                 key={classItem.id}
                 className={styles.classCard}
@@ -197,8 +98,8 @@ const ClassesPage = () => {
               >
                 <div className={`${styles.classImageContainer} ${classItem.gradientClass}`}>
                   <div className={styles.imageOverlay}></div>
-                  <img 
-                    src={classItem.image} 
+                  <img
+                    src={classItem.image}
                     alt={classItem.title}
                     className={styles.classImage}
                   />
@@ -216,9 +117,13 @@ const ClassesPage = () => {
                   </button>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+
+            {classes.length === 0 && !loading && !error && (
+              <p className={styles.statusText}>No classes available.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

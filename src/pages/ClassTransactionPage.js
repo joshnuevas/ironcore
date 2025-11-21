@@ -13,7 +13,8 @@ const ClassTransactionPage = ({ onLogout }) => {
   const [duplicateEnrollmentInfo, setDuplicateEnrollmentInfo] = useState(null);
 
   // 🔹 NEW: schedule conflict (same date + time slot, any class)
-  const [showScheduleConflictModal, setShowScheduleConflictModal] = useState(false);
+  const [showScheduleConflictModal, setShowScheduleConflictModal] =
+    useState(false);
   const [scheduleConflictInfo, setScheduleConflictInfo] = useState(null);
 
   const [selectedSchedule, setSelectedSchedule] = useState(null);
@@ -26,9 +27,19 @@ const ClassTransactionPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // ⬇️ classData is passed from ClassDetailsPage via navigate state
   const classData = location.state?.classData;
 
-  const classPrice = parseInt(classData?.price?.replace(/[₱,]/g, "") || "0");
+  // ✅ Handle numeric or string price safely
+  const rawPrice = classData?.price;
+  const classPrice =
+    typeof rawPrice === "number"
+      ? rawPrice
+      : parseInt(
+          String(rawPrice || "0").replace(/[₱,]/g, ""),
+          10
+        );
+
   const processingFee = 20;
   const total = classPrice + processingFee;
 
@@ -301,15 +312,19 @@ const ClassTransactionPage = ({ onLogout }) => {
                 <div className={styles.priceBreakdown}>
                   <div className={styles.priceRow}>
                     <span>Class Fee</span>
-                    <span>{classData.price}</span>
+                    <span>
+                      ₱{classPrice.toLocaleString("en-PH")}
+                    </span>
                   </div>
                   <div className={styles.priceRow}>
                     <span>Processing Fee</span>
-                    <span>₱{processingFee}</span>
+                    <span>₱{processingFee.toLocaleString("en-PH")}</span>
                   </div>
                   <div className={styles.totalRow}>
                     <span>Total</span>
-                    <span className={styles.totalPrice}>₱{total}</span>
+                    <span className={styles.totalPrice}>
+                      ₱{total.toLocaleString("en-PH")}
+                    </span>
                   </div>
                 </div>
 
@@ -334,12 +349,15 @@ const ClassTransactionPage = ({ onLogout }) => {
               {loadingSchedules ? (
                 <p className={styles.loadingText}>Loading schedules...</p>
               ) : schedules.length === 0 ? (
-                <p className={styles.noSchedules}>No schedules available yet.</p>
+                <p className={styles.noSchedules}>
+                  No schedules available yet.
+                </p>
               ) : (
                 <div className={styles.scheduleList}>
                   {schedules.map((schedule) => {
                     const slotsLeft =
-                      schedule.maxParticipants - (schedule.enrolledCount || 0);
+                      schedule.maxParticipants -
+                      (schedule.enrolledCount || 0);
                     const isFull = slotsLeft <= 0;
 
                     return (
@@ -632,7 +650,9 @@ const ClassTransactionPage = ({ onLogout }) => {
 
               <div className={styles.detailRow}>
                 <span className={styles.detailLabel}>Total Payment:</span>
-                <span className={styles.totalValue}>₱{total}</span>
+                <span className={styles.totalValue}>
+                  ₱{total.toLocaleString("en-PH")}
+                </span>
               </div>
             </div>
 

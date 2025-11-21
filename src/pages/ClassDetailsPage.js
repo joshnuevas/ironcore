@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, Clock, Users, Calendar, MapPin, Dumbbell, Star } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  Users,
+  Calendar,
+  MapPin,
+  Dumbbell,
+  Star,
+} from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./ClassDetailsPage.module.css";
 import axios from "axios";
@@ -8,35 +16,55 @@ import axios from "axios";
 const ClassDetailsPage = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const classId = location.state?.classId;
+
+  const [classData, setClassData] = useState(null);
+  const [loadingClass, setLoadingClass] = useState(true);
+  const [classError, setClassError] = useState(null);
+
   const [schedules, setSchedules] = useState([]);
   const [schedulesLoading, setSchedulesLoading] = useState(true);
 
-  // Get class data from navigation state or use default
-  const classData = location.state?.classData || {
-    id: 1,
-    name: "HIIT Training",
-    icon: "🔥",
-    description: "High-Intensity Interval Training",
-    price: "₱500",
-    duration: "45 mins",
-    intensity: "High",
-    maxParticipants: 15,
-    trainer: {
-      name: "Coach Sarah Martinez",
-      image: "👩‍🏫",
-      specialty: "HIIT & Cardio Specialist",
-      experience: "8 years",
-      rating: 4.9,
-    },
-  };
-
-  // ⭐ Fetch live schedules from backend
+  // Redirect if no classId
   useEffect(() => {
+    if (!classId) {
+      navigate("/classes");
+    }
+  }, [classId, navigate]);
+
+  // Fetch class details from backend
+  useEffect(() => {
+    if (!classId) return;
+
+    const fetchClassDetails = async () => {
+      try {
+        setLoadingClass(true);
+        const res = await axios.get(
+          `http://localhost:8080/api/classes/${classId}/details`,
+          { withCredentials: true }
+        );
+        setClassData(res.data);
+      } catch (error) {
+        console.error("Failed to fetch class details:", error);
+        setClassError("Failed to load class details.");
+      } finally {
+        setLoadingClass(false);
+      }
+    };
+
+    fetchClassDetails();
+  }, [classId]);
+
+  // Fetch schedules from backend
+  useEffect(() => {
+    if (!classId) return;
+
     const fetchSchedules = async () => {
       try {
         setSchedulesLoading(true);
         const res = await axios.get(
-          `http://localhost:8080/api/schedules/class/${classData.id}`,
+          `http://localhost:8080/api/schedules/class/${classId}`,
           { withCredentials: true }
         );
         setSchedules(res.data);
@@ -47,48 +75,88 @@ const ClassDetailsPage = ({ onLogout }) => {
       }
     };
 
-    if (classData.id) {
-      fetchSchedules();
-    }
-  }, [classData.id]);
-
-  // What to expect
-  const expectations = [
-    "Warm-up and mobility exercises",
-    "High-intensity interval circuits",
-    "Strength and cardio combinations",
-    "Cool-down and stretching",
-    "Personalized intensity modifications",
-    "Heart rate monitoring",
-  ];
-
-  // Benefits
-  const benefits = [
-    "Burn calories efficiently",
-    "Improve cardiovascular health",
-    "Build lean muscle",
-    "Boost metabolism",
-    "Increase endurance",
-    "Time-efficient workout",
-  ];
-
-  // Requirements
-  const requirements = [
-    "Gym membership or day pass",
-    "Athletic wear and shoes",
-    "Water bottle",
-    "Towel",
-    "Basic fitness level recommended",
-  ];
+    fetchSchedules();
+  }, [classId]);
 
   const handleEnrollNow = () => {
-    console.log("Navigating with classData:", classData);
+    if (!classData) return;
     navigate("/class-transaction", {
       state: {
         classData: classData,
       },
     });
   };
+
+  if (loadingClass) {
+    return (
+      <div className={styles.detailsContainer}>
+        <Navbar activeNav="CLASSES" onLogout={onLogout} />
+        <div className={styles.contentSection}>
+          <div className={styles.contentContainer}>
+            <p className={styles.loadingText}>Loading class details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (classError || !classData) {
+    return (
+      <div className={styles.detailsContainer}>
+        <Navbar activeNav="CLASSES" onLogout={onLogout} />
+        <div className={styles.contentSection}>
+          <div className={styles.contentContainer}>
+            <p className={styles.loadingText}>
+              {classError || "Class not found."}
+            </p>
+            <button
+              onClick={() => navigate("/classes")}
+              className={styles.backButton}
+            >
+              <ArrowLeft className={styles.backIcon} />
+              Back to Classes
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const trainer = classData.trainer || {};
+  const expectations = classData.expectations || [];
+  const benefits = classData.benefits || [];
+  const requirements = classData.requirements || [];
+
+  const renderTrainerAvatar = () => {
+    const img = trainer.image;
+
+    if (!img) {
+      return "👤"; // default emoji
+    }
+
+    let src = img;
+
+    // Case 1: already a full/relative URL (/images/... or http...)
+    if (img.startsWith("/") || img.startsWith("http")) {
+      src = img;
+    }
+    // Case 2: plain filename like "sarah_martinez2.png" -> assume /images/
+    else if (img.match(/\.(png|jpe?g|gif|webp|svg)$/i)) {
+      src = `/images/${img}`;
+    } else {
+      // Not a path or filename, probably an emoji or text
+      return img;
+    }
+
+    return (
+      <img
+        src={src}
+        alt={trainer.name}
+        className={styles.trainerAvatarImage}
+      />
+    );
+  };
+
 
   return (
     <div className={styles.detailsContainer}>
@@ -106,7 +174,10 @@ const ClassDetailsPage = ({ onLogout }) => {
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           {/* Back Button */}
-          <button onClick={() => navigate("/classes")} className={styles.backButton}>
+          <button
+            onClick={() => navigate("/classes")}
+            className={styles.backButton}
+          >
             <ArrowLeft className={styles.backIcon} />
             Back to Classes
           </button>
@@ -118,11 +189,15 @@ const ClassDetailsPage = ({ onLogout }) => {
               {/* Class Header */}
               <div className={styles.classHeader}>
                 <div className={styles.classIconWrapper}>
-                  <span className={styles.classIconLarge}>{classData.icon}</span>
+                  <span className={styles.classIconLarge}>
+                    {classData.icon || "🏋️"}
+                  </span>
                 </div>
                 <div className={styles.classHeaderInfo}>
                   <h1 className={styles.className}>{classData.name}</h1>
-                  <p className={styles.classDescription}>{classData.description}</p>
+                  <p className={styles.classDescription}>
+                    {classData.description}
+                  </p>
                   <div className={styles.classMeta}>
                     <span className={styles.metaBadge}>
                       <Clock size={16} />
@@ -130,67 +205,138 @@ const ClassDetailsPage = ({ onLogout }) => {
                     </span>
                     <span className={styles.metaBadge}>
                       <Users size={16} />
-                      Class Size: Up to {classData.maxParticipants} Participants
+                      Class Size: Up to{" "}
+                      {classData.maxParticipants || "N/A"} Participants
                     </span>
-                    <span className={`${styles.metaBadge} ${styles.intensityBadge}`}>
+                    <span
+                      className={`${styles.metaBadge} ${styles.intensityBadge}`}
+                    >
                       <Dumbbell size={16} />
-                      {classData.intensity} Intensity
+                      {classData.intensity || "N/A"} Intensity
                     </span>
                   </div>
                 </div>
               </div>
 
               {/* Trainer Info */}
-              <div className={styles.sectionCard}>
-                <h2 className={styles.sectionTitle}>Your Trainer</h2>
-                <div className={styles.trainerCard}>
-                  <div className={styles.trainerAvatar}>
-                    {classData.trainer.image}
-                  </div>
-                  <div className={styles.trainerInfo}>
-                    <h3 className={styles.trainerName}>{classData.trainer.name}</h3>
-                    <p className={styles.trainerSpecialty}>{classData.trainer.specialty}</p>
-                    <div className={styles.trainerMeta}>
-                      <span className={styles.trainerExp}>
-                        {classData.trainer.experience} experience
-                      </span>
-                      <span className={styles.trainerRating}>
-                        <Star size={14} fill="#f97316" stroke="#f97316" />
-                        {classData.trainer.rating}
-                      </span>
+              {trainer && trainer.name && (
+                <div className={styles.sectionCard}>
+                  <h2 className={styles.sectionTitle}>Your Trainer</h2>
+                  <div className={styles.trainerCard}>
+                    <div className={styles.trainerAvatar}>
+                      {renderTrainerAvatar()}
+                    </div>
+                    <div className={styles.trainerInfo}>
+                      <h3 className={styles.trainerName}>{trainer.name}</h3>
+                      <p className={styles.trainerSpecialty}>
+                        {trainer.specialty}
+                      </p>
+                      <div className={styles.trainerMeta}>
+                        <span className={styles.trainerExp}>
+                          {trainer.experience}
+                        </span>
+                        {trainer.rating != null && (
+                          <span className={styles.trainerRating}>
+                            <Star
+                              size={14}
+                              fill="#f97316"
+                              stroke="#f97316"
+                            />
+                            {trainer.rating}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Specializations & Certifications */}
+                      {(trainer.specializations &&
+                        trainer.specializations.length > 0) && (
+                        <div className={styles.trainerRow}>
+                          <span className={styles.trainerRowLabel}>
+                            Specializations:
+                          </span>
+                          <div className={styles.trainerTags}>
+                            {trainer.specializations.map((spec, idx) => (
+                              <span
+                                key={`spec-${idx}`}
+                                className={styles.trainerTag}
+                              >
+                                {spec}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {(trainer.certifications &&
+                        trainer.certifications.length > 0) && (
+                        <div className={styles.trainerRow}>
+                          <span className={styles.trainerRowLabel}>
+                            Certifications:
+                          </span>
+                          <div className={styles.trainerTags}>
+                            {trainer.certifications.map((cert, idx) => (
+                              <span
+                                key={`cert-${idx}`}
+                                className={styles.trainerTagSecondary}
+                              >
+                                {cert}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Schedule - ⭐ UPDATED WITH LIVE DATA */}
+              {/* Weekly Schedule */}
               <div className={styles.sectionCard}>
                 <h2 className={styles.sectionTitle}>
                   <Calendar size={20} />
                   Weekly Schedule
                 </h2>
                 {schedulesLoading ? (
-                  <div className={styles.loadingText}>Loading schedules...</div>
+                  <div className={styles.loadingText}>
+                    Loading schedules...
+                  </div>
                 ) : schedules.length === 0 ? (
-                  <div className={styles.noSchedules}>No schedules available yet</div>
+                  <div className={styles.noSchedules}>
+                    No schedules available yet
+                  </div>
                 ) : (
                   <div className={styles.scheduleList}>
                     {schedules.map((session) => {
-                      const slotsLeft = session.maxParticipants - session.enrolledCount;
+                      const slotsLeft =
+                        session.maxParticipants - session.enrolledCount;
                       const isFull = slotsLeft <= 0;
-                      
+
                       return (
-                        <div 
-                          key={session.id} 
-                          className={`${styles.scheduleItem} ${isFull ? styles.scheduleItemFull : ""}`}
+                        <div
+                          key={session.id}
+                          className={`${styles.scheduleItem} ${
+                            isFull ? styles.scheduleItemFull : ""
+                          }`}
                         >
-                          <div className={styles.scheduleDay}>{session.day}</div>
-                          <div className={styles.scheduleTime}>{session.timeSlot}</div>
+                          <div className={styles.scheduleDay}>
+                            {session.day}
+                          </div>
+                          <div className={styles.scheduleTime}>
+                            {session.timeSlot}
+                          </div>
                           <div className={styles.scheduleDate}>
                             <Calendar size={14} /> {session.date}
                           </div>
-                          <div className={isFull ? styles.scheduleSlotsFull : styles.scheduleSlots}>
-                            {isFull ? "FULL" : `${slotsLeft} slots available`}
+                          <div
+                            className={
+                              isFull
+                                ? styles.scheduleSlotsFull
+                                : styles.scheduleSlots
+                            }
+                          >
+                            {isFull
+                              ? "FULL"
+                              : `${slotsLeft} slots available`}
                           </div>
                         </div>
                       );
@@ -200,37 +346,43 @@ const ClassDetailsPage = ({ onLogout }) => {
               </div>
 
               {/* What to Expect */}
-              <div className={styles.sectionCard}>
-                <h2 className={styles.sectionTitle}>What to Expect</h2>
-                <ul className={styles.bulletList}>
-                  {expectations.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+              {expectations.length > 0 && (
+                <div className={styles.sectionCard}>
+                  <h2 className={styles.sectionTitle}>What to Expect</h2>
+                  <ul className={styles.bulletList}>
+                    {expectations.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               {/* Benefits */}
-              <div className={styles.sectionCard}>
-                <h2 className={styles.sectionTitle}>Benefits</h2>
-                <div className={styles.benefitsGrid}>
-                  {benefits.map((benefit, idx) => (
-                    <div key={idx} className={styles.benefitItem}>
-                      <span className={styles.benefitIcon}>✓</span>
-                      <span>{benefit}</span>
-                    </div>
-                  ))}
+              {benefits.length > 0 && (
+                <div className={styles.sectionCard}>
+                  <h2 className={styles.sectionTitle}>Benefits</h2>
+                  <div className={styles.benefitsGrid}>
+                    {benefits.map((benefit, idx) => (
+                      <div key={idx} className={styles.benefitItem}>
+                        <span className={styles.benefitIcon}>✓</span>
+                        <span>{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Requirements */}
-              <div className={styles.sectionCard}>
-                <h2 className={styles.sectionTitle}>What to Bring</h2>
-                <ul className={styles.bulletList}>
-                  {requirements.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+              {requirements.length > 0 && (
+                <div className={styles.sectionCard}>
+                  <h2 className={styles.sectionTitle}>What to Bring</h2>
+                  <ul className={styles.bulletList}>
+                    {requirements.map((item, idx) => (
+                      <li key={idx}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
             {/* Right Column - Enrollment Card */}
@@ -238,7 +390,11 @@ const ClassDetailsPage = ({ onLogout }) => {
               <div className={styles.enrollmentCard}>
                 <div className={styles.priceSection}>
                   <span className={styles.priceLabel}>Class Fee</span>
-                  <span className={styles.priceValue}>{classData.price}</span>
+                  <span className={styles.priceValue}>
+                    {classData.price != null
+                      ? `₱${classData.price.toFixed(0)}`
+                      : "₱0"}
+                  </span>
                   <span className={styles.priceNote}>per session</span>
                 </div>
 
@@ -247,7 +403,9 @@ const ClassDetailsPage = ({ onLogout }) => {
                     <MapPin size={18} className={styles.detailIcon} />
                     <div>
                       <p className={styles.detailLabel}>Location</p>
-                      <p className={styles.detailValue}>Main Studio Floor</p>
+                      <p className={styles.detailValue}>
+                        {classData.location || "Studio"}
+                      </p>
                     </div>
                   </div>
 
@@ -255,7 +413,9 @@ const ClassDetailsPage = ({ onLogout }) => {
                     <Clock size={18} className={styles.detailIcon} />
                     <div>
                       <p className={styles.detailLabel}>Duration</p>
-                      <p className={styles.detailValue}>{classData.duration}</p>
+                      <p className={styles.detailValue}>
+                        {classData.duration}
+                      </p>
                     </div>
                   </div>
 
@@ -263,18 +423,26 @@ const ClassDetailsPage = ({ onLogout }) => {
                     <Users size={18} className={styles.detailIcon} />
                     <div>
                       <p className={styles.detailLabel}>Class Size</p>
-                      <p className={styles.detailValue}>Max {classData.maxParticipants} participants</p>
+                      <p className={styles.detailValue}>
+                        Max {classData.maxParticipants || "N/A"} participants
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <button onClick={handleEnrollNow} className={styles.enrollButton}>
+                <button
+                  onClick={handleEnrollNow}
+                  className={styles.enrollButton}
+                >
                   Enroll Now
                 </button>
 
                 <div className={styles.enrollmentNote}>
                   <span className={styles.noteIcon}>ℹ️</span>
-                  <p>You can cancel up to 2 hours before the class starts for a full refund.</p>
+                  <p>
+                    {classData.cancelPolicy ||
+                      "You can cancel up to 2 hours before the class starts for a full refund."}
+                  </p>
                 </div>
               </div>
             </div>
