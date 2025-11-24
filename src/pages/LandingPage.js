@@ -3,7 +3,15 @@ import Navbar from "../components/Navbar";
 import styles from "./LandingPage.module.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Calendar, Clock, CreditCard, Award, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  CreditCard,
+  Award,
+  CheckCircle,
+  AlertCircle,
+  Bot, // AI assistant icon
+} from "lucide-react";
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -16,7 +24,7 @@ const LandingPage = () => {
     const fetchUserAndTransactions = async () => {
       try {
         setLoading(true);
-        
+
         // Fetch current user
         const userRes = await axios.get("http://localhost:8080/api/users/me", {
           withCredentials: true,
@@ -33,11 +41,12 @@ const LandingPage = () => {
 
         // ⭐ Filter for paid, not completed, and NOT EXPIRED transactions
         const allTransactions = transactionsRes.data.filter((t) => {
-          const isPaid = t.paymentStatus === "COMPLETED" || t.paymentStatus === "PAID";
+          const isPaid =
+            t.paymentStatus === "COMPLETED" || t.paymentStatus === "PAID";
           const notCompleted = !t.sessionCompleted;
-          
+
           if (!isPaid || !notCompleted) return false;
-          
+
           // ⭐ NEW: Check expiration for memberships
           if (t.membershipType && t.membershipExpiryDate) {
             const expiryDate = new Date(t.membershipExpiryDate);
@@ -45,18 +54,18 @@ const LandingPage = () => {
               return false; // Hide expired memberships
             }
           }
-          
+
           // ⭐ NEW: Check expiration for scheduled classes
           if (t.scheduleDate && t.scheduleTime) {
             // Combine date and time for accurate comparison
             const scheduleDateTimeStr = `${t.scheduleDate} ${t.scheduleTime}`;
             const scheduleDateTime = new Date(scheduleDateTimeStr);
-            
+
             if (scheduleDateTime < now) {
               return false; // Hide past classes
             }
           }
-          
+
           return true;
         });
 
@@ -97,9 +106,13 @@ const LandingPage = () => {
     navigate("/contact");
   };
 
+  const handleAiAssistant = () => {
+    navigate("/ai-assistant");
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
-    
+
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString("en-US", {
@@ -115,20 +128,32 @@ const LandingPage = () => {
   const renderTransactionCard = (transaction, index, isActivated) => (
     <div
       key={transaction.id}
-      className={`${styles.codeCard} ${!isActivated ? styles.codeCardPending : ''}`}
+      className={`${styles.codeCard} ${
+        !isActivated ? styles.codeCardPending : ""
+      }`}
       style={{ animationDelay: `${index * 0.1}s` }}
     >
       {/* Card Header */}
       <div className={styles.cardHeader}>
-        <div className={`${styles.cardIcon} ${!isActivated ? styles.cardIconPending : ''}`}>
+        <div
+          className={`${styles.cardIcon} ${
+            !isActivated ? styles.cardIconPending : ""
+          }`}
+        >
           {transaction.membershipType && !transaction.scheduleDay ? (
             <Award size={24} />
           ) : (
             <Calendar size={24} />
           )}
         </div>
-        <div className={`${styles.cardType} ${!isActivated ? styles.cardTypePending : ''}`}>
-          {transaction.membershipType && !transaction.scheduleDay ? "MEMBERSHIP" : "CLASS"}
+        <div
+          className={`${styles.cardType} ${
+            !isActivated ? styles.cardTypePending : ""
+          }`}
+        >
+          {transaction.membershipType && !transaction.scheduleDay
+            ? "MEMBERSHIP"
+            : "CLASS"}
         </div>
       </div>
 
@@ -155,55 +180,71 @@ const LandingPage = () => {
         )}
 
         {/* Pure Membership Details */}
-        {transaction.membershipType && !transaction.scheduleDay && !transaction.className && (
-          <div className={styles.cardDetails}>
-            {isActivated ? (
-              <>
-                <div className={styles.detailRow}>
-                  <CheckCircle size={16} />
-                  <span>Active until {formatDate(transaction.membershipExpiryDate)}</span>
-                </div>
-                {transaction.membershipActivatedDate && (
+        {transaction.membershipType &&
+          !transaction.scheduleDay &&
+          !transaction.className && (
+            <div className={styles.cardDetails}>
+              {isActivated ? (
+                <>
                   <div className={styles.detailRow}>
-                    <Calendar size={16} />
-                    <span>Started: {formatDate(transaction.membershipActivatedDate)}</span>
+                    <CheckCircle size={16} />
+                    <span>
+                      Active until {formatDate(transaction.membershipExpiryDate)}
+                    </span>
                   </div>
-                )}
-              </>
-            ) : (
-              <div className={styles.detailRow}>
-                <AlertCircle size={16} />
-                <span>Waiting for admin activation</span>
-              </div>
-            )}
-          </div>
-        )}
+                  {transaction.membershipActivatedDate && (
+                    <div className={styles.detailRow}>
+                      <Calendar size={16} />
+                      <span>
+                        Started: {formatDate(transaction.membershipActivatedDate)}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className={styles.detailRow}>
+                  <AlertCircle size={16} />
+                  <span>Waiting for admin activation</span>
+                </div>
+              )}
+            </div>
+          )}
 
         {/* Membership-Included Classes */}
-        {transaction.className && !transaction.scheduleDay && transaction.membershipType && (
-          <div className={styles.cardDetails}>
-            {isActivated ? (
-              <>
+        {transaction.className &&
+          !transaction.scheduleDay &&
+          transaction.membershipType && (
+            <div className={styles.cardDetails}>
+              {isActivated ? (
+                <>
+                  <div className={styles.detailRow}>
+                    <CheckCircle size={16} />
+                    <span>
+                      Included in {transaction.membershipType} membership
+                    </span>
+                  </div>
+                  <div className={styles.detailRow}>
+                    <Calendar size={16} />
+                    <span>
+                      Valid until {formatDate(transaction.membershipExpiryDate)}
+                    </span>
+                  </div>
+                </>
+              ) : (
                 <div className={styles.detailRow}>
-                  <CheckCircle size={16} />
-                  <span>Included in {transaction.membershipType} membership</span>
+                  <AlertCircle size={16} />
+                  <span>Waiting for membership activation</span>
                 </div>
-                <div className={styles.detailRow}>
-                  <Calendar size={16} />
-                  <span>Valid until {formatDate(transaction.membershipExpiryDate)}</span>
-                </div>
-              </>
-            ) : (
-              <div className={styles.detailRow}>
-                <AlertCircle size={16} />
-                <span>Waiting for membership activation</span>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
 
         {/* Transaction Code */}
-        <div className={`${styles.transactionCodeBox} ${!isActivated ? styles.transactionCodeBoxPending : ''}`}>
+        <div
+          className={`${styles.transactionCodeBox} ${
+            !isActivated ? styles.transactionCodeBoxPending : ""
+          }`}
+        >
           <CreditCard size={16} />
           <span className={styles.codeLabel}>Code:</span>
           <span className={styles.codeValue}>
@@ -217,7 +258,11 @@ const LandingPage = () => {
         <span className={styles.footerText}>
           Paid: ₱{transaction.totalAmount.toLocaleString()}
         </span>
-        <span className={`${styles.statusBadge} ${!isActivated ? styles.statusBadgePending : ''}`}>
+        <span
+          className={`${styles.statusBadge} ${
+            !isActivated ? styles.statusBadgePending : ""
+          }`}
+        >
           {isActivated ? (
             <>
               <CheckCircle size={14} />
@@ -250,14 +295,16 @@ const LandingPage = () => {
         <div className={styles.heroContent}>
           {currentUser && (
             <div className={styles.welcomeMessage}>
-              Welcome back, <span className={styles.userName}>{currentUser.username}</span>!
+              Welcome back,{" "}
+              <span className={styles.userName}>{currentUser.username}</span>!
             </div>
           )}
-          
+
           <h1 className={styles.heroQuote}>
             <span className={styles.quoteMain}>WORK HARD.</span>
             <span className={styles.quoteSub}>Stay Humble</span>
           </h1>
+
           <button onClick={handleContact} className={styles.contactButton}>
             CONTACT
           </button>
@@ -269,7 +316,11 @@ const LandingPage = () => {
         <div className={styles.activeCodesSection}>
           <div className={styles.activeCodesContainer}>
             <div className={styles.sectionHeader}>
-              <h2 className={`${styles.sectionTitle} ${styles.sectionTitlePending}`}>
+              <h2
+                className={`${styles.sectionTitle} ${
+                  styles.sectionTitlePending
+                }`}
+              >
                 ⏳ Pending Activation
               </h2>
               <p className={styles.sectionSubtitle}>
@@ -278,7 +329,7 @@ const LandingPage = () => {
             </div>
 
             <div className={styles.codesGrid}>
-              {unactivatedTransactions.map((transaction, index) => 
+              {unactivatedTransactions.map((transaction, index) =>
                 renderTransactionCard(transaction, index, false)
               )}
             </div>
@@ -291,16 +342,15 @@ const LandingPage = () => {
         <div className={styles.activeCodesSection}>
           <div className={styles.activeCodesContainer}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>
-                ✅ Your Active Codes
-              </h2>
+              <h2 className={styles.sectionTitle}>✅ Your Active Codes</h2>
               <p className={styles.sectionSubtitle}>
-                Show these codes at the gym to access your classes and memberships
+                Show these codes at the gym to access your classes and
+                memberships
               </p>
             </div>
 
             <div className={styles.codesGrid}>
-              {activatedTransactions.map((transaction, index) => 
+              {activatedTransactions.map((transaction, index) =>
                 renderTransactionCard(transaction, index, true)
               )}
             </div>
@@ -309,17 +359,26 @@ const LandingPage = () => {
       )}
 
       {/* No Active Codes Message */}
-      {!loading && activatedTransactions.length === 0 && unactivatedTransactions.length === 0 && (
-        <div className={styles.noCodesSection}>
-          <div className={styles.noCodesContent}>
-            <div className={styles.noCodesIcon}>📋</div>
-            <h3 className={styles.noCodesTitle}>No Active Codes Yet</h3>
-            <p className={styles.noCodesText}>
-              Enroll in a class or get a membership to see your active codes here
-            </p>
+      {!loading &&
+        activatedTransactions.length === 0 &&
+        unactivatedTransactions.length === 0 && (
+          <div className={styles.noCodesSection}>
+            <div className={styles.noCodesContent}>
+              <div className={styles.noCodesIcon}>📋</div>
+              <h3 className={styles.noCodesTitle}>No Active Codes Yet</h3>
+              <p className={styles.noCodesText}>
+                Enroll in a class or get a membership to see your active codes
+                here
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+      {/* Floating AI Assistant Button */}
+      <button onClick={handleAiAssistant} className={styles.floatingAiButton}>
+        <Bot size={28} />
+        <span className={styles.aiButtonTooltip}>Ask IronCore AI</span>
+      </button>
     </div>
   );
 };

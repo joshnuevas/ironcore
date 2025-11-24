@@ -652,6 +652,80 @@
   margin: 0 auto;
 }
 
+/* Floating AI Assistant Button */
+.floatingAiButton {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff4081, #ff1744);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(255, 64, 129, 0.4);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  animation: pulse 2s infinite;
+}
+
+.floatingAiButton:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(255, 64, 129, 0.6);
+}
+
+.floatingAiButton:active {
+  transform: scale(0.95);
+}
+
+/* Tooltip that appears on hover */
+.aiButtonTooltip {
+  position: absolute;
+  right: 70px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.floatingAiButton:hover .aiButtonTooltip {
+  opacity: 1;
+}
+
+/* Pulse animation for attention */
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(255, 64, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(255, 64, 129, 0.7);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .floatingAiButton {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+  }
+
+  .aiButtonTooltip {
+    display: none; /* Hide tooltip on mobile for cleaner look */
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .codesGrid {

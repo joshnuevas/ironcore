@@ -27,7 +27,8 @@ import AdminCodeChecker from "./pages/AdminCodeChecker";
 import AdminScheduleViewer from "./pages/AdminScheduleViewer";
 import AdminSlotChecker from "./pages/AdminSlotChecker";
 import AttendanceChecker from "./pages/AttendanceChecker";
-import AttendancePage from "./pages/AttendancePage"; // ADD THIS IMPORT
+import AttendancePage from "./pages/AttendancePage";
+import AiAssistantPage from "./pages/AiAssistantPage";
 
 function App() {
   return (
@@ -153,8 +154,6 @@ function App() {
             </ProtectedRoute>
           }
         />
-
-        {/* ADD THIS NEW ATTENDANCE ROUTE */}
         <Route
           path="/attendance"
           element={
@@ -163,7 +162,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        <Route
+          path="/ai-assistant"
+          element={
+            <ProtectedRoute>
+              <AiAssistantPage />
+            </ProtectedRoute>
+          }
+        />
         {/* Admin routes */}
         <Route
           path="/admin"
@@ -200,7 +206,6 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
-
         <Route
           path="/admin/attendance-checker"
           element={
