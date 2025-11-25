@@ -16,7 +16,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
   // Define nav items based on current role
   const navItems = isAdminMode 
     ? [] // Admin mode has no nav items
-    : ["HOME", "ABOUT US", "OUR TRAINERS", "CLASSES", "MEMBERSHIP"];
+    : ["HOME", "ABOUT US", "OUR TRAINERS", "CLASSES", "MEMBERSHIP", "ATTENDANCE"];
 
   const handleNavClick = (item) => {
     switch (item) {
@@ -34,6 +34,9 @@ const Navbar = ({ activeNav = "HOME" }) => {
         break;
       case "MEMBERSHIP":
         navigate("/membership");
+        break;
+      case "ATTENDANCE":
+        navigate("/attendance");
         break;
       default:
         break;

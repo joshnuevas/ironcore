@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, UserCheck, Clock, Search, CheckCircle, XCircle, Plus, ArrowLeft, History, X, AlertTriangle } from "lucide-react";
+import { Calendar, UserCheck, Clock, Search, CheckCircle, XCircle, Plus, ArrowLeft, History, X, AlertTriangle, Info } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./AttendanceChecker.module.css";
 import axios from "axios";
@@ -14,12 +14,16 @@ const AttendanceChecker = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [newAttendanceDate, setNewAttendanceDate] = useState(new Date().toISOString().split('T')[0]);
+  const [markAsAttended, setMarkAsAttended] = useState(true);
+  const [validationError, setValidationError] = useState("");
+  const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false);
+  const [existingRecordId, setExistingRecordId] = useState(null);
   const [stats, setStats] = useState({
     totalMembers: 0,
-    totalAttendanceToday: 0
+    totalAttendanceToday: 0,
+    totalAbsencesToday: 0
   });
   
-  // Toast notification state
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -27,7 +31,6 @@ const AttendanceChecker = () => {
     title: ""
   });
 
-  // Confirmation modal state
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmModalConfig, setConfirmModalConfig] = useState({
     title: "",
@@ -45,7 +48,6 @@ const AttendanceChecker = () => {
     filterMembers();
   }, [searchTerm, members]);
 
-  // Auto-hide toast after 5 seconds
   useEffect(() => {
     if (toast.show) {
       const timer = setTimeout(() => {
@@ -54,6 +56,17 @@ const AttendanceChecker = () => {
       return () => clearTimeout(timer);
     }
   }, [toast.show]);
+
+  // FIXED: Debounced check when date changes
+  useEffect(() => {
+    if (showAddModal && selectedMember && newAttendanceDate) {
+      const timeoutId = setTimeout(() => {
+        checkExistingRecordOnDateChange();
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [newAttendanceDate, selectedMember, showAddModal]);
 
   const showToast = (title, message, type = "success") => {
     setToast({
@@ -111,9 +124,14 @@ const AttendanceChecker = () => {
       member.checkedIn === true
     ).length;
     
+    const absenceCount = membersList.filter(member => 
+      member.checkedIn === false
+    ).length;
+    
     setStats({
       totalMembers: total,
-      totalAttendanceToday: todayCount
+      totalAttendanceToday: todayCount,
+      totalAbsencesToday: absenceCount
     });
   };
 
@@ -132,100 +150,141 @@ const AttendanceChecker = () => {
     setFilteredMembers(filtered);
   };
 
-  // Check if attendance already exists for the selected date
-  const checkExistingAttendance = async (userId, date) => {
+  // FIXED: Simplified check - only when modal opens
+  const checkExistingRecordOnOpen = async (userId, date) => {
     try {
+      setIsCheckingDuplicate(true);
       const response = await axios.get(
-        `http://localhost:8080/api/attendance/user/${userId}/date/${date}`,
+        `http://localhost:8080/api/attendance/check/${userId}/${date}`,
         { withCredentials: true }
       );
       
-      // If we get a successful response and data exists, return true
-      return response.data && response.data.length > 0;
-    } catch (error) {
-      // If it's a 404, no attendance exists (which is good)
-      if (error.response?.status === 404) {
-        return false;
+      if (response.data.exists) {
+        const status = response.data.checkedIn ? "present" : "absent";
+        const formattedDate = formatDate(date);
+        setValidationError(
+          `Already marked as ${status} on ${formattedDate}. Submitting will update this record.`
+        );
+        setExistingRecordId(response.data.attendanceId);
+        setMarkAsAttended(response.data.checkedIn); // Pre-fill with existing status
+      } else {
+        setValidationError("");
+        setExistingRecordId(null);
       }
-      // For other errors, log and assume no duplicate for safety
-      console.error("Error checking existing attendance:", error);
-      return false;
+    } catch (error) {
+      console.error("Error checking existing record:", error);
+      setValidationError("");
+      setExistingRecordId(null);
+    } finally {
+      setIsCheckingDuplicate(false);
     }
   };
 
+  // FIXED: Debounced check when date changes
+  const checkExistingRecordOnDateChange = async () => {
+    if (!selectedMember || !newAttendanceDate) return;
+    
+    try {
+      setIsCheckingDuplicate(true);
+      const response = await axios.get(
+        `http://localhost:8080/api/attendance/check/${selectedMember.userId}/${newAttendanceDate}`,
+        { withCredentials: true }
+      );
+      
+      if (response.data.exists) {
+        const status = response.data.checkedIn ? "present" : "absent";
+        const formattedDate = formatDate(newAttendanceDate);
+        setValidationError(
+          `Already marked as ${status} on ${formattedDate}. Submitting will update this record.`
+        );
+        setExistingRecordId(response.data.attendanceId);
+        setMarkAsAttended(response.data.checkedIn); // Pre-fill with existing status
+      } else {
+        setValidationError("");
+        setExistingRecordId(null);
+      }
+    } catch (error) {
+      console.error("Error checking existing record:", error);
+      setValidationError("");
+      setExistingRecordId(null);
+    } finally {
+      setIsCheckingDuplicate(false);
+    }
+  };
+
+  // FIXED: Simplified submission
   const handleAddAttendance = async (e) => {
-  e?.preventDefault();
-  
-  if (!selectedMember || !newAttendanceDate) {
-    showToast("Warning", "Please select a date", "error");
-    return;
-  }
-
-  console.log("Attempting to add attendance for:", {
-    userId: selectedMember.userId,
-    date: newAttendanceDate,
-    username: selectedMember.username
-  });
-
-  try {
-    // Check if attendance already exists for this date
-    const alreadyExists = await checkExistingAttendance(selectedMember.userId, newAttendanceDate);
-    if (alreadyExists) {
-      showToast(
-        "Attendance Exists", 
-        `${selectedMember.username} already has attendance recorded for ${formatDate(newAttendanceDate)}`,
-        "error"
-      );
-      return; // Stop here if attendance already exists
-    }
-
-    console.log("No existing attendance found, proceeding to add...");
-
-    const requestData = {
-      userId: selectedMember.userId,
-      date: newAttendanceDate,
-      checkedIn: true,
-      notes: null
-    };
+    e?.preventDefault();
     
-    console.log("Sending request:", requestData);
-    
-    const response = await axios.post(
-      "http://localhost:8080/api/attendance/mark",
-      requestData,
-      { withCredentials: true }
-    );
-
-    console.log("Response:", response.data);
-
-    if (response.data.success) {
-      showToast(
-        "Success!", 
-        `Attendance recorded for ${selectedMember.username} on ${formatDate(newAttendanceDate)}`,
-        "success"
-      );
-      setShowAddModal(false);
-      setNewAttendanceDate(new Date().toISOString().split('T')[0]);
-      fetchActiveMembers(); // Refresh the list
-    }
-  } catch (error) {
-    console.error("Failed to add attendance:", error);
-    console.error("Error response:", error.response?.data);
-    
-    // Handle duplicate error from backend as well
-    if (error.response?.status === 409 || error.response?.data?.message?.includes('already exists')) {
-      showToast(
-        "Attendance Exists", 
-        `${selectedMember.username} already has attendance recorded for ${formatDate(newAttendanceDate)}`,
-        "error"
-      );
+    if (!selectedMember || !newAttendanceDate) {
+      showToast("Warning", "Please select a date", "error");
       return;
     }
-    
-    const errorMsg = error.response?.data?.message || error.message || "Unknown error";
-    showToast("Error", "Failed to add attendance. " + errorMsg, "error");
-  }
-};
+
+    console.log("Submitting attendance:", {
+      userId: selectedMember.userId,
+      date: newAttendanceDate,
+      username: selectedMember.username,
+      attended: markAsAttended,
+      existingRecordId: existingRecordId
+    });
+
+    try {
+      const requestData = {
+        userId: selectedMember.userId,
+        date: newAttendanceDate,
+        checkedIn: markAsAttended,
+        notes: markAsAttended ? null : "Marked as absent by admin"
+      };
+      
+      const response = await axios.post(
+        "http://localhost:8080/api/attendance/mark",
+        requestData,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        const actionType = response.data.isUpdate ? "updated" : "created";
+        const statusType = markAsAttended ? "present" : "absent";
+        
+        showToast(
+          "Success!", 
+          `${selectedMember.username} marked as ${statusType} on ${formatDate(newAttendanceDate)} (${actionType})`,
+          "success"
+        );
+        
+        setShowAddModal(false);
+        setNewAttendanceDate(new Date().toISOString().split('T')[0]);
+        setMarkAsAttended(true);
+        setValidationError("");
+        setExistingRecordId(null);
+        fetchActiveMembers();
+      }
+    } catch (error) {
+      console.error("Failed to add attendance:", error);
+      
+      if (error.response?.status === 409) {
+        const errorData = error.response.data;
+        
+        if (errorData.code === "DUPLICATE_ATTENDANCE") {
+          showToast(
+            "Record Already Exists", 
+            "An attendance record already exists for this date. Refreshing data...",
+            "error"
+          );
+          
+          setTimeout(() => {
+            fetchActiveMembers();
+            setShowAddModal(false);
+          }, 2000);
+        }
+        return;
+      }
+      
+      const errorMsg = error.response?.data?.message || error.message || "Unknown error";
+      showToast("Error", "Failed to save attendance. " + errorMsg, "error");
+    }
+  };
 
   const handleViewHistory = async (member) => {
     console.log("Fetching history for member:", member);
@@ -267,7 +326,6 @@ const AttendanceChecker = () => {
             { withCredentials: true }
           );
           
-          // Refresh history
           const response = await axios.get(
             `http://localhost:8080/api/attendance/user/${selectedMember.userId}`,
             { withCredentials: true }
@@ -307,15 +365,40 @@ const AttendanceChecker = () => {
     });
   };
 
-  const openAddModal = (member) => {
+  // FIXED: Open modal with initial check
+  const openAddModal = async (member) => {
     console.log("Opening add modal for:", member);
     setSelectedMember(member);
+    setMarkAsAttended(true);
+    setValidationError("");
+    setExistingRecordId(null);
+    
+    const today = new Date().toISOString().split('T')[0];
+    setNewAttendanceDate(today);
+    
     setShowAddModal(true);
+    
+    // Check if record exists for today
+    await checkExistingRecordOnOpen(member.userId, today);
   };
 
   const openHistoryModal = (member) => {
     console.log("Opening history modal for:", member);
     handleViewHistory(member);
+  };
+
+  const calculateMemberStats = () => {
+    const totalRecords = attendanceHistory.length;
+    const attendedRecords = attendanceHistory.filter(record => record.checkedIn).length;
+    const absentRecords = attendanceHistory.filter(record => !record.checkedIn).length;
+    const attendanceRate = totalRecords > 0 ? (attendedRecords / totalRecords) * 100 : 0;
+
+    return {
+      totalRecords,
+      attendedRecords,
+      absentRecords,
+      attendanceRate: Math.round(attendanceRate)
+    };
   };
 
   return (
@@ -365,7 +448,7 @@ const AttendanceChecker = () => {
             <h1>ATTENDANCE CHECKER</h1>
           </div>
           <p className={styles.headerDescription}>
-            Track and manage member attendance records
+            Track and manage member attendance records - mark both attended and absent days
           </p>
         </div>
 
@@ -378,6 +461,10 @@ const AttendanceChecker = () => {
           <div className={`${styles.statItem} ${styles.statSuccess}`}>
             <span className={styles.statLabel}>Attended Today</span>
             <span className={styles.statValue}>{stats.totalAttendanceToday}</span>
+          </div>
+          <div className={`${styles.statItem} ${styles.statWarning}`}>
+            <span className={styles.statLabel}>Absent Today</span>
+            <span className={styles.statValue}>{stats.totalAbsencesToday}</span>
           </div>
         </div>
 
@@ -418,9 +505,23 @@ const AttendanceChecker = () => {
                   <div className={styles.memberInfo}>
                     <div className={styles.memberHeader}>
                       <h3 className={styles.memberName}>{member.username}</h3>
-                      <span className={`${styles.membershipBadge} ${styles[member.membershipType.toLowerCase()]}`}>
-                        {member.membershipType}
-                      </span>
+                      <div className={styles.statusBadges}>
+                        <span className={`${styles.membershipBadge} ${styles[member.membershipType.toLowerCase()]}`}>
+                          {member.membershipType}
+                        </span>
+                        {member.checkedIn === true && (
+                          <span className={styles.attendanceBadgePresent}>
+                            <CheckCircle size={12} />
+                            Present
+                          </span>
+                        )}
+                        {member.checkedIn === false && (
+                          <span className={styles.attendanceBadgeAbsent}>
+                            <XCircle size={12} />
+                            Absent
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <p className={styles.memberEmail}>{member.email}</p>
                     <div className={styles.memberDetails}>
@@ -442,7 +543,7 @@ const AttendanceChecker = () => {
                       type="button"
                     >
                       <Plus size={20} />
-                      <span>Add Attendance</span>
+                      <span>Mark Attendance</span>
                     </button>
                     <button
                       onClick={() => openHistoryModal(member)}
@@ -465,7 +566,7 @@ const AttendanceChecker = () => {
         <div className={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>Add Attendance</h2>
+              <h2>{existingRecordId ? 'Update Attendance' : 'Mark Attendance'}</h2>
               <button 
                 className={styles.closeButton}
                 onClick={() => setShowAddModal(false)}
@@ -484,6 +585,29 @@ const AttendanceChecker = () => {
                 </div>
               </div>
 
+              {/* Attendance Type Selection */}
+              <div className={styles.attendanceTypeSelector}>
+                <label className={styles.selectorLabel}>Attendance Status</label>
+                <div className={styles.selectorButtons}>
+                  <button
+                    type="button"
+                    className={`${styles.selectorButton} ${markAsAttended ? styles.selectorButtonActive : ''}`}
+                    onClick={() => setMarkAsAttended(true)}
+                  >
+                    <CheckCircle size={18} />
+                    <span>Present</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.selectorButton} ${!markAsAttended ? styles.selectorButtonActive : ''}`}
+                    onClick={() => setMarkAsAttended(false)}
+                  >
+                    <XCircle size={18} />
+                    <span>Absent</span>
+                  </button>
+                </div>
+              </div>
+
               <div className={styles.formGroup}>
                 <label>Attendance Date</label>
                 <input
@@ -498,6 +622,27 @@ const AttendanceChecker = () => {
                   Select a date within the membership period
                 </p>
               </div>
+
+              {/* Info Message for Existing Records */}
+              {validationError && (
+                <div className={styles.infoMessage}>
+                  <div className={styles.infoIcon}>
+                    <Info size={16} />
+                  </div>
+                  <div className={styles.infoContent}>
+                    <strong>{existingRecordId ? 'Update Mode' : 'Information'}</strong>
+                    <p>{validationError}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Loading Indicator */}
+              {isCheckingDuplicate && (
+                <div className={styles.checkingIndicator}>
+                  <div className={styles.checkingSpinner}></div>
+                  <span>Checking for existing records...</span>
+                </div>
+              )}
             </div>
 
             <div className={styles.modalFooter}>
@@ -509,12 +654,22 @@ const AttendanceChecker = () => {
                 Cancel
               </button>
               <button 
-                className={styles.confirmButton}
+                className={markAsAttended ? styles.confirmButton : styles.absentButton}
                 onClick={handleAddAttendance}
+                disabled={isCheckingDuplicate}
                 type="button"
               >
-                <CheckCircle size={18} />
-                Add Attendance
+                {isCheckingDuplicate ? (
+                  <>
+                    <div className={styles.buttonSpinner}></div>
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    {markAsAttended ? <CheckCircle size={18} /> : <XCircle size={18} />}
+                    {existingRecordId ? 'Update Record' : (markAsAttended ? 'Mark as Present' : 'Mark as Absent')}
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -545,6 +700,31 @@ const AttendanceChecker = () => {
                 </div>
               </div>
 
+              {/* Member Statistics */}
+              {attendanceHistory.length > 0 && (
+                <div className={styles.memberStats}>
+                  <h4>Attendance Summary</h4>
+                  <div className={styles.statsGrid}>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNumber}>{calculateMemberStats().totalRecords}</span>
+                      <span className={styles.statLabel}>Total Records</span>
+                    </div>
+                    <div className={`${styles.statCard} ${styles.statPresent}`}>
+                      <span className={styles.statNumber}>{calculateMemberStats().attendedRecords}</span>
+                      <span className={styles.statLabel}>Present</span>
+                    </div>
+                    <div className={`${styles.statCard} ${styles.statAbsent}`}>
+                      <span className={styles.statNumber}>{calculateMemberStats().absentRecords}</span>
+                      <span className={styles.statLabel}>Absent</span>
+                    </div>
+                    <div className={styles.statCard}>
+                      <span className={styles.statNumber}>{calculateMemberStats().attendanceRate}%</span>
+                      <span className={styles.statLabel}>Attendance Rate</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {attendanceHistory.length === 0 ? (
                 <div className={styles.emptyHistory}>
                   <History size={48} />
@@ -553,30 +733,38 @@ const AttendanceChecker = () => {
               ) : (
                 <div className={styles.historyList}>
                   {attendanceHistory.map((record) => (
-                    <div key={record.id} className={styles.historyItem}>
+                    <div key={record.id} className={`${styles.historyItem} ${record.checkedIn ? styles.historyPresent : styles.historyAbsent}`}>
                       <div className={styles.historyDate}>
                         <Calendar size={18} />
                         <span>{formatDate(record.date)}</span>
+                        <div className={record.checkedIn ? styles.statusPresent : styles.statusAbsent}>
+                          {record.checkedIn ? 'Present' : 'Absent'}
+                        </div>
                       </div>
                       <div className={styles.historyDetails}>
-                        {record.checkedIn && (
-                          <>
-                            <div className={styles.historyInfo}>
-                              <Clock size={14} />
-                              <span>Checked in: {formatDateTime(record.checkInTime)}</span>
-                            </div>
-                            {record.checkedByAdmin && (
-                              <div className={styles.historyInfo}>
-                                <UserCheck size={14} />
-                                <span>By: {record.checkedByAdmin}</span>
-                              </div>
-                            )}
-                          </>
+                        {record.checkedIn && record.checkInTime && (
+                          <div className={styles.historyInfo}>
+                            <Clock size={14} />
+                            <span>Checked in: {formatDateTime(record.checkInTime)}</span>
+                          </div>
+                        )}
+                        {record.checkedByAdmin && (
+                          <div className={styles.historyInfo}>
+                            <UserCheck size={14} />
+                            <span>By: {record.checkedByAdmin}</span>
+                          </div>
+                        )}
+                        {!record.checkedIn && record.notes && (
+                          <div className={styles.historyInfo}>
+                            <AlertTriangle size={14} />
+                            <span>Note: {record.notes}</span>
+                          </div>
                         )}
                       </div>
                       <button
                         onClick={() => handleDeleteAttendance(record.id)}
                         className={styles.deleteButton}
+                        title="Delete record"
                       >
                         <XCircle size={18} />
                       </button>
