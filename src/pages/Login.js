@@ -1,5 +1,16 @@
 import React, { useState } from "react";
-import { Dumbbell, Eye, EyeOff, Mail, Lock, Shield, User, TrendingUp, Users, Award } from "lucide-react";
+import {
+  Dumbbell,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  Shield,
+  User,
+  TrendingUp,
+  Users,
+  Award,
+} from "lucide-react";
 import styles from "./Login.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -28,34 +39,30 @@ const Login = () => {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        
-        // Store basic info
+
         localStorage.setItem("token", data.token);
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("username", data.username);
         localStorage.setItem("email", data.email);
 
-        // Check if user is admin
         const userResponse = await fetch("http://localhost:8080/api/users/me", {
-          credentials: 'include',
+          credentials: "include",
         });
-        
+
         if (userResponse.ok) {
           const userData = await userResponse.json();
-          
-          // If user is admin, show role selection
+
           if (userData.isAdmin === true || userData.isAdmin === 1) {
             setUserData(userData);
             setShowRoleSelection(true);
             setIsLoading(false);
           } else {
-            // Regular user, go directly to landing
             localStorage.setItem("loginRole", "user");
             navigate("/landing");
           }
@@ -75,7 +82,7 @@ const Login = () => {
   const handleRoleSelection = (role) => {
     localStorage.setItem("loginRole", role);
     setShowRoleSelection(false);
-    
+
     if (role === "admin") {
       navigate("/admin");
     } else {
@@ -100,8 +107,9 @@ const Login = () => {
           <div className={styles.heroContent}>
             <h2 className={styles.heroTitle}>Transform Your Fitness Journey</h2>
             <p className={styles.heroDescription}>
-              Join thousands of members achieving their fitness goals with professional trainers, 
-              state-of-the-art equipment, and personalized workout plans.
+              Join thousands of members achieving their fitness goals with
+              professional trainers, state-of-the-art equipment, and
+              personalized workout plans.
             </p>
           </div>
 
@@ -136,7 +144,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Background animation */}
         <div className={styles.backgroundOverlay}>
           <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
           <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
@@ -148,7 +155,9 @@ const Login = () => {
         <div className={styles.formContainer}>
           <div className={styles.formHeader}>
             <h2 className={styles.formTitle}>Welcome Back</h2>
-            <p className={styles.formSubtitle}>Sign in to your account to continue</p>
+            <p className={styles.formSubtitle}>
+              Sign in to your account to continue
+            </p>
           </div>
 
           <form className={styles.loginForm} onSubmit={handleSubmit}>
@@ -216,7 +225,12 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              <button type="button" className={styles.forgotPassword}>
+              {/* 🔗 Forgot Password navigates to page */}
+              <button
+                type="button"
+                className={styles.forgotPassword}
+                onClick={() => navigate("/forgot-password")}
+              >
                 Forgot password?
               </button>
             </div>
@@ -255,7 +269,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Role Selection Modal */}
       {showRoleSelection && (
         <div className={styles.modalOverlay}>
           <div className={styles.roleModalContent}>
@@ -263,7 +276,7 @@ const Login = () => {
             <p className={styles.roleModalDescription}>
               You have admin privileges. How would you like to continue?
             </p>
-            
+
             <div className={styles.roleButtonsContainer}>
               <button
                 onClick={() => handleRoleSelection("admin")}
@@ -271,7 +284,9 @@ const Login = () => {
               >
                 <Shield className={styles.roleIcon} />
                 <div className={styles.roleButtonText}>
-                  <div className={styles.roleButtonTitle}>Admin Dashboard</div>
+                  <div className={styles.roleButtonTitle}>
+                    Admin Dashboard
+                  </div>
                   <div className={styles.roleButtonDesc}>
                     Manage schedules, codes, and slots
                   </div>

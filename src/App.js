@@ -8,6 +8,7 @@ import {
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
 import LandingPage from "./pages/LandingPage";
 import ContactPage from "./pages/ContactPage";
 import MembershipPage from "./pages/MembershipPage";
@@ -38,6 +39,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Protected routes */}
         <Route
@@ -112,7 +114,7 @@ function App() {
           }
         />
 
-        {/* REDIRECT if /book-trainer has no ID */}
+        {/* Redirect if /book-trainer has no ID */}
         <Route
           path="/book-trainer"
           element={<Navigate to="/trainers" replace />}
@@ -125,8 +127,9 @@ function App() {
             <ProtectedRoute>
               <BookTrainer />
             </ProtectedRoute>
-          } 
+          }
         />
+
         <Route
           path="/profile"
           element={
@@ -154,6 +157,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/attendance"
           element={
@@ -162,6 +166,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/ai-assistant"
           element={
@@ -170,6 +175,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+
         {/* Admin routes */}
         <Route
           path="/admin"
@@ -206,6 +212,7 @@ function App() {
             </ProtectedAdminRoute>
           }
         />
+
         <Route
           path="/admin/attendance-checker"
           element={

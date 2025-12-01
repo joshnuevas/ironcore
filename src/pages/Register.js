@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Dumbbell, Eye, EyeOff, Mail, Lock, User, Check, X, TrendingUp, Users, Award } from "lucide-react";
+import {
+  Dumbbell,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+  Check,
+  X,
+  TrendingUp,
+  Users,
+  Award,
+  HelpCircle,
+} from "lucide-react";
 import styles from "./Register.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -8,14 +21,15 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  // Password strength state
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
     label: "",
@@ -25,11 +39,16 @@ const Register = () => {
       uppercase: false,
       lowercase: false,
       number: false,
-      special: false
-    }
+      special: false,
+    },
   });
 
-  // Calculate password strength whenever password changes
+  const [securityQuestion, setSecurityQuestion] = useState(
+    "What is your mother's maiden name?"
+  );
+  const [customQuestion, setCustomQuestion] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
+
   useEffect(() => {
     if (!password) {
       setPasswordStrength({
@@ -41,8 +60,8 @@ const Register = () => {
           uppercase: false,
           lowercase: false,
           number: false,
-          special: false
-        }
+          special: false,
+        },
       });
       return;
     }
@@ -52,26 +71,26 @@ const Register = () => {
       uppercase: /[A-Z]/.test(password),
       lowercase: /[a-z]/.test(password),
       number: /[0-9]/.test(password),
-      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password),
     };
 
     const score = Object.values(checks).filter(Boolean).length;
-    
+
     let label = "";
     let color = "";
-    
+
     if (score <= 2) {
       label = "Weak";
-      color = "#ef4444"; // red
+      color = "#ef4444";
     } else if (score === 3) {
       label = "Fair";
-      color = "#f97316"; // orange
+      color = "#f97316";
     } else if (score === 4) {
       label = "Good";
-      color = "#eab308"; // yellow
+      color = "#eab308";
     } else {
       label = "Strong";
-      color = "#22c55e"; // green
+      color = "#22c55e";
     }
 
     setPasswordStrength({ score, label, color, checks });
@@ -83,14 +102,27 @@ const Register = () => {
     setSuccess("");
     setIsLoading(true);
 
-    // --- Validation ---
     if (!username || !email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
       setIsLoading(false);
       return;
     }
 
-    // Check password strength
+    const finalQuestion =
+      securityQuestion === "custom" ? customQuestion.trim() : securityQuestion;
+
+    if (!finalQuestion) {
+      setError("Please provide a security question.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!securityAnswer.trim()) {
+      setError("Please provide an answer to your security question.");
+      setIsLoading(false);
+      return;
+    }
+
     if (passwordStrength.score < 3) {
       setError("Password is too weak. Please meet at least 3 requirements.");
       setIsLoading(false);
@@ -104,11 +136,16 @@ const Register = () => {
     }
 
     try {
-      // --- Send to backend ---
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+          securityQuestion: finalQuestion,
+          securityAnswer,
+        }),
       });
 
       const message = await response.text();
@@ -119,8 +156,10 @@ const Register = () => {
         setEmail("");
         setPassword("");
         setConfirmPassword("");
+        setSecurityQuestion("What is your mother's maiden name?");
+        setCustomQuestion("");
+        setSecurityAnswer("");
 
-        // Optional: redirect to login after delay
         setTimeout(() => navigate("/login"), 1500);
       } else {
         setError(message || "Registration failed. Please try again.");
@@ -134,7 +173,6 @@ const Register = () => {
 
   return (
     <div className={styles.registerContainer}>
-      {/* Left Side - Branding */}
       <div className={styles.leftSection}>
         <div className={styles.brandingContent}>
           <div className={styles.logoHeader}>
@@ -149,7 +187,7 @@ const Register = () => {
           <div className={styles.heroContent}>
             <h2 className={styles.heroTitle}>Start Your Transformation Today</h2>
             <p className={styles.heroDescription}>
-              Create your account and unlock access to premium fitness classes, expert trainers, 
+              Create your account and unlock access to premium fitness classes, expert trainers,
               and personalized workout plans designed to help you reach your goals.
             </p>
           </div>
@@ -185,14 +223,12 @@ const Register = () => {
           </div>
         </div>
 
-        {/* Background animation */}
         <div className={styles.backgroundOverlay}>
           <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
           <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         </div>
       </div>
 
-      {/* Right Side - Form */}
       <div className={styles.rightSection}>
         <div className={styles.formContainer}>
           <div className={styles.formHeader}>
@@ -204,7 +240,6 @@ const Register = () => {
             {error && <div className={styles.errorMessage}>{error}</div>}
             {success && <div className={styles.successMessage}>{success}</div>}
 
-            {/* Username */}
             <div className={styles.formGroup}>
               <label htmlFor="username" className={styles.formLabel}>
                 Username
@@ -225,7 +260,6 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div className={styles.formGroup}>
               <label htmlFor="email" className={styles.formLabel}>
                 Email Address
@@ -246,7 +280,6 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Password */}
             <div className={styles.formGroup}>
               <label htmlFor="password" className={styles.formLabel}>
                 Password
@@ -277,19 +310,18 @@ const Register = () => {
                 </button>
               </div>
 
-              {/* Password Strength Indicator */}
               {password && (
                 <div className={styles.strengthContainer}>
                   <div className={styles.strengthBar}>
-                    <div 
+                    <div
                       className={styles.strengthBarFill}
                       style={{
                         width: `${(passwordStrength.score / 5) * 100}%`,
-                        backgroundColor: passwordStrength.color
+                        backgroundColor: passwordStrength.color,
                       }}
                     ></div>
                   </div>
-                  <span 
+                  <span
                     className={styles.strengthLabel}
                     style={{ color: passwordStrength.color }}
                   >
@@ -298,58 +330,117 @@ const Register = () => {
                 </div>
               )}
 
-              {/* Password Requirements */}
               {password && (
                 <div className={styles.requirementsContainer}>
                   <p className={styles.requirementsTitle}>Password must contain:</p>
                   <ul className={styles.requirementsList}>
                     <li className={styles.requirementItem}>
                       {passwordStrength.checks.length ? (
-                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                        <Check
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#22c55e" }}
+                        />
                       ) : (
-                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                        <X
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#ef4444" }}
+                        />
                       )}
-                      <span style={{ color: passwordStrength.checks.length ? '#22c55e' : '#6b7280' }}>
+                      <span
+                        style={{
+                          color: passwordStrength.checks.length ? "#22c55e" : "#6b7280",
+                        }}
+                      >
                         At least 8 characters
                       </span>
                     </li>
                     <li className={styles.requirementItem}>
                       {passwordStrength.checks.uppercase ? (
-                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                        <Check
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#22c55e" }}
+                        />
                       ) : (
-                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                        <X
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#ef4444" }}
+                        />
                       )}
-                      <span style={{ color: passwordStrength.checks.uppercase ? '#22c55e' : '#6b7280' }}>
+                      <span
+                        style={{
+                          color: passwordStrength.checks.uppercase ? "#22c55e" : "#6b7280",
+                        }}
+                      >
                         One uppercase letter
                       </span>
                     </li>
                     <li className={styles.requirementItem}>
                       {passwordStrength.checks.lowercase ? (
-                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                        <Check
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#22c55e" }}
+                        />
                       ) : (
-                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                        <X
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#ef4444" }}
+                        />
                       )}
-                      <span style={{ color: passwordStrength.checks.lowercase ? '#22c55e' : '#6b7280' }}>
+                      <span
+                        style={{
+                          color: passwordStrength.checks.lowercase ? "#22c55e" : "#6b7280",
+                        }}
+                      >
                         One lowercase letter
                       </span>
                     </li>
                     <li className={styles.requirementItem}>
                       {passwordStrength.checks.number ? (
-                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                        <Check
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#22c55e" }}
+                        />
                       ) : (
-                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                        <X
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#ef4444" }}
+                        />
                       )}
-                      <span style={{ color: passwordStrength.checks.number ? '#22c55e' : '#6b7280' }}>
+                      <span
+                        style={{
+                          color: passwordStrength.checks.number ? "#22c55e" : "#6b7280",
+                        }}
+                      >
                         One number
                       </span>
                     </li>
                     <li className={styles.requirementItem}>
                       {passwordStrength.checks.special ? (
-                        <Check className={styles.checkIcon} size={16} style={{ color: '#22c55e' }} />
+                        <Check
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#22c55e" }}
+                        />
                       ) : (
-                        <X className={styles.checkIcon} size={16} style={{ color: '#ef4444' }} />
+                        <X
+                          className={styles.checkIcon}
+                          size={16}
+                          style={{ color: "#ef4444" }}
+                        />
                       )}
-                      <span style={{ color: passwordStrength.checks.special ? '#22c55e' : '#6b7280' }}>
+                      <span
+                        style={{
+                          color: passwordStrength.checks.special ? "#22c55e" : "#6b7280",
+                        }}
+                      >
                         One special character
                       </span>
                     </li>
@@ -358,7 +449,6 @@ const Register = () => {
               )}
             </div>
 
-            {/* Confirm Password */}
             <div className={styles.formGroup}>
               <label htmlFor="confirmPassword" className={styles.formLabel}>
                 Confirm Password
@@ -393,7 +483,70 @@ const Register = () => {
               )}
             </div>
 
-            {/* Submit */}
+            {/* Security Question + Answer */}
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>
+                Security Question (for password recovery)
+              </label>
+              <div className={styles.inputWrapper}>
+                <div className={styles.inputIcon}>
+                  <HelpCircle className={styles.icon} />
+                </div>
+                <select
+                  value={securityQuestion}
+                  onChange={(e) => setSecurityQuestion(e.target.value)}
+                  className={styles.formInput}
+                >
+                  <option value="What is your mother's maiden name?">
+                    What is your mother's maiden name?
+                  </option>
+                  <option value="What is the name of your first pet?">
+                    What is the name of your first pet?
+                  </option>
+                  <option value="What city were you born in?">
+                    What city were you born in?
+                  </option>
+                  <option value="What is your favorite teacher's name?">
+                    What is your favorite teacher's name?
+                  </option>
+                  <option value="custom">Custom question...</option>
+                </select>
+              </div>
+
+              {securityQuestion === "custom" && (
+                <div className={styles.inputWrapper} style={{ marginTop: "0.5rem" }}>
+                  <div className={styles.inputIcon}>
+                    <HelpCircle className={styles.icon} />
+                  </div>
+                  <input
+                    type="text"
+                    value={customQuestion}
+                    onChange={(e) => setCustomQuestion(e.target.value)}
+                    className={styles.formInput}
+                    placeholder="Enter your custom security question"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>
+                Answer to Security Question
+              </label>
+              <div className={styles.inputWrapper}>
+                <div className={styles.inputIcon}>
+                  <User className={styles.icon} />
+                </div>
+                <input
+                  type="text"
+                  value={securityAnswer}
+                  onChange={(e) => setSecurityAnswer(e.target.value)}
+                  className={styles.formInput}
+                  placeholder="Your answer (remember this)"
+                />
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={isLoading}
@@ -426,14 +579,12 @@ const Register = () => {
             </button>
           </form>
 
-          {/* Divider */}
           <div className={styles.divider}>
             <div className={styles.dividerLine}></div>
             <span className={styles.dividerText}>OR</span>
             <div className={styles.dividerLine}></div>
           </div>
 
-          {/* Login Link */}
           <div className={styles.loginSection}>
             <p className={styles.loginText}>
               Already have an account?{" "}
