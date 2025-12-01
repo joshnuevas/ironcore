@@ -1,34 +1,131 @@
 import React, { useState, useEffect, useRef } from "react";
-import { User, Mail, Edit2, Save, X, Camera, ArrowLeft } from "lucide-react";
+import {
+  User,
+  Mail,
+  Edit2,
+  Save,
+  X,
+  Camera,
+  ArrowLeft,
+  Lock,
+  Eye,
+  EyeOff,
+  Check,
+  X as XIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import styles from "./ProfilePage.module.css";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
   const [userData, setUserData] = useState({
     username: "",
     email: "",
     profilePicture: "",
     isAdmin: false,
   });
+
   const [editMode, setEditMode] = useState({
     username: false,
     email: false,
   });
+
   const [editValues, setEditValues] = useState({
     username: "",
     email: "",
   });
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-  const fileInputRef = useRef(null);
+
+  const [passwordValues, setPasswordValues] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [passwordStrength, setPasswordStrength] = useState({
+    score: 0,
+    label: "",
+    color: "",
+    checks: {
+      length: false,
+      uppercase: false,
+      lowercase: false,
+      number: false,
+      special: false,
+    },
+  });
 
   useEffect(() => {
     fetchUserData();
   }, []);
+
+  useEffect(() => {
+    const pwd = passwordValues.newPassword;
+
+    if (!pwd) {
+      setPasswordStrength({
+        score: 0,
+        label: "",
+        color: "",
+        checks: {
+          length: false,
+          uppercase: false,
+          lowercase: false,
+          number: false,
+          special: false,
+        },
+      });
+      return;
+    }
+
+    const checks = {
+      length: pwd.length >= 8,
+      uppercase: /[A-Z]/.test(pwd),
+      lowercase: /[a-z]/.test(pwd),
+      number: /[0-9]/.test(pwd),
+      special: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
+    };
+
+    const score = Object.values(checks).filter(Boolean).length;
+
+    let label = "";
+    let color = "";
+
+    if (score <= 2) {
+      label = "Weak";
+      color = "#ef4444";
+    } else if (score === 3) {
+      label = "Fair";
+      color = "#f97316";
+    } else if (score === 4) {
+      label = "Good";
+      color = "#eab308";
+    } else {
+      label = "Strong";
+      color = "#22c55e";
+    }
+
+    setPasswordStrength({ score, label, color, checks });
+  }, [passwordValues.newPassword]);
+
+  const showMessage = (text, type = "success") => {
+    setMessage({ text, type });
+    if (text) {
+      setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+    }
+  };
 
   const fetchUserData = async () => {
     try {
@@ -41,44 +138,44 @@ const ProfilePage = () => {
         },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log("User data from API:", data);
-        console.log("Is admin from API:", data.isAdmin);
-        
-        setUserData({
-          username: data.username,
-          email: data.email,
-          profilePicture: data.profilePicture || "",
-          isAdmin: data.isAdmin || false,
-        });
-        setEditValues({
-          username: data.username,
-          email: data.email,
-        });
-      } else {
-        setMessage({ text: "Failed to load profile data", type: "error" });
+      if (!response.ok) {
+        showMessage("Failed to load profile data", "error");
+        return;
       }
+
+      const data = await response.json();
+
+      setUserData({
+        username: data.username,
+        email: data.email,
+        profilePicture: data.profilePicture || "",
+        isAdmin: data.isAdmin || false,
+      });
+
+      setEditValues({
+        username: data.username,
+        email: data.email,
+      });
     } catch (error) {
-      setMessage({ text: "Error loading profile", type: "error" });
+      showMessage("Error loading profile", "error");
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (field) => {
-    setEditMode({ ...editMode, [field]: true });
-    setEditValues({ ...editValues, [field]: userData[field] });
+    setEditMode((prev) => ({ ...prev, [field]: true }));
+    setEditValues((prev) => ({ ...prev, [field]: userData[field] }));
   };
 
   const handleCancel = (field) => {
-    setEditMode({ ...editMode, [field]: false });
-    setEditValues({ ...editValues, [field]: userData[field] });
+    setEditMode((prev) => ({ ...prev, [field]: false }));
+    setEditValues((prev) => ({ ...prev, [field]: userData[field] }));
   };
 
   const handleSave = async (field) => {
     setSaving(true);
-    setMessage({ text: "", type: "" });
+    showMessage("");
 
     try {
       const token = localStorage.getItem("token");
@@ -93,27 +190,26 @@ const ProfilePage = () => {
         body: JSON.stringify({ [field]: editValues[field] }),
       });
 
-      if (response.ok) {
-        await response.json();
-        setUserData({ ...userData, [field]: editValues[field] });
-        setEditMode({ ...editMode, [field]: false });
-        
-        if (field === "username") {
-          localStorage.setItem("username", editValues[field]);
-        }
-        
-        setMessage({ 
-          text: `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`, 
-          type: "success" 
-        });
-        
-        setTimeout(() => setMessage({ text: "", type: "" }), 3000);
-      } else {
-        const error = await response.json();
-        setMessage({ text: error.message || "Failed to update profile", type: "error" });
+      const data = await response.json();
+
+      if (!response.ok) {
+        showMessage(data.message || "Failed to update profile", "error");
+        return;
       }
+
+      setUserData((prev) => ({ ...prev, [field]: editValues[field] }));
+      setEditMode((prev) => ({ ...prev, [field]: false }));
+
+      if (field === "username") {
+        localStorage.setItem("username", editValues[field]);
+      }
+
+      showMessage(
+        `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully!`,
+        "success"
+      );
     } catch (error) {
-      setMessage({ text: "Error updating profile", type: "error" });
+      showMessage("Error updating profile", "error");
     } finally {
       setSaving(false);
     }
@@ -127,20 +223,18 @@ const ProfilePage = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setMessage({ text: "Please select an image file", type: "error" });
+    if (!file.type.startsWith("image/")) {
+      showMessage("Please select an image file", "error");
       return;
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      setMessage({ text: "Image size should be less than 5MB", type: "error" });
+      showMessage("Image size should be less than 5MB", "error");
       return;
     }
 
     setUploadingImage(true);
-    setMessage({ text: "", type: "" });
+    showMessage("");
 
     try {
       const token = localStorage.getItem("token");
@@ -149,25 +243,28 @@ const ProfilePage = () => {
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const response = await fetch(`http://localhost:8080/api/users/${userId}/profile-picture`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/users/${userId}/profile-picture`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
 
-      if (response.ok) {
-        const data = await response.json();
-        setUserData({ ...userData, profilePicture: data.profilePictureUrl });
-        setMessage({ text: "Profile picture updated successfully!", type: "success" });
-        setTimeout(() => setMessage({ text: "", type: "" }), 3000);
-      } else {
-        const error = await response.json();
-        setMessage({ text: error.message || "Failed to upload image", type: "error" });
+      const data = await response.json();
+
+      if (!response.ok) {
+        showMessage(data.message || "Failed to upload image", "error");
+        return;
       }
+
+      setUserData((prev) => ({ ...prev, profilePicture: data.profilePictureUrl }));
+      showMessage("Profile picture updated successfully!", "success");
     } catch (error) {
-      setMessage({ text: "Error uploading image", type: "error" });
+      showMessage("Error uploading image", "error");
     } finally {
       setUploadingImage(false);
     }
@@ -177,9 +274,77 @@ const ProfilePage = () => {
     navigate(-1);
   };
 
-  // Check if user is admin from API response
+  const handlePasswordInputChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    showMessage("");
+
+    const { currentPassword, newPassword, confirmPassword } = passwordValues;
+
+    if (!currentPassword.trim() || !newPassword.trim() || !confirmPassword.trim()) {
+      showMessage("Please fill out all password fields.", "error");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showMessage("New password and confirmation do not match.", "error");
+      return;
+    }
+
+    if (passwordStrength.score < 3) {
+      showMessage(
+        "New password is too weak. Please meet at least 3 password requirements.",
+        "error"
+      );
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+
+      const response = await fetch(
+        `http://localhost:8080/api/users/${userId}/change-password`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(passwordValues),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showMessage(data.message || "Failed to update password.", "error");
+        return;
+      }
+
+      showMessage(data.message || "Password updated successfully!", "success");
+
+      setPasswordValues({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (error) {
+      showMessage("Error updating password. Please try again.", "error");
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const isAdmin = userData.isAdmin === true;
-  console.log("Is admin?", isAdmin);
 
   if (loading) {
     return (
@@ -196,7 +361,7 @@ const ProfilePage = () => {
   return (
     <div className={styles.container}>
       <Navbar activeNav="PROFILE" />
-      
+
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
@@ -204,10 +369,7 @@ const ProfilePage = () => {
 
       <div className={styles.content}>
         {isAdmin && (
-          <button 
-            className={styles.backButton}
-            onClick={handleBack}
-          >
+          <button className={styles.backButton} onClick={handleBack}>
             <ArrowLeft className={styles.backIcon} />
             <span>Back</span>
           </button>
@@ -218,9 +380,9 @@ const ProfilePage = () => {
             <div className={styles.avatarContainer}>
               <div className={styles.avatarWrapper}>
                 {userData.profilePicture ? (
-                  <img 
-                    src={userData.profilePicture} 
-                    alt="Profile" 
+                  <img
+                    src={userData.profilePicture}
+                    alt="Profile"
                     className={styles.avatarImage}
                   />
                 ) : (
@@ -228,7 +390,7 @@ const ProfilePage = () => {
                     {userData.username.charAt(0).toUpperCase()}
                   </div>
                 )}
-                <button 
+                <button
                   className={styles.cameraButton}
                   onClick={handleImageClick}
                   disabled={uploadingImage}
@@ -241,7 +403,7 @@ const ProfilePage = () => {
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                 />
               </div>
               {uploadingImage && (
@@ -250,34 +412,38 @@ const ProfilePage = () => {
             </div>
             <h1 className={styles.title}>My Profile</h1>
             <p className={styles.subtitle}>Manage your account information</p>
-            {/* Debug info - remove this after fixing */}
-            <p style={{ color: '#9ca3af', fontSize: '0.8rem', marginTop: '0.5rem' }}>
-              Is Admin: {userData.isAdmin ? 'Yes (true)' : 'No (false)'} | Back button visible: {isAdmin ? 'Yes' : 'No'}
-            </p>
           </div>
 
           {message.text && (
-            <div className={`${styles.message} ${
-              message.type === "success" ? styles.messageSuccess : styles.messageError
-            }`}>
+            <div
+              className={`${styles.message} ${
+                message.type === "success"
+                  ? styles.messageSuccess
+                  : styles.messageError
+              }`}
+            >
               {message.text}
             </div>
           )}
 
           <div className={styles.fieldsContainer}>
-            {/* Username Field */}
             <div className={styles.field}>
               <div className={styles.fieldHeader}>
                 <User size={20} className={styles.fieldIcon} />
                 <label className={styles.label}>Username</label>
               </div>
-              
+
               {editMode.username ? (
                 <div className={styles.editContainer}>
                   <input
                     type="text"
                     value={editValues.username}
-                    onChange={(e) => setEditValues({ ...editValues, username: e.target.value })}
+                    onChange={(e) =>
+                      setEditValues((prev) => ({
+                        ...prev,
+                        username: e.target.value,
+                      }))
+                    }
                     className={styles.input}
                     autoFocus
                   />
@@ -286,7 +452,9 @@ const ProfilePage = () => {
                       onClick={() => handleSave("username")}
                       disabled={saving || !editValues.username.trim()}
                       className={styles.saveButton}
-                      style={{ opacity: (saving || !editValues.username.trim()) ? 0.5 : 1 }}
+                      style={{
+                        opacity: saving || !editValues.username.trim() ? 0.5 : 1,
+                      }}
                     >
                       <Save size={16} />
                     </button>
@@ -313,19 +481,23 @@ const ProfilePage = () => {
               )}
             </div>
 
-            {/* Email Field */}
             <div className={styles.field}>
               <div className={styles.fieldHeader}>
                 <Mail size={20} className={styles.fieldIcon} />
                 <label className={styles.label}>Email</label>
               </div>
-              
+
               {editMode.email ? (
                 <div className={styles.editContainer}>
                   <input
                     type="email"
                     value={editValues.email}
-                    onChange={(e) => setEditValues({ ...editValues, email: e.target.value })}
+                    onChange={(e) =>
+                      setEditValues((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
+                    }
                     className={styles.input}
                     autoFocus
                   />
@@ -334,7 +506,9 @@ const ProfilePage = () => {
                       onClick={() => handleSave("email")}
                       disabled={saving || !editValues.email.trim()}
                       className={styles.saveButton}
-                      style={{ opacity: (saving || !editValues.email.trim()) ? 0.5 : 1 }}
+                      style={{
+                        opacity: saving || !editValues.email.trim() ? 0.5 : 1,
+                      }}
                     >
                       <Save size={16} />
                     </button>
@@ -359,6 +533,261 @@ const ProfilePage = () => {
                   </button>
                 </div>
               )}
+            </div>
+
+            <div className={styles.field}>
+              <div className={styles.fieldHeader}>
+                <Lock size={20} className={styles.fieldIcon} />
+                <label className={styles.label}>Change Password</label>
+              </div>
+
+              <div className={styles.passwordFormContainer}>
+                <form className={styles.passwordForm} onSubmit={handlePasswordSubmit}>
+                  <div className={styles.passwordRow}>
+                    <label className={styles.passwordLabel}>Current Password</label>
+                    <div className={styles.passwordInputWrapper}>
+                      <input
+                        type={showCurrentPassword ? "text" : "password"}
+                        name="currentPassword"
+                        value={passwordValues.currentPassword}
+                        onChange={handlePasswordInputChange}
+                        className={styles.input}
+                        placeholder="Enter current password"
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggle}
+                        onClick={() => setShowCurrentPassword((prev) => !prev)}
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOff className={styles.passwordToggleIcon} size={18} />
+                        ) : (
+                          <Eye className={styles.passwordToggleIcon} size={18} />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.passwordRow}>
+                    <label className={styles.passwordLabel}>New Password</label>
+                    <div className={styles.passwordInputWrapper}>
+                      <input
+                        type={showNewPassword ? "text" : "password"}
+                        name="newPassword"
+                        value={passwordValues.newPassword}
+                        onChange={handlePasswordInputChange}
+                        className={styles.input}
+                        placeholder="Enter new password"
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggle}
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                      >
+                        {showNewPassword ? (
+                          <EyeOff className={styles.passwordToggleIcon} size={18} />
+                        ) : (
+                          <Eye className={styles.passwordToggleIcon} size={18} />
+                        )}
+                      </button>
+                    </div>
+
+                    {passwordValues.newPassword && (
+                      <>
+                        <div className={styles.passwordStrengthContainer}>
+                          <div className={styles.passwordStrengthBar}>
+                            <div
+                              className={styles.passwordStrengthBarFill}
+                              style={{
+                                width: `${(passwordStrength.score / 5) * 100}%`,
+                                backgroundColor: passwordStrength.color,
+                              }}
+                            ></div>
+                          </div>
+                          <span
+                            className={styles.passwordStrengthLabel}
+                            style={{ color: passwordStrength.color }}
+                          >
+                            {passwordStrength.label}
+                          </span>
+                        </div>
+
+                        <div className={styles.passwordRequirementsContainer}>
+                          <p className={styles.passwordRequirementsTitle}>
+                            New password must contain:
+                          </p>
+                          <ul className={styles.passwordRequirementsList}>
+                            <li className={styles.passwordRequirementItem}>
+                              {passwordStrength.checks.length ? (
+                                <Check
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#22c55e" }}
+                                />
+                              ) : (
+                                <XIcon
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#ef4444" }}
+                                />
+                              )}
+                              <span
+                                style={{
+                                  color: passwordStrength.checks.length
+                                    ? "#22c55e"
+                                    : "#6b7280",
+                                }}
+                              >
+                                At least 8 characters
+                              </span>
+                            </li>
+                            <li className={styles.passwordRequirementItem}>
+                              {passwordStrength.checks.uppercase ? (
+                                <Check
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#22c55e" }}
+                                />
+                              ) : (
+                                <XIcon
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#ef4444" }}
+                                />
+                              )}
+                              <span
+                                style={{
+                                  color: passwordStrength.checks.uppercase
+                                    ? "#22c55e"
+                                    : "#6b7280",
+                                }}
+                              >
+                                One uppercase letter
+                              </span>
+                            </li>
+                            <li className={styles.passwordRequirementItem}>
+                              {passwordStrength.checks.lowercase ? (
+                                <Check
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#22c55e" }}
+                                />
+                              ) : (
+                                <XIcon
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#ef4444" }}
+                                />
+                              )}
+                              <span
+                                style={{
+                                  color: passwordStrength.checks.lowercase
+                                    ? "#22c55e"
+                                    : "#6b7280",
+                                }}
+                              >
+                                One lowercase letter
+                              </span>
+                            </li>
+                            <li className={styles.passwordRequirementItem}>
+                              {passwordStrength.checks.number ? (
+                                <Check
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#22c55e" }}
+                                />
+                              ) : (
+                                <XIcon
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#ef4444" }}
+                                />
+                              )}
+                              <span
+                                style={{
+                                  color: passwordStrength.checks.number
+                                    ? "#22c55e"
+                                    : "#6b7280",
+                                }}
+                              >
+                                One number
+                              </span>
+                            </li>
+                            <li className={styles.passwordRequirementItem}>
+                              {passwordStrength.checks.special ? (
+                                <Check
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#22c55e" }}
+                                />
+                              ) : (
+                                <XIcon
+                                  className={styles.checkIcon}
+                                  size={16}
+                                  style={{ color: "#ef4444" }}
+                                />
+                              )}
+                              <span
+                                style={{
+                                  color: passwordStrength.checks.special
+                                    ? "#22c55e"
+                                    : "#6b7280",
+                                }}
+                              >
+                                One special character
+                              </span>
+                            </li>
+                          </ul>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div className={styles.passwordRow}>
+                    <label className={styles.passwordLabel}>
+                      Confirm New Password
+                    </label>
+                    <div className={styles.passwordInputWrapper}>
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        value={passwordValues.confirmPassword}
+                        onChange={handlePasswordInputChange}
+                        className={styles.input}
+                        placeholder="Confirm new password"
+                      />
+                      <button
+                        type="button"
+                        className={styles.passwordToggle}
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className={styles.passwordToggleIcon} size={18} />
+                        ) : (
+                          <Eye className={styles.passwordToggleIcon} size={18} />
+                        )}
+                      </button>
+                    </div>
+                    {passwordValues.confirmPassword &&
+                      passwordValues.newPassword !==
+                        passwordValues.confirmPassword && (
+                        <p className={styles.passwordMismatch}>
+                          Passwords do not match
+                        </p>
+                      )}
+                  </div>
+
+                  <div className={styles.buttonGroup}>
+                    <button
+                      type="submit"
+                      className={styles.saveButton}
+                      disabled={changingPassword}
+                    >
+                      {changingPassword ? "Updating..." : "Update Password"}
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
