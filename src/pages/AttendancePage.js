@@ -168,6 +168,20 @@ const AttendancePage = () => {
     return colors[membershipType] || styles.badgeBasic;
   };
 
+  // ✅ Proper singular/plural for "day(s) left"
+  const formatDaysLeftText = (days) => {
+    const safe = typeof days === "number" ? days : 0;
+    if (safe === 1) return "1 day left";
+    return `${safe} days left`;
+  };
+
+  // ✅ Proper singular/plural for "day(s) remaining"
+  const formatDaysRemainingText = (days) => {
+    const safe = typeof days === "number" ? days : 0;
+    if (safe === 1) return "1 day remaining";
+    return `${safe} days remaining`;
+  };
+
   if (isLoading) {
     return (
       <div className={styles.pageContainer}>
@@ -211,8 +225,12 @@ const AttendancePage = () => {
                     {insights.subscriptionInfo.isExpired
                       ? "EXPIRED"
                       : insights.subscriptionInfo.isExpiringSoon
-                      ? `⚠️ ${insights.subscriptionInfo.daysRemaining} days left`
-                      : `${insights.subscriptionInfo.daysRemaining} days remaining`}
+                      ? `⚠️ ${formatDaysLeftText(
+                          insights.subscriptionInfo.daysRemaining
+                        )}`
+                      : formatDaysRemainingText(
+                          insights.subscriptionInfo.daysRemaining
+                        )}
                   </span>
                 </div>
 
@@ -462,7 +480,9 @@ const AttendancePage = () => {
                     <p className={styles.progressNote}>
                       {insights.subscriptionInfo.isExpired
                         ? "Your subscription has ended. Renew to continue!"
-                        : `${insights.subscriptionInfo.daysRemaining} days remaining in your current subscription`}
+                        : `${formatDaysRemainingText(
+                            insights.subscriptionInfo.daysRemaining
+                          )} in your current subscription`}
                     </p>
                   </div>
                 </div>
@@ -560,8 +580,10 @@ const AttendancePage = () => {
                     <Clock className={styles.tipIcon} />
                     <h4>Time Remaining</h4>
                     <p>
-                      {insights.subscriptionInfo.daysRemaining || 0} days left. You
-                      can attend{" "}
+                      {formatDaysLeftText(
+                        insights.subscriptionInfo.daysRemaining || 0
+                      )}{" "}
+                      You can attend{" "}
                       {Math.round(insights.targets?.remainingDaysTarget || 0)} more
                       sessions to hit your target.
                     </p>
