@@ -23,7 +23,6 @@ const MembershipPage = () => {
         "All Equipment Available",
         "Locker & Shower Access",
         "Free Water Refill",
-        
       ],
       popular: false,
       isSession: true,
@@ -75,7 +74,7 @@ const MembershipPage = () => {
     },
   ];
 
-  // Fetch current user and active membership
+  // Fetch current logged-in user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -90,7 +89,7 @@ const MembershipPage = () => {
     fetchCurrentUser();
   }, []);
 
-  // Handle Join Now click
+  // Handle Join/Buy button click
   const handleJoinNow = async (plan) => {
     if (!currentUser) {
       alert("Please log in to continue.");
@@ -99,8 +98,9 @@ const MembershipPage = () => {
     }
 
     try {
+      // 🔁 NEW ENDPOINT
       const response = await axios.get(
-        "http://localhost:8080/api/transactions/check-active-membership",
+        "http://localhost:8080/api/memberships/status",
         {
           params: { userId: currentUser.id },
           withCredentials: true,
@@ -109,34 +109,40 @@ const MembershipPage = () => {
 
       const {
         hasActiveMembership,
+        hasPendingMembership,
         membershipType,
         membershipActivatedDate,
         membershipExpiryDate,
         transactionCode,
+        membershipStatus,
       } = response.data;
 
-      if (hasActiveMembership) {
-        // Build object for the modal
+      // 🛑 Block purchase if user has either active or pending membership
+      if (hasActiveMembership || hasPendingMembership) {
         setActiveMembership({
+          hasActiveMembership,
+          hasPendingMembership,
           membershipType,
           membershipActivatedDate,
           membershipExpiryDate,
           transactionCode,
+          membershipStatus, // e.g. "PENDING", "COMPLETED", "FAILED", "PAID"
         });
-
         setShowWarningModal(true);
         return;
       }
 
-      // ✅ no active membership → allow purchase
+      // ✅ No active/pending membership → allow purchase
       navigate("/transaction", { state: { plan } });
     } catch (error) {
       console.error("Error checking membership:", error);
-      // If check fails, still allow navigation
-      navigate("/transaction", { state: { plan } });
+      alert(
+        "Unable to verify your membership status at the moment. Please try again later."
+      );
+      // ❌ Do NOT navigate on error anymore
+      return;
     }
   };
-
 
   const handleCloseWarning = () => {
     setShowWarningModal(false);
@@ -145,7 +151,7 @@ const MembershipPage = () => {
 
   const formatExpiryDate = (dateString) => {
     if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -154,8 +160,48 @@ const MembershipPage = () => {
     });
   };
 
+  const isPending = (membership) => {
+    if (!membership) return false;
+    // Treat as pending if backend says so or flag is true
+    return (
+      membership.hasPendingMembership ||
+      membership.membershipStatus === "PENDING"
+    );
+  };
+
+  const getModalTitle = () => {
+    if (!activeMembership) return "";
+    if (isPending(activeMembership)) {
+      return "Membership Pending Approval";
+    }
+    return "Active Membership Found";
+  };
+
+  const getModalSubtitle = () => {
+    if (!activeMembership) return "";
+    if (isPending(activeMembership)) {
+      return "Your membership is currently awaiting admin approval.";
+    }
+    return "You already have an active membership.";
+  };
+
+  const getModalMessage = () => {
+    if (!activeMembership) return "";
+
+    if (isPending(activeMembership)) {
+      return "You already have a membership request that is waiting for admin confirmation. You can buy another membership once this request is approved or cancelled.";
+    }
+
+    if (activeMembership.membershipType === "SESSION") {
+      return "You can purchase another membership after your current session pass expires.";
+    }
+
+    return "You can purchase a new membership or session after your current plan expires.";
+  };
+
   return (
     <div className={styles.membershipContainer}>
+      {/* Background overlays from landing page */}
       <div className={landingStyles.backgroundOverlay}>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
@@ -179,7 +225,7 @@ const MembershipPage = () => {
                 key={plan.name}
                 className={`${styles.planCard} ${
                   plan.popular ? styles.planCardPopular : ""
-                }`}
+                } ${styles.planCardAnimated || ""}`}
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
                 {plan.popular && (
@@ -220,20 +266,25 @@ const MembershipPage = () => {
       {/* Warning Modal */}
       {showWarningModal && activeMembership && (
         <div className={styles.modalOverlay} onClick={handleCloseWarning}>
-          <div className={styles.compactWarningModal} onClick={(e) => e.stopPropagation()}>
+          <div
+            className={`${styles.compactWarningModal} ${
+              styles.modalAnimated || ""
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className={styles.warningIconWrapper}>
               <AlertCircle className={styles.warningIcon} />
             </div>
 
-            <h2 className={styles.compactTitle}>Active Membership Found</h2>
-            <p className={styles.compactSubtitle}>You already have an active membership</p>
+            <h2 className={styles.compactTitle}>{getModalTitle()}</h2>
+            <p className={styles.compactSubtitle}>{getModalSubtitle()}</p>
 
             <div className={styles.compactDetails}>
               <div className={styles.compactInfoBox}>
                 <div className={styles.compactRow}>
                   <span className={styles.compactLabel}>Plan:</span>
                   <span className={styles.compactHighlight}>
-                    {activeMembership.membershipType}
+                    {activeMembership.membershipType || "N/A"}
                   </span>
                 </div>
 
@@ -266,11 +317,7 @@ const MembershipPage = () => {
               </div>
 
               <div className={styles.compactWarning}>
-                <p>
-                  {activeMembership.membershipType === "SESSION"
-                    ? "You can purchase a membership after your session expires."
-                    : "You can purchase a new membership or session after your current one expires."}
-                </p>
+                <p>{getModalMessage()}</p>
               </div>
             </div>
 
