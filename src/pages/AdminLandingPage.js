@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, UserCheck, QrCode, Shield, BarChart3, Users, RefreshCw, AlertCircle } from "lucide-react";
+import { Calendar, UserCheck, QrCode, BarChart3, Users, RefreshCw, AlertCircle } from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./AdminLandingPage.module.css";
 import axios from "axios";

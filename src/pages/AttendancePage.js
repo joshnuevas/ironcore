@@ -212,12 +212,21 @@ const AttendancePage = () => {
           </div>
 
           {error && (
-            <div className={styles.errorBanner}>
+            <div
+              className={`${styles.errorBanner} ${
+                error.includes("No active membership found")
+                  ? styles.noMembershipError
+                  : ""
+              }`}
+            >
               <AlertCircle size={20} />
               <div>
                 <strong>{error}</strong>
                 {error.includes("expired") && (
-                  <button className={styles.renewButton} onClick={() => window.location.href = '/membership'}>
+                  <button
+                    className={styles.renewButton}
+                    onClick={() => (window.location.href = "/membership")}
+                  >
                     <RefreshCw size={16} />
                     Renew Membership
                   </button>
