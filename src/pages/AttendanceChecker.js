@@ -24,6 +24,9 @@ const AttendanceChecker = () => {
     totalAbsencesToday: 0
   });
   
+  const isSessionMembership = (member) =>
+  member.membershipType?.toUpperCase() === "SESSION";
+
   const [toast, setToast] = useState({
     show: false,
     message: "",
@@ -103,14 +106,20 @@ const AttendanceChecker = () => {
         `http://localhost:8080/api/attendance/active-members`,
         { withCredentials: true }
       );
-      
-      setMembers(response.data);
-      calculateStats(response.data);
+
+      // 🚫 Exclude SESSION accounts from attendance checker
+      const nonSessionMembers = response.data.filter(
+        (member) => !isSessionMembership(member)
+      );
+
+      setMembers(nonSessionMembers);
+      calculateStats(nonSessionMembers);
     } catch (error) {
       console.error("Failed to fetch active members:", error);
       showToast(
-        "Error", 
-        "Failed to load active members. " + (error.response?.data?.message || ""), 
+        "Error",
+        "Failed to load active members. " +
+          (error.response?.data?.message || ""),
         "error"
       );
     } finally {
