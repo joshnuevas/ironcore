@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, CheckCircle, XCircle, Calendar, CreditCard, User, Mail, Package, ArrowLeft, Clock } from "lucide-react";
+import { Search, CheckCircle, XCircle, Calendar, CreditCard, User, Mail, Package, ArrowLeft, Clock, AlertCircle } from "lucide-react";
 import styles from "./AdminCodeChecker.module.css";
 import Navbar from "../components/Navbar";
 import axios from "axios";
@@ -7,11 +7,12 @@ import axios from "axios";
 const AdminCodeChecker = ({ onLogout }) => {
   const [transactionCode, setTransactionCode] = useState("");
   const [result, setResult] = useState(null);
-  const [relatedClasses, setRelatedClasses] = useState([]); // ⭐ NEW: Store related class transactions
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingCode, setPendingCode] = useState("");
 
-  const handleCheck = async (e) => {
+  const handleCheckRequest = (e) => {
     e.preventDefault();
     
     if (!transactionCode.trim()) {
@@ -19,53 +20,41 @@ const AdminCodeChecker = ({ onLogout }) => {
       return;
     }
 
+    // Show confirmation modal
+    setPendingCode(transactionCode.trim());
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmCheck = async () => {
+    setShowConfirmModal(false);
     setIsLoading(true);
     setError("");
     setResult(null);
-    setRelatedClasses([]); // ⭐ Reset related classes
 
     try {
       const response = await axios.get(
-        `http://localhost:8080/api/transactions/check/${transactionCode.trim()}`,
+        `http://localhost:8080/api/transactions/check/${pendingCode}`,
         { withCredentials: true }
       );
 
       setResult(response.data);
-
-      // ⭐ NEW: If it's a membership, fetch related class transactions
-      if (response.data.valid && response.data.type === "MEMBERSHIP") {
-        try {
-          const userId = response.data.transaction.user.id;
-          
-          // Fetch all transactions for this user
-          const userTransactionsResponse = await axios.get(
-            `http://localhost:8080/api/transactions/user/${userId}`,
-            { withCredentials: true }
-          );
-
-          // Filter for completed class transactions (not memberships)
-          const classTransactions = userTransactionsResponse.data.filter(
-            (txn) => txn.classId && txn.paymentStatus === "COMPLETED"
-          );
-
-          setRelatedClasses(classTransactions);
-        } catch (classError) {
-          console.error("Error fetching related classes:", classError);
-          // Don't show error to user, just continue without classes
-        }
-      }
     } catch (err) {
       console.error("Error checking transaction:", err);
       setError("Failed to check transaction code. Please try again.");
     } finally {
       setIsLoading(false);
+      setPendingCode("");
     }
+  };
+
+  const handleCancelCheck = () => {
+    setShowConfirmModal(false);
+    setPendingCode("");
   };
 
   const handleReset = () => {
     setTransactionCode("");
     setResult(null);
-    setRelatedClasses([]);
     setError("");
   };
 
@@ -108,6 +97,45 @@ const AdminCodeChecker = ({ onLogout }) => {
 
       <Navbar activeNav="ADMIN" onLogout={onLogout} />
 
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <AlertCircle className={styles.modalIcon} />
+              <h2 className={styles.modalTitle}>Verify Transaction Code?</h2>
+            </div>
+            
+            <div className={styles.modalBody}>
+              <p className={styles.modalText}>
+                Are you sure you want to verify this transaction code?
+              </p>
+              <div className={styles.modalCodeDisplay}>
+                <code>{pendingCode}</code>
+              </div>
+              <p className={styles.modalWarning}>
+                This will check the validity and display member information.
+              </p>
+            </div>
+            
+            <div className={styles.modalActions}>
+              <button 
+                onClick={handleCancelCheck}
+                className={styles.modalCancelButton}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleConfirmCheck}
+                className={styles.modalConfirmButton}
+              >
+                Verify Code
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
           {/* Back Button */}
@@ -127,7 +155,7 @@ const AdminCodeChecker = ({ onLogout }) => {
 
           {/* Search Card */}
           <div className={styles.searchCard}>
-            <form onSubmit={handleCheck} className={styles.searchForm}>
+            <form onSubmit={handleCheckRequest} className={styles.searchForm}>
               <div className={styles.inputWrapper}>
                 <Search className={styles.searchIcon} />
                 <input
@@ -336,41 +364,6 @@ const AdminCodeChecker = ({ onLogout }) => {
                         <span className={styles.detailValue}>{formatDate(result.paymentDate)}</span>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ⭐ NEW: Display Related Classes (for Memberships) */}
-              {result.type === "MEMBERSHIP" && relatedClasses.length > 0 && (
-                <div className={styles.relatedClassesSection}>
-                  <h3 className={styles.classesSectionTitle}>
-                    📚 Included Classes ({relatedClasses.length})
-                  </h3>
-                  <div className={styles.classesGrid}>
-                    {relatedClasses.map((classTransaction) => (
-                      <div key={classTransaction.id} className={styles.classCard}>
-                        <div className={styles.classHeader}>
-                          <Package className={styles.classIcon} />
-                          <h4 className={styles.className}>
-                            {classTransaction.gymClass?.name || "Class"}
-                          </h4>
-                        </div>
-                        <div className={styles.classDetails}>
-                          <div className={styles.classDetail}>
-                            <span className={styles.classLabel}>Code:</span>
-                            <span className={styles.classCode}>
-                              {classTransaction.transactionCode}
-                            </span>
-                          </div>
-                          <div className={styles.classDetail}>
-                            <span className={styles.classLabel}>Status:</span>
-                            <span className={`${styles.badge} ${styles.successBadge}`}>
-                              {classTransaction.paymentStatus}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 </div>
               )}
