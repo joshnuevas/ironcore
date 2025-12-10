@@ -651,14 +651,17 @@
 }
 
 .expiredTag {
-  background: rgba(156, 163, 175, 0.2);
-  color: #9ca3af;
+  background: rgba(239, 68, 68, 0.18);              /* soft red background */
+  color: #fecaca;                                   /* light red text */
   padding: 0.25rem 0.75rem;
   border-radius: 50px;
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid rgba(156, 163, 175, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.6);         /* stronger red border */
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
+
 
 .futureTag {
   background: rgba(59, 130, 246, 0.2);

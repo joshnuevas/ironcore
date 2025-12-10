@@ -238,7 +238,7 @@ const AdminCodeChecker = ({ onLogout }) => {
 
         <p className={styles.cancelWarningText}>
           This will revoke their access associated with this membership. This
-          action may be irreversible.
+          action is irreversible.
         </p>
       </div>
 

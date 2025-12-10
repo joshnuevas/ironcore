@@ -310,7 +310,7 @@ const AttendancePage = () => {
                       ) : membership.isExpired ? (
                         <span className={styles.expiredTag}>EXPIRED</span>
                       ) : (
-                        <span className={styles.futureTag}>UPCOMING</span>
+                        <span className={styles.expiredTag}>EXPIRED</span>
                       )}
                     </div>
                     <div className={styles.historyContent}>
