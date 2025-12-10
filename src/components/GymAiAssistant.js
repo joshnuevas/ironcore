@@ -1,4 +1,3 @@
-// src/components/GymAiAssistant.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { chatWithGymAi } from "../api/aiClient";
@@ -17,7 +16,7 @@ const GymAiAssistant = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get("http://localhost:8080/api/users/me", {
-          withCredentials: true,
+        withCredentials: true,
         });
         setCurrentUser(res.data);
       } catch (err) {
@@ -42,7 +41,15 @@ const GymAiAssistant = () => {
       setReply(data.reply);
     } catch (err) {
       console.error(err);
-      setError("Something went wrong talking to the AI assistant.");
+
+      // Distinguish rate limit (429) vs general failures
+      if (err.response && err.response.status === 429) {
+        setError(
+          "Our AI assistant is currently receiving too many requests. Please try again in a minute."
+        );
+      } else {
+        setError("Something went wrong talking to the AI assistant.");
+      }
     } finally {
       setLoading(false);
     }
@@ -50,6 +57,7 @@ const GymAiAssistant = () => {
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
       handleAsk();
     }
   };
@@ -81,7 +89,9 @@ const GymAiAssistant = () => {
         />
         <div className={styles.inputHints}>
           <span>Press Ctrl+Enter to send</span>
-          <span>AI answers are suggestions only. Always listen to your coach.</span>
+          <span>
+            AI answers are suggestions only. Always listen to your coach.
+          </span>
         </div>
       </div>
 

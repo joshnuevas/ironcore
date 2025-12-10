@@ -30,6 +30,11 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
   const [passwordStrength, setPasswordStrength] = useState({
     score: 0,
     label: "",
@@ -101,6 +106,12 @@ const Register = () => {
     setError("");
     setSuccess("");
     setIsLoading(true);
+
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      setIsLoading(false);
+      return;
+    }
 
     if (!username || !email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
@@ -185,10 +196,13 @@ const Register = () => {
           </div>
 
           <div className={styles.heroContent}>
-            <h2 className={styles.heroTitle}>Start Your Transformation Today</h2>
+            <h2 className={styles.heroTitle}>
+              Start Your Transformation Today
+            </h2>
             <p className={styles.heroDescription}>
-              Create your account and unlock access to premium fitness classes, expert trainers,
-              and personalized workout plans designed to help you reach your goals.
+              Create your account and unlock access to premium fitness classes,
+              expert trainers, and personalized workout plans designed to help
+              you reach your goals.
             </p>
           </div>
 
@@ -208,7 +222,9 @@ const Register = () => {
               </div>
               <div className={styles.featureText}>
                 <h3>Expert Trainers</h3>
-                <p>Work with certified professionals dedicated to your success</p>
+                <p>
+                  Work with certified professionals dedicated to your success
+                </p>
               </div>
             </div>
             <div className={styles.featureItem}>
@@ -233,7 +249,9 @@ const Register = () => {
         <div className={styles.formContainer}>
           <div className={styles.formHeader}>
             <h2 className={styles.formTitle}>Create Account</h2>
-            <p className={styles.formSubtitle}>Join IronCore and start your fitness journey</p>
+            <p className={styles.formSubtitle}>
+              Join IronCore and start your fitness journey
+            </p>
           </div>
 
           <form className={styles.registerForm} onSubmit={handleSubmit}>
@@ -332,7 +350,9 @@ const Register = () => {
 
               {password && (
                 <div className={styles.requirementsContainer}>
-                  <p className={styles.requirementsTitle}>Password must contain:</p>
+                  <p className={styles.requirementsTitle}>
+                    Password must contain:
+                  </p>
                   <ul className={styles.requirementsList}>
                     <li className={styles.requirementItem}>
                       {passwordStrength.checks.length ? (
@@ -350,7 +370,9 @@ const Register = () => {
                       )}
                       <span
                         style={{
-                          color: passwordStrength.checks.length ? "#22c55e" : "#6b7280",
+                          color: passwordStrength.checks.length
+                            ? "#22c55e"
+                            : "#6b7280",
                         }}
                       >
                         At least 8 characters
@@ -372,7 +394,9 @@ const Register = () => {
                       )}
                       <span
                         style={{
-                          color: passwordStrength.checks.uppercase ? "#22c55e" : "#6b7280",
+                          color: passwordStrength.checks.uppercase
+                            ? "#22c55e"
+                            : "#6b7280",
                         }}
                       >
                         One uppercase letter
@@ -394,7 +418,9 @@ const Register = () => {
                       )}
                       <span
                         style={{
-                          color: passwordStrength.checks.lowercase ? "#22c55e" : "#6b7280",
+                          color: passwordStrength.checks.lowercase
+                            ? "#22c55e"
+                            : "#6b7280",
                         }}
                       >
                         One lowercase letter
@@ -416,7 +442,9 @@ const Register = () => {
                       )}
                       <span
                         style={{
-                          color: passwordStrength.checks.number ? "#22c55e" : "#6b7280",
+                          color: passwordStrength.checks.number
+                            ? "#22c55e"
+                            : "#6b7280",
                         }}
                       >
                         One number
@@ -438,7 +466,9 @@ const Register = () => {
                       )}
                       <span
                         style={{
-                          color: passwordStrength.checks.special ? "#22c55e" : "#6b7280",
+                          color: passwordStrength.checks.special
+                            ? "#22c55e"
+                            : "#6b7280",
                         }}
                       >
                         One special character
@@ -479,7 +509,9 @@ const Register = () => {
                 </button>
               </div>
               {confirmPassword && password !== confirmPassword && (
-                <p className={styles.passwordMismatch}>Passwords do not match</p>
+                <p className={styles.passwordMismatch}>
+                  Passwords do not match
+                </p>
               )}
             </div>
 
@@ -514,7 +546,10 @@ const Register = () => {
               </div>
 
               {securityQuestion === "custom" && (
-                <div className={styles.inputWrapper} style={{ marginTop: "0.5rem" }}>
+                <div
+                  className={styles.inputWrapper}
+                  style={{ marginTop: "0.5rem" }}
+                >
                   <div className={styles.inputIcon}>
                     <HelpCircle className={styles.icon} />
                   </div>

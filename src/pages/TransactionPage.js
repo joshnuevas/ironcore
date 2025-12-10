@@ -309,6 +309,12 @@ const TransactionPage = ({ onLogout }) => {
                   </div>
                 </div>
 
+                
+                {/* 🔸 No Refund Notice */}
+                  <div className={styles.noRefundNotice}>
+                    <AlertCircle size={16} className={styles.noRefundIcon} />
+                    <span>All membership and session purchases are non-refundable.</span>
+                  </div>
                 <button
                   onClick={handleBuyNow}
                   className={styles.buyNowButton}

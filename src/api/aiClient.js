@@ -1,4 +1,3 @@
-// src/api/aiClient.js
 import axios from "axios";
 
 export async function chatWithGymAi(message, userId) {
@@ -8,5 +7,6 @@ export async function chatWithGymAi(message, userId) {
     { withCredentials: true }
   );
 
-  return response.data; // { reply: "..." }
+  // Backend returns: { reply: "..." }
+  return response.data;
 }
