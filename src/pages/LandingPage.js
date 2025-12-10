@@ -374,11 +374,7 @@ const LandingPage = () => {
           </div>
         )}
 
-      {/* Floating AI Assistant Button */}
-      <button onClick={handleAiAssistant} className={styles.floatingAiButton}>
-        <Bot size={28} />
-        <span className={styles.aiButtonTooltip}>Ask IronCore AI</span>
-      </button>
+   
     </div>
   );
 };

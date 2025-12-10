@@ -29,7 +29,7 @@ import AdminScheduleViewer from "./pages/AdminScheduleViewer";
 import AdminSlotChecker from "./pages/AdminSlotChecker";
 import AttendanceChecker from "./pages/AttendanceChecker";
 import AttendancePage from "./pages/AttendancePage";
-import AiAssistantPage from "./pages/AiAssistantPage";
+
 
 function App() {
   return (
@@ -167,14 +167,7 @@ function App() {
           }
         />
 
-        <Route
-          path="/ai-assistant"
-          element={
-            <ProtectedRoute>
-              <AiAssistantPage />
-            </ProtectedRoute>
-          }
-        />
+  
 
         {/* Admin routes */}
         <Route
