@@ -361,20 +361,25 @@
 }
 .modalContent {
   background: #111827;
-  padding: 2rem;
-  border-radius: 1rem;
+  padding: 2.5rem 3rem;       /* more padding */
+  width: 420px;               /* wider */
+  max-width: 90%;             /* stays responsive */
+  border-radius: 1.25rem;     /* slightly larger radius */
   text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.55);
   color: white;
   animation: fadeIn 0.3s ease-out;
 }
 .modalContent h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.75rem;   /* was 1.5rem */
+  font-weight: 700;
+  margin-bottom: 1.2rem;
 }
 .modalContent p {
+  font-size: 1.05rem;   /* was small, now slightly larger */
   margin-bottom: 2rem;
-  color: #9ca3af;
+  color: #bfc4cc;       /* a bit brighter than #9ca3af */
+  line-height: 1.5;
 }
 .modalButtons {
   display: flex;

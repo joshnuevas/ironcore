@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import axios from "axios";
+import { loadToken } from "../utils/tokenStorage";
 
 const ProtectedAdminRoute = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // We still use the token just to know if user is logged in on the frontend
-  const token = localStorage.getItem("token");
+  const token = loadToken(); // ✅ use hidden token
 
   useEffect(() => {
     const checkAdminAccess = async () => {
@@ -21,28 +21,22 @@ const ProtectedAdminRoute = ({ children }) => {
       }
 
       try {
-        // Ask backend who this user is
         const response = await axios.get(
           "http://localhost:8080/api/users/me",
           {
             withCredentials: true,
             headers: {
-              // backend mainly uses HttpSession, but sending token is fine
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${token}`, // ✅ decoded real token
             },
           }
         );
 
-        console.log("Admin route check - User data:", response.data);
-
-        setIsAuthenticated(true);
-
         const userIsAdmin =
           response.data.isAdmin === true || response.data.isAdmin === 1;
 
+        setIsAuthenticated(true);
         setIsAdmin(userIsAdmin);
       } catch (error) {
-        console.error("Error checking admin access:", error);
         setIsAuthenticated(false);
         setIsAdmin(false);
       } finally {
@@ -53,7 +47,6 @@ const ProtectedAdminRoute = ({ children }) => {
     checkAdminAccess();
   }, [token]);
 
-  // ⏳ Still checking
   if (loading) {
     return (
       <div
@@ -96,19 +89,14 @@ const ProtectedAdminRoute = ({ children }) => {
     );
   }
 
-  // ❌ Not authenticated → back to login
   if (!isAuthenticated) {
-    console.log("Not authenticated - redirecting to login");
     return <Navigate to="/login" replace />;
   }
 
-  // ❌ Authenticated but not admin → back to normal landing
   if (!isAdmin) {
-    console.log("Not admin - redirecting to landing");
     return <Navigate to="/landing" replace />;
   }
 
-  // ✅ Admin verified → allow access
   return children;
 };
 

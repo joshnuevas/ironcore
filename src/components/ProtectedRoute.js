@@ -1,12 +1,12 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
+import { loadToken } from "../utils/tokenStorage";
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+  const token = loadToken(); // ✅ reads from ic_t and decodes
 
   if (!token) {
-    // Redirect to login if no token
-    //part of the session management feature
+    // part of the session management feature
     return <Navigate to="/login" replace />;
   }
 

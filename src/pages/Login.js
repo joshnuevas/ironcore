@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { saveToken } from "../utils/tokenStorage";
 import {
   Dumbbell,
   Eye,
@@ -80,9 +81,7 @@ const Login = () => {
     // check temporary frontend lock
     if (lockUntil && Date.now() < lockUntil) {
       const secondsLeft = Math.ceil((lockUntil - Date.now()) / 1000);
-      setError(
-        `Too many failed attempts. Please try again in ${secondsLeft}s.`
-      );
+      setError(`Too many failed attempts. Please try again in ${secondsLeft}s.`);
       return;
     }
 
@@ -95,7 +94,7 @@ const Login = () => {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // cookie / session-based auth
+        credentials: "include", // cookie-based auth
         body: JSON.stringify({ email, password }),
       });
 
@@ -104,21 +103,17 @@ const Login = () => {
 
         try {
           const text = await response.text();
-          console.warn("Login error from server:", text);
-
           if (text && text.length > 0 && text.length < 160) {
             message = text;
           }
-        } catch {
-          message = "Login failed. Please try again.";
-        }
+        } catch {}
 
         setError(message);
 
         setLoginAttempts((prev) => {
           const next = prev + 1;
           if (next >= 5) {
-            setLockUntil(Date.now() + 30 * 1000); // 30s lock
+            setLockUntil(Date.now() + 30 * 1000); // 30 sec lock
             return 0;
           }
           return next;
@@ -128,29 +123,21 @@ const Login = () => {
         return;
       }
 
-      // Parse login response
+      // Parse response to get token
       const data = await response.json().catch(() => ({}));
 
-      // Store ONLY token + display info (NO userId / NO role)
-      if (data.token) {
-        if (typeof data.token === "string" && data.token.length < 5000) {
-          localStorage.setItem("token", data.token);
-        }
+      // Save hidden token if present
+      if (data.token && typeof data.token === "string") {
+        saveToken(data.token); // encoded + obfuscated
       }
 
-      // Get current user profile from backend (source of truth for id/role)
-      const userResponse = await fetch(
-        "http://localhost:8080/api/users/me",
-        {
-          credentials: "include",
-        }
-      );
+      // Fetch user profile from backend
+      const userResponse = await fetch("http://localhost:8080/api/users/me", {
+        credentials: "include",
+      });
 
       if (!userResponse.ok) {
-        console.warn("Failed to fetch user profile after login");
-        setError(
-          "Login succeeded, but user profile could not be loaded."
-        );
+        setError("Login succeeded, but user profile could not be loaded.");
         setIsLoading(false);
         return;
       }
@@ -158,18 +145,15 @@ const Login = () => {
       const user = await userResponse.json();
       setUserData(user);
 
-      // Admins: show role selection (admin vs member view)
+      // Admin role selection
       if (user.isAdmin === true || user.isAdmin === 1) {
         setShowRoleSelection(true);
         setIsLoading(false);
       } else {
-        // Normal user: go directly to landing
-        // NOTE: we no longer store loginRole in localStorage
         setIsLoading(false);
         navigate("/landing");
       }
     } catch (err) {
-      console.error("Login error:", err);
       setError("Unable to connect to the server.");
       setIsLoading(false);
     }
