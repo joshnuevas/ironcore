@@ -297,38 +297,59 @@ const AttendancePage = () => {
                 <button onClick={() => setShowHistory(false)}>×</button>
               </div>
               <div className={styles.historyList}>
-                {membershipsHistory.map((membership) => (
-                  <div
-                    key={membership.membershipId}
-                    className={`${styles.historyItem} ${
-                      membership.isActive ? styles.activeMembership : ""
-                    }`}
-                  >
-                    <div className={styles.historyBadge}>
-                      {membership.isActive ? (
-                        <span className={styles.activeTag}>CURRENT</span>
-                      ) : membership.isExpired ? (
-                        <span className={styles.expiredTag}>EXPIRED</span>
-                      ) : (
-                        <span className={styles.expiredTag}>EXPIRED</span>
-                      )}
-                    </div>
-                    <div className={styles.historyContent}>
-                      <h4>{membership.membershipType} Membership</h4>
-                      <p>
-                        {formatDate(membership.startDate)} -{" "}
-                        {formatDate(membership.endDate)}
-                      </p>
-                      <div className={styles.historyStats}>
-                        <span>{membership.totalDays} total days</span>
-                        <span>•</span>
-                        <span>{membership.attendedDays} attended</span>
-                        <span>•</span>
-                        <span>{membership.utilizationRate}% utilized</span>
+                {membershipsHistory.map((membership) => {
+                  const isCurrent = membership.isActive && !membership.isExpired;
+                  const isExpired = membership.isExpired && !membership.isActive;
+
+                  return (
+                    <div
+                      key={membership.membershipId}
+                      className={`${styles.historyItem} ${
+                        isCurrent ? styles.historyItemCurrent : ""
+                      } ${isExpired ? styles.historyItemExpired : ""}`}
+                    >
+                      <div className={styles.historyTopRow}>
+                        <span
+                          className={`${styles.statusChip} ${
+                            isCurrent ? styles.statusChipCurrent : styles.statusChipExpired
+                          }`}
+                        >
+                          {isCurrent ? "CURRENT" : "EXPIRED"}
+                        </span>
+
+                        <div className={styles.historyTitleGroup}>
+                          <span className={styles.historyMembershipType}>
+                            {membership.membershipType} Membership
+                          </span>
+                          <span className={styles.historyDates}>
+                            {formatDate(membership.startDate)} • {formatDate(membership.endDate)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className={styles.historyStatsRow}>
+                        <div className={styles.historyStatPill}>
+                          <span className={styles.historyStatLabel}>Total days</span>
+                          <span className={styles.historyStatValue}>
+                            {membership.totalDays}
+                          </span>
+                        </div>
+                        <div className={styles.historyStatPill}>
+                          <span className={styles.historyStatLabel}>Attended</span>
+                          <span className={styles.historyStatValue}>
+                            {membership.attendedDays}
+                          </span>
+                        </div>
+                        <div className={styles.historyStatPill}>
+                          <span className={styles.historyStatLabel}>Utilized</span>
+                          <span className={styles.historyStatValue}>
+                            {membership.utilizationRate}%
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
