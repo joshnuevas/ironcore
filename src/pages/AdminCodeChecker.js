@@ -219,53 +219,55 @@ const AdminCodeChecker = ({ onLogout }) => {
       {/* =========================
           Cancel Membership Modal
          ========================== */}
-    {showCancelModal && result && result.transaction && (
-  <div className={styles.modalOverlay}>
-    <div className={styles.cancelMembershipModal}>
-      <div className={styles.cancelModalHeader}>
-        <AlertCircle className={styles.cancelModalIcon} />
-        <h2 className={styles.cancelModalTitle}>Cancel Membership?</h2>
-      </div>
+          {/* =========================
+          Cancel Membership Modal
+         ========================== */}
+      {showCancelModal && result && result.transaction && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <AlertCircle className={styles.modalIcon} />
+              <h2 className={styles.modalTitle}>Cancel Membership?</h2>
+            </div>
 
-      <div className={styles.cancelModalBody}>
-        <p>
-          Are you sure you want to cancel this member&apos;s active membership?
-        </p>
+            <div className={styles.modalBody}>
+              <p className={styles.modalText}>
+                Are you sure you want to cancel this member&apos;s active
+                membership?
+              </p>
 
-        <div className={styles.cancelCodeDisplay}>
-          <code>{result.transaction.transactionCode}</code>
+              <div className={styles.modalCodeDisplay}>
+                <code>{result.transaction.transactionCode}</code>
+              </div>
+
+              <p className={styles.cancelWarningText}>
+                This will revoke their access associated with this membership.
+                This action is irreversible.
+              </p>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                onClick={handleCancelMembershipClose}
+                className={styles.modalCancelButton}
+                disabled={isCancelling}
+              >
+                Keep Membership
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmCancelMembership}
+                className={`${styles.modalConfirmButton} ${styles.dangerConfirmButton}`}
+                disabled={isCancelling}
+              >
+                {isCancelling ? "Cancelling..." : "Confirm Cancel"}
+              </button>
+            </div>
+          </div>
         </div>
-
-        <p className={styles.cancelWarningText}>
-          This will revoke their access associated with this membership. This
-          action is irreversible.
-        </p>
-      </div>
-
-      <div className={styles.cancelActions}>
-        <button
-          type="button"
-          onClick={handleCancelMembershipClose}
-          className={styles.cancelKeepButton}
-          disabled={isCancelling}
-        >
-          Keep Membership
-        </button>
-
-        <button
-          type="button"
-          onClick={handleConfirmCancelMembership}
-          className={styles.cancelConfirmButton}
-          disabled={isCancelling}
-        >
-          {isCancelling ? "Cancelling..." : "Confirm Cancel"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+      )}
 
       {/* =========================
           Main Content

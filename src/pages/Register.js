@@ -28,6 +28,9 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const MAX_ATTEMPTS = 5;
+
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -105,63 +108,77 @@ const Register = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
-    setIsLoading(true);
 
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address.");
-      setIsLoading(false);
+    // Soft rate-limit on front-end
+    if (failedAttempts >= MAX_ATTEMPTS) {
+      setError(
+        "Too many failed attempts. Please wait a few minutes and try again."
+      );
       return;
     }
 
-    if (!username || !email || !password || !confirmPassword) {
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim();
+    const trimmedAnswer = securityAnswer.trim();
+    const trimmedCustomQuestion = customQuestion.trim();
+
+    if (!validateEmail(trimmedEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!trimmedUsername || !trimmedEmail || !password || !confirmPassword) {
       setError("Please fill in all fields.");
-      setIsLoading(false);
+      return;
+    }
+
+    if (trimmedUsername.length < 3) {
+      setError("Username must be at least 3 characters long.");
       return;
     }
 
     const finalQuestion =
-      securityQuestion === "custom" ? customQuestion.trim() : securityQuestion;
+      securityQuestion === "custom" ? trimmedCustomQuestion : securityQuestion;
 
     if (!finalQuestion) {
       setError("Please provide a security question.");
-      setIsLoading(false);
       return;
     }
 
-    if (!securityAnswer.trim()) {
+    if (!trimmedAnswer) {
       setError("Please provide an answer to your security question.");
-      setIsLoading(false);
       return;
     }
 
     if (passwordStrength.score < 3) {
       setError("Password is too weak. Please meet at least 3 requirements.");
-      setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
-      setIsLoading(false);
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username,
-          email,
+          username: trimmedUsername,
+          email: trimmedEmail,
           password,
           securityQuestion: finalQuestion,
-          securityAnswer,
+          securityAnswer: trimmedAnswer,
         }),
       });
 
-      const message = await response.text();
+      const rawMessage = await response.text().catch(() => "");
 
       if (response.ok) {
+        setFailedAttempts(0);
         setSuccess("Account created successfully!");
         setUsername("");
         setEmail("");
@@ -171,11 +188,16 @@ const Register = () => {
         setCustomQuestion("");
         setSecurityAnswer("");
 
+        // Short delay then redirect to login
         setTimeout(() => navigate("/login"), 1500);
       } else {
-        setError(message || "Registration failed. Please try again.");
+        console.warn("Registration error from server:", rawMessage);
+        // Generic error to avoid leaking if email already exists or other internals
+        setFailedAttempts((prev) => prev + 1);
+        setError("Registration failed. Please check your details and try again.");
       }
     } catch (err) {
+      console.error("Registration error:", err);
       setError("Unable to connect to the server.");
     } finally {
       setIsLoading(false);

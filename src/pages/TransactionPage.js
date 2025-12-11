@@ -313,7 +313,7 @@ const TransactionPage = ({ onLogout }) => {
                 {/* 🔸 No Refund Notice */}
                   <div className={styles.noRefundNotice}>
                     <AlertCircle size={16} className={styles.noRefundIcon} />
-                    <span>All membership and session purchases are non-refundable.</span>
+                    <span>Refunds for membership and session purchases may only be processed at the Front Desk.</span>
                   </div>
                 <button
                   onClick={handleBuyNow}

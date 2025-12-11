@@ -22,18 +22,41 @@ const Login = () => {
   const [error, setError] = useState("");
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+
+  const MAX_ATTEMPTS = 5;
   const navigate = useNavigate();
+
+  const validateEmail = (value) => {
+    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    return emailRegex.test(value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
 
+    // Basic required fields
     if (!email || !password) {
       setError("Please fill in all fields.");
-      setIsLoading(false);
       return;
     }
+
+    // Email format validation
+    if (!validateEmail(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    // Simple front-end guard to discourage brute force
+    if (failedAttempts >= MAX_ATTEMPTS) {
+      setError(
+        "Too many failed attempts. Please wait a few minutes and try again."
+      );
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       const response = await fetch("http://localhost:8080/api/auth/login", {
@@ -44,12 +67,12 @@ const Login = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        // Reset failed attempts on success
+        setFailedAttempts(0);
 
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("userId", data.userId);
-        localStorage.setItem("username", data.username);
-        localStorage.setItem("email", data.email);
+        // Even if backend returns something, we don't need to store token in localStorage
+        // because we rely on secure HttpOnly cookies + /api/users/me.
+        await response.json().catch(() => {});
 
         const userResponse = await fetch("http://localhost:8080/api/users/me", {
           credentials: "include",
@@ -64,12 +87,27 @@ const Login = () => {
             setIsLoading(false);
           } else {
             localStorage.setItem("loginRole", "user");
+            setIsLoading(false);
             navigate("/landing");
           }
+        } else {
+          console.warn("Failed to fetch user profile after login.");
+          setError("Login succeeded, but user profile could not be loaded.");
+          setIsLoading(false);
         }
       } else {
-        const message = await response.text();
-        setError(message || "Login failed. Please try again.");
+        let message;
+        try {
+          const text = await response.text();
+          console.warn("Login error from server:", text);
+          // Generic message to avoid user enumeration
+          message = "Invalid email or password.";
+        } catch {
+          message = "Login failed. Please try again.";
+        }
+
+        setFailedAttempts((prev) => prev + 1);
+        setError(message);
         setIsLoading(false);
       }
     } catch (err) {

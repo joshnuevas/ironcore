@@ -893,10 +893,27 @@
 }
 
 .cancelWarningText {
-  margin-top: 12px;
-  font-size: 0.875rem;
-  color: #dc2626;
+  display: block;                 /* makes centering accurate */
+  margin: 1rem auto 0 auto;       /* centers horizontally */
+  padding: 0.7rem 1.6rem;
+  max-width: 90%;                 /* prevents overly wide pill */
+  text-align: center;
+  
+  background: rgba(220, 38, 38, 0.18);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+  border-radius: 999px;
+
+  color: #fca5a5;
+  font-size: 0.85rem;
   font-weight: 600;
+  line-height: 1.45;
+}
+
+/* Allow wrapping on small screens to avoid overflow */
+@media (max-width: 640px) {
+  .cancelWarningText {
+    white-space: normal;
+  }
 }
 
 /* BUTTONS */
