@@ -6,15 +6,40 @@ import styles from "./Navbar.module.css";
 
 const Navbar = ({ activeNav = "HOME" }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [username, setUsername] = useState("");    // ✅ from backend, not localStorage
   const navigate = useNavigate();
-  const username = localStorage.getItem("username");
+
   const loginRole = localStorage.getItem("loginRole");
-  
-  // Determine if we're in admin mode
   const isAdminMode = loginRole === "admin";
 
+  // ✅ Load current user for display only
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return; // not logged in / on login page
+
+        const res = await axios.get("http://localhost:8080/api/users/me", {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.data?.username) {
+          setUsername(res.data.username);
+        }
+      } catch (err) {
+        console.error("Failed to load user for navbar:", err);
+        // optional: setUsername("");  // keep it blank on error
+      }
+    };
+
+    fetchCurrentUser();
+  }, []);
+
   // Define nav items based on current role
-  const navItems = isAdminMode 
+  const navItems = isAdminMode
     ? [] // Admin mode has no nav items
     : ["HOME", "ABOUT US", "OUR TRAINERS", "CLASSES", "MEMBERSHIP", "ATTENDANCE"];
 
@@ -48,7 +73,6 @@ const Navbar = ({ activeNav = "HOME" }) => {
   };
 
   const handleLogoClick = () => {
-    // Navigate based on current role
     if (isAdminMode) {
       navigate("/admin");
     } else {
@@ -78,10 +102,10 @@ const Navbar = ({ activeNav = "HOME" }) => {
     <>
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
-          <div 
-            className={styles.logoSection} 
+          <div
+            className={styles.logoSection}
             onClick={handleLogoClick}
-            style={{ cursor: 'pointer' }}
+            style={{ cursor: "pointer" }}
           >
             <div className={styles.logoIcon}>
               <Dumbbell className={styles.dumbbellIcon} />
@@ -114,7 +138,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
               title="View Profile"
             >
               <User size={18} />
-              <span>{username}</span>
+              <span>{username || "Profile"}</span>
             </button>
 
             <button onClick={handleLogout} className={styles.logoutButton}>

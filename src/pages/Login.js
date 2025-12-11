@@ -20,18 +20,74 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({
+    email: "",
+    password: "",
+  });
+
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [userData, setUserData] = useState(null);
+
+  // simple client-side throttling (defense-in-depth)
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockUntil, setLockUntil] = useState(null);
+
   const navigate = useNavigate();
+
+  // ===== Validation helpers =====
+  const validateEmail = (value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    return emailRegex.test(value);
+  };
+
+  const validateForm = () => {
+    let hasError = false;
+    const newFieldErrors = {
+      email: "",
+      password: "",
+    };
+
+    if (!email) {
+      newFieldErrors.email = "Email is required.";
+      hasError = true;
+    } else if (!validateEmail(email)) {
+      newFieldErrors.email = "Please enter a valid email address.";
+      hasError = true;
+    } else if (email.length > 254) {
+      newFieldErrors.email = "Email is too long.";
+      hasError = true;
+    }
+
+    if (!password) {
+      newFieldErrors.password = "Password is required.";
+      hasError = true;
+    } else if (password.length < 8) {
+      newFieldErrors.password = "Password must be at least 8 characters.";
+      hasError = true;
+    } else if (password.length > 128) {
+      newFieldErrors.password = "Password is too long.";
+      hasError = true;
+    }
+
+    setFieldErrors(newFieldErrors);
+    return !hasError;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!email || !password) {
-      setError("Please fill in all fields.");
+    // check temporary frontend lock
+    if (lockUntil && Date.now() < lockUntil) {
+      const secondsLeft = Math.ceil((lockUntil - Date.now()) / 1000);
+      setError(
+        `Too many failed attempts. Please try again in ${secondsLeft}s.`
+      );
       return;
     }
+
+    const isValid = validateForm();
+    if (!isValid) return;
 
     setIsLoading(true);
 
@@ -39,48 +95,62 @@ const Login = () => {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
+        credentials: "include", // cookie / session-based auth
         body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
-        let message;
+        let message = "Invalid email or password.";
+
         try {
           const text = await response.text();
           console.warn("Login error from server:", text);
-          message = text || "Invalid email or password.";
+
+          if (text && text.length > 0 && text.length < 160) {
+            message = text;
+          }
         } catch {
           message = "Login failed. Please try again.";
         }
+
         setError(message);
+
+        setLoginAttempts((prev) => {
+          const next = prev + 1;
+          if (next >= 5) {
+            setLockUntil(Date.now() + 30 * 1000); // 30s lock
+            return 0;
+          }
+          return next;
+        });
+
         setIsLoading(false);
         return;
       }
 
-      // ✅ Parse login response and store values used by your app
+      // Parse login response
       const data = await response.json().catch(() => ({}));
 
+      // Store ONLY token + display info (NO userId / NO role)
       if (data.token) {
-        localStorage.setItem("token", data.token);
-      }
-      if (data.userId) {
-        localStorage.setItem("userId", data.userId);
-      }
-      if (data.username) {
-        localStorage.setItem("username", data.username);
-      }
-      if (data.email) {
-        localStorage.setItem("email", data.email);
+        if (typeof data.token === "string" && data.token.length < 5000) {
+          localStorage.setItem("token", data.token);
+        }
       }
 
-      // ✅ Now get the current user profile to check role
-      const userResponse = await fetch("http://localhost:8080/api/users/me", {
-        credentials: "include",
-      });
+      // Get current user profile from backend (source of truth for id/role)
+      const userResponse = await fetch(
+        "http://localhost:8080/api/users/me",
+        {
+          credentials: "include",
+        }
+      );
 
       if (!userResponse.ok) {
         console.warn("Failed to fetch user profile after login");
-        setError("Login succeeded, but user profile could not be loaded.");
+        setError(
+          "Login succeeded, but user profile could not be loaded."
+        );
         setIsLoading(false);
         return;
       }
@@ -88,13 +158,13 @@ const Login = () => {
       const user = await userResponse.json();
       setUserData(user);
 
-      // ✅ If admin → show role selection modal
+      // Admins: show role selection (admin vs member view)
       if (user.isAdmin === true || user.isAdmin === 1) {
         setShowRoleSelection(true);
         setIsLoading(false);
       } else {
-        // ✅ Normal user → set role + go to landing
-        localStorage.setItem("loginRole", "user");
+        // Normal user: go directly to landing
+        // NOTE: we no longer store loginRole in localStorage
         setIsLoading(false);
         navigate("/landing");
       }
@@ -105,16 +175,19 @@ const Login = () => {
     }
   };
 
-  const handleRoleSelection = (role) => {
-    localStorage.setItem("loginRole", role);
+    const handleRoleSelection = (role) => {
+
     setShowRoleSelection(false);
 
     if (role === "admin") {
+      // go to admin dashboard view
       navigate("/admin");
     } else {
+      // normal member view
       navigate("/landing");
     }
   };
+
 
   return (
     <div className={styles.loginContainer}>
@@ -131,7 +204,9 @@ const Login = () => {
           </div>
 
           <div className={styles.heroContent}>
-            <h2 className={styles.heroTitle}>Transform Your Fitness Journey</h2>
+            <h2 className={styles.heroTitle}>
+              Transform Your Fitness Journey
+            </h2>
             <p className={styles.heroDescription}>
               Join thousands of members achieving their fitness goals with
               professional trainers, state-of-the-art equipment, and
@@ -146,7 +221,9 @@ const Login = () => {
               </div>
               <div className={styles.featureText}>
                 <h3>Track Progress</h3>
-                <p>Monitor your fitness journey with detailed analytics</p>
+                <p>
+                  Monitor your fitness journey with detailed analytics
+                </p>
               </div>
             </div>
             <div className={styles.featureItem}>
@@ -155,7 +232,9 @@ const Login = () => {
               </div>
               <div className={styles.featureText}>
                 <h3>Expert Trainers</h3>
-                <p>Work with certified professionals dedicated to your success</p>
+                <p>
+                  Work with certified professionals dedicated to your success
+                </p>
               </div>
             </div>
             <div className={styles.featureItem}>
@@ -164,15 +243,17 @@ const Login = () => {
               </div>
               <div className={styles.featureText}>
                 <h3>Premium Classes</h3>
-                <p>Access exclusive fitness classes and training programs</p>
+                <p>
+                  Access exclusive fitness classes and training programs
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <div className={styles.backgroundOverlay}>
-          <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
-          <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
+          <div className={`${styles.bgBlur} ${styles.bgBlur1}`} />
+          <div className={`${styles.bgBlur} ${styles.bgBlur2}`} />
         </div>
       </div>
 
@@ -186,8 +267,14 @@ const Login = () => {
             </p>
           </div>
 
-          <form className={styles.loginForm} onSubmit={handleSubmit}>
-            {error && <div className={styles.errorMessage}>{error}</div>}
+          <form
+            className={styles.loginForm}
+            onSubmit={handleSubmit}
+            autoComplete="on"
+          >
+            {error && (
+              <div className={styles.errorMessage}>{error}</div>
+            )}
 
             <div className={styles.formGroup}>
               <label htmlFor="email" className={styles.formLabel}>
@@ -201,12 +288,27 @@ const Login = () => {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (fieldErrors.email) {
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        email: "",
+                      }));
+                    }
+                  }}
                   className={styles.formInput}
                   placeholder="your@email.com"
                   required
+                  autoComplete="email"
+                  maxLength={254}
                 />
               </div>
+              {fieldErrors.email && (
+                <p className={styles.fieldError}>
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
 
             <div className={styles.formGroup}>
@@ -221,15 +323,29 @@ const Login = () => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (fieldErrors.password) {
+                      setFieldErrors((prev) => ({
+                        ...prev,
+                        password: "",
+                      }));
+                    }
+                  }}
                   className={`${styles.formInput} ${styles.passwordInput}`}
                   placeholder="••••••••"
                   required
+                  autoComplete="current-password"
+                  minLength={8}
+                  maxLength={128}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className={styles.passwordToggle}
+                  aria-label={
+                    showPassword ? "Hide password" : "Show password"
+                  }
                 >
                   {showPassword ? (
                     <EyeOff className={styles.icon} />
@@ -238,6 +354,11 @@ const Login = () => {
                   )}
                 </button>
               </div>
+              {fieldErrors.password && (
+                <p className={styles.fieldError}>
+                  {fieldErrors.password}
+                </p>
+              )}
             </div>
 
             <div className={styles.formOptions}>
@@ -247,7 +368,10 @@ const Login = () => {
                   type="checkbox"
                   className={styles.checkbox}
                 />
-                <label htmlFor="remember" className={styles.checkboxLabel}>
+                <label
+                  htmlFor="remember"
+                  className={styles.checkboxLabel}
+                >
                   Remember me
                 </label>
               </div>
@@ -270,9 +394,9 @@ const Login = () => {
           </form>
 
           <div className={styles.divider}>
-            <div className={styles.dividerLine}></div>
+            <div className={styles.dividerLine} />
             <span className={styles.dividerText}>OR</span>
-            <div className={styles.dividerLine}></div>
+            <div className={styles.dividerLine} />
           </div>
 
           <div className={styles.signupSection}>
@@ -324,7 +448,9 @@ const Login = () => {
               >
                 <User className={styles.roleIcon} />
                 <div className={styles.roleButtonText}>
-                  <div className={styles.roleButtonTitle}>Member Access</div>
+                  <div className={styles.roleButtonTitle}>
+                    Member Access
+                  </div>
                   <div className={styles.roleButtonDesc}>
                     Browse classes, trainers, and membership
                   </div>

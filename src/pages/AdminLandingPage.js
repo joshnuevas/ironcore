@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Calendar, UserCheck, QrCode, BarChart3, Users, RefreshCw, AlertCircle } from "lucide-react";
+import {
+  Calendar,
+  UserCheck,
+  QrCode,
+  BarChart3,
+  Users,
+  RefreshCw,
+  AlertCircle,
+} from "lucide-react";
 import Navbar from "../components/Navbar";
 import styles from "./AdminLandingPage.module.css";
 import axios from "axios";
@@ -23,13 +31,39 @@ const AdminLandingPage = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await axios.get("http://localhost:8080/api/admin/stats", {
-        withCredentials: true,
+
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        "http://localhost:8080/api/admin/stats",
+        {
+          withCredentials: true, // send cookies (if any)
+          headers: token
+            ? {
+                Authorization: `Bearer ${token}`, // send JWT
+              }
+            : {},
+        }
+      );
+
+      setStats(response.data || {
+        activeSchedules: 0,
+        totalMembers: 0,
+        availableSlots: 0,
       });
-      setStats(response.data);
     } catch (error) {
       console.error("Failed to fetch admin stats:", error);
-      setError("Failed to load dashboard statistics. Please try again.");
+
+      if (error.response && error.response.status === 401) {
+        setError("Your session has expired. Please log in again.");
+        // Optional: redirect to login after a delay
+        // setTimeout(() => navigate("/login"), 2000);
+      } else if (error.response && error.response.status === 403) {
+        setError("You do not have permission to view admin statistics.");
+      } else {
+        setError("Failed to load dashboard statistics. Please try again.");
+      }
+
       setStats({
         activeSchedules: 0,
         totalMembers: 0,
@@ -48,7 +82,8 @@ const AdminLandingPage = () => {
     {
       id: 1,
       title: "Schedule Viewer",
-      description: "View and manage all class schedules and trainer appointments",
+      description:
+        "View and manage all class schedules and trainer appointments",
       icon: Calendar,
       color: "blue",
       path: "/admin/schedule-viewer",
@@ -64,7 +99,8 @@ const AdminLandingPage = () => {
     {
       id: 3,
       title: "Slot Checker",
-      description: "Monitor class capacity and available slots in real-time",
+      description:
+        "Monitor class capacity and available slots in real-time",
       icon: UserCheck,
       color: "green",
       path: "/admin/slot-checker",
@@ -72,7 +108,8 @@ const AdminLandingPage = () => {
     {
       id: 4,
       title: "Attendance Checker",
-      description: "Track member attendance based on active memberships",
+      description:
+        "Track member attendance based on active memberships",
       icon: UserCheck,
       color: "orange",
       path: "/admin/attendance-checker",
@@ -102,7 +139,9 @@ const AdminLandingPage = () => {
           {/* Header Section */}
           <div className={styles.headerSection}>
             <h1 className={styles.title}>ADMIN DASHBOARD</h1>
-            <p className={styles.subtitle}>Manage your gym operations with powerful administrative tools</p>
+            <p className={styles.subtitle}>
+              Manage your gym operations with powerful administrative tools
+            </p>
           </div>
 
           {/* Error Banner */}
@@ -129,13 +168,17 @@ const AdminLandingPage = () => {
                     {isLoading ? "..." : formatNumber(stats.activeSchedules)}
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={handleRefresh}
                   disabled={isLoading}
                   className={styles.statRefreshBtn}
                   title="Refresh stats"
                 >
-                  <RefreshCw className={`${styles.refreshIcon} ${isLoading ? styles.spinning : ''}`} />
+                  <RefreshCw
+                    className={`${styles.refreshIcon} ${
+                      isLoading ? styles.spinning : ""
+                    }`}
+                  />
                 </button>
               </div>
 
@@ -181,7 +224,9 @@ const AdminLandingPage = () => {
                       <IconComponent className={styles.cardIcon} />
                     </div>
                     <h3 className={styles.cardTitle}>{card.title}</h3>
-                    <p className={styles.cardDescription}>{card.description}</p>
+                    <p className={styles.cardDescription}>
+                      {card.description}
+                    </p>
                     <div className={styles.cardAction}>
                       <span>Access Tool</span>
                       <span className={styles.arrow}>→</span>
@@ -197,8 +242,10 @@ const AdminLandingPage = () => {
             <div className={styles.infoBox}>
               <div className={styles.infoIcon}>💡</div>
               <div className={styles.infoContent}>
-                <strong>Pro Tip:</strong> All administrative actions are logged and monitored for security purposes. 
-                If you need additional permissions, please contact the system administrator.
+                <strong>Pro Tip:</strong> All administrative actions are
+                logged and monitored for security purposes. If you need
+                additional permissions, please contact the system
+                administrator.
               </div>
             </div>
           </div>

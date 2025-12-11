@@ -30,9 +30,9 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  const validateEmail = (email) => {
+  const validateEmail = (value) => {
     const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    return emailRegex.test(email);
+    return emailRegex.test(value);
   };
 
   const [passwordStrength, setPasswordStrength] = useState({
@@ -107,20 +107,47 @@ const Register = () => {
     setSuccess("");
     setIsLoading(true);
 
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address.");
+    // 🔒 Normalize/trim values (OWASP: avoid hidden whitespace)
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedPassword = password.trim();
+    const trimmedConfirmPassword = confirmPassword.trim();
+    const trimmedSecurityAnswer = securityAnswer.trim();
+    const trimmedCustomQuestion = customQuestion.trim();
+
+    if (!trimmedUsername || !trimmedEmail || !trimmedPassword || !trimmedConfirmPassword) {
+      setError("Please fill in all required fields.");
       setIsLoading(false);
       return;
     }
 
-    if (!username || !email || !password || !confirmPassword) {
-      setError("Please fill in all fields.");
+    // Length checks aligned with backend
+    if (trimmedUsername.length < 3 || trimmedUsername.length > 50) {
+      setError("Username must be between 3 and 50 characters.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!validateEmail(trimmedEmail) || trimmedEmail.length > 254) {
+      setError("Please enter a valid email address (max 254 characters).");
+      setIsLoading(false);
+      return;
+    }
+
+    if (trimmedPassword.length < 8 || trimmedPassword.length > 128) {
+      setError("Password must be between 8 and 128 characters.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (trimmedPassword !== trimmedConfirmPassword) {
+      setError("Passwords do not match.");
       setIsLoading(false);
       return;
     }
 
     const finalQuestion =
-      securityQuestion === "custom" ? customQuestion.trim() : securityQuestion;
+      securityQuestion === "custom" ? trimmedCustomQuestion : securityQuestion;
 
     if (!finalQuestion) {
       setError("Please provide a security question.");
@@ -128,8 +155,20 @@ const Register = () => {
       return;
     }
 
-    if (!securityAnswer.trim()) {
+    if (finalQuestion.length > 255) {
+      setError("Security question is too long (max 255 characters).");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!trimmedSecurityAnswer) {
       setError("Please provide an answer to your security question.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (trimmedSecurityAnswer.length > 255) {
+      setError("Security answer is too long (max 255 characters).");
       setIsLoading(false);
       return;
     }
@@ -140,22 +179,16 @@ const Register = () => {
       return;
     }
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username,
-          email,
-          password,
+          username: trimmedUsername,
+          email: trimmedEmail,
+          password: trimmedPassword,
           securityQuestion: finalQuestion,
-          securityAnswer,
+          securityAnswer: trimmedSecurityAnswer,
         }),
       });
 
@@ -252,7 +285,7 @@ const Register = () => {
             </p>
           </div>
 
-          <form className={styles.registerForm} onSubmit={handleSubmit}>
+          <form className={styles.registerForm} onSubmit={handleSubmit} autoComplete="on">
             {error && <div className={styles.errorMessage}>{error}</div>}
             {success && <div className={styles.successMessage}>{success}</div>}
 
@@ -272,6 +305,8 @@ const Register = () => {
                   className={styles.formInput}
                   placeholder="Your name"
                   required
+                  autoComplete="username"
+                  maxLength={50}
                 />
               </div>
             </div>
@@ -292,6 +327,8 @@ const Register = () => {
                   className={styles.formInput}
                   placeholder="your@email.com"
                   required
+                  autoComplete="email"
+                  maxLength={254}
                 />
               </div>
             </div>
@@ -312,6 +349,9 @@ const Register = () => {
                   className={`${styles.formInput} ${styles.passwordInput}`}
                   placeholder="••••••••"
                   required
+                  autoComplete="new-password"
+                  minLength={8}
+                  maxLength={128}
                 />
                 <button
                   type="button"
@@ -493,6 +533,9 @@ const Register = () => {
                   className={`${styles.formInput} ${styles.passwordInput}`}
                   placeholder="••••••••"
                   required
+                  autoComplete="new-password"
+                  minLength={8}
+                  maxLength={128}
                 />
                 <button
                   type="button"
@@ -559,6 +602,7 @@ const Register = () => {
                     onChange={(e) => setCustomQuestion(e.target.value)}
                     className={styles.formInput}
                     placeholder="Enter your custom security question"
+                    maxLength={255}
                   />
                 </div>
               )}
@@ -578,6 +622,8 @@ const Register = () => {
                   onChange={(e) => setSecurityAnswer(e.target.value)}
                   className={styles.formInput}
                   placeholder="Your answer (remember this)"
+                  maxLength={255}
+                  autoComplete="off"
                 />
               </div>
             </div>

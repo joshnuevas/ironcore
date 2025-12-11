@@ -21,6 +21,8 @@ const ProfilePage = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
+  const [userId, setUserId] = useState(null); // ✅ store id in state, not localStorage
+
   const [userData, setUserData] = useState({
     username: "",
     email: "",
@@ -127,23 +129,29 @@ const ProfilePage = () => {
     }
   };
 
+  // ✅ Use /api/users/me instead of userId from localStorage
   const fetchUserData = async () => {
     try {
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
 
-      const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetch("http://localhost:8080/api/users/me", {
+        credentials: "include",
+        headers: token
+          ? {
+              Authorization: `Bearer ${token}`,
+            }
+          : {},
       });
 
       if (!response.ok) {
         showMessage("Failed to load profile data", "error");
+        setLoading(false);
         return;
       }
 
       const data = await response.json();
+
+      setUserId(data.id); // keep id only in state
 
       setUserData({
         username: data.username,
@@ -157,6 +165,7 @@ const ProfilePage = () => {
         email: data.email,
       });
     } catch (error) {
+      console.error("Error loading profile:", error);
       showMessage("Error loading profile", "error");
     } finally {
       setLoading(false);
@@ -174,21 +183,28 @@ const ProfilePage = () => {
   };
 
   const handleSave = async (field) => {
+    if (!userId) {
+      showMessage("User not loaded yet.", "error");
+      return;
+    }
+
     setSaving(true);
     showMessage("");
 
     try {
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
 
-      const response = await fetch(`http://localhost:8080/api/users/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ [field]: editValues[field] }),
-      });
+      const response = await fetch(
+        `http://localhost:8080/api/users/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ [field]: editValues[field] }),
+        }
+      );
 
       const data = await response.json();
 
@@ -200,6 +216,7 @@ const ProfilePage = () => {
       setUserData((prev) => ({ ...prev, [field]: editValues[field] }));
       setEditMode((prev) => ({ ...prev, [field]: false }));
 
+      // Optional: if other parts of app still read username from localStorage
       if (field === "username") {
         localStorage.setItem("username", editValues[field]);
       }
@@ -209,6 +226,7 @@ const ProfilePage = () => {
         "success"
       );
     } catch (error) {
+      console.error("Error updating profile:", error);
       showMessage("Error updating profile", "error");
     } finally {
       setSaving(false);
@@ -233,13 +251,16 @@ const ProfilePage = () => {
       return;
     }
 
+    if (!userId) {
+      showMessage("User not loaded yet.", "error");
+      return;
+    }
+
     setUploadingImage(true);
     showMessage("");
 
     try {
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
-
       const formData = new FormData();
       formData.append("profilePicture", file);
 
@@ -261,9 +282,13 @@ const ProfilePage = () => {
         return;
       }
 
-      setUserData((prev) => ({ ...prev, profilePicture: data.profilePictureUrl }));
+      setUserData((prev) => ({
+        ...prev,
+        profilePicture: data.profilePictureUrl,
+      }));
       showMessage("Profile picture updated successfully!", "success");
     } catch (error) {
+      console.error("Error uploading image:", error);
       showMessage("Error uploading image", "error");
     } finally {
       setUploadingImage(false);
@@ -306,10 +331,14 @@ const ProfilePage = () => {
       return;
     }
 
+    if (!userId) {
+      showMessage("User not loaded yet.", "error");
+      return;
+    }
+
     try {
       setChangingPassword(true);
       const token = localStorage.getItem("token");
-      const userId = localStorage.getItem("userId");
 
       const response = await fetch(
         `http://localhost:8080/api/users/${userId}/change-password`,
@@ -338,6 +367,7 @@ const ProfilePage = () => {
         confirmPassword: "",
       });
     } catch (error) {
+      console.error("Error updating password:", error);
       showMessage("Error updating password. Please try again.", "error");
     } finally {
       setChangingPassword(false);
