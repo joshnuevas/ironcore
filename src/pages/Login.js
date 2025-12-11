@@ -22,37 +22,14 @@ const Login = () => {
   const [error, setError] = useState("");
   const [showRoleSelection, setShowRoleSelection] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [failedAttempts, setFailedAttempts] = useState(0);
-
-  const MAX_ATTEMPTS = 5;
   const navigate = useNavigate();
-
-  const validateEmail = (value) => {
-    const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-    return emailRegex.test(value);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Basic required fields
     if (!email || !password) {
       setError("Please fill in all fields.");
-      return;
-    }
-
-    // Email format validation
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address.");
-      return;
-    }
-
-    // Simple front-end guard to discourage brute force
-    if (failedAttempts >= MAX_ATTEMPTS) {
-      setError(
-        "Too many failed attempts. Please wait a few minutes and try again."
-      );
       return;
     }
 
@@ -66,49 +43,60 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
-      if (response.ok) {
-        // Reset failed attempts on success
-        setFailedAttempts(0);
-
-        // Even if backend returns something, we don't need to store token in localStorage
-        // because we rely on secure HttpOnly cookies + /api/users/me.
-        await response.json().catch(() => {});
-
-        const userResponse = await fetch("http://localhost:8080/api/users/me", {
-          credentials: "include",
-        });
-
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-
-          if (userData.isAdmin === true || userData.isAdmin === 1) {
-            setUserData(userData);
-            setShowRoleSelection(true);
-            setIsLoading(false);
-          } else {
-            localStorage.setItem("loginRole", "user");
-            setIsLoading(false);
-            navigate("/landing");
-          }
-        } else {
-          console.warn("Failed to fetch user profile after login.");
-          setError("Login succeeded, but user profile could not be loaded.");
-          setIsLoading(false);
-        }
-      } else {
+      if (!response.ok) {
         let message;
         try {
           const text = await response.text();
           console.warn("Login error from server:", text);
-          // Generic message to avoid user enumeration
-          message = "Invalid email or password.";
+          message = text || "Invalid email or password.";
         } catch {
           message = "Login failed. Please try again.";
         }
-
-        setFailedAttempts((prev) => prev + 1);
         setError(message);
         setIsLoading(false);
+        return;
+      }
+
+      // ✅ Parse login response and store values used by your app
+      const data = await response.json().catch(() => ({}));
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+      if (data.userId) {
+        localStorage.setItem("userId", data.userId);
+      }
+      if (data.username) {
+        localStorage.setItem("username", data.username);
+      }
+      if (data.email) {
+        localStorage.setItem("email", data.email);
+      }
+
+      // ✅ Now get the current user profile to check role
+      const userResponse = await fetch("http://localhost:8080/api/users/me", {
+        credentials: "include",
+      });
+
+      if (!userResponse.ok) {
+        console.warn("Failed to fetch user profile after login");
+        setError("Login succeeded, but user profile could not be loaded.");
+        setIsLoading(false);
+        return;
+      }
+
+      const user = await userResponse.json();
+      setUserData(user);
+
+      // ✅ If admin → show role selection modal
+      if (user.isAdmin === true || user.isAdmin === 1) {
+        setShowRoleSelection(true);
+        setIsLoading(false);
+      } else {
+        // ✅ Normal user → set role + go to landing
+        localStorage.setItem("loginRole", "user");
+        setIsLoading(false);
+        navigate("/landing");
       }
     } catch (err) {
       console.error("Login error:", err);
@@ -263,7 +251,6 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-              {/* 🔗 Forgot Password navigates to page */}
               <button
                 type="button"
                 className={styles.forgotPassword}

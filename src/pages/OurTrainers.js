@@ -38,25 +38,19 @@ const OurTrainers = () => {
   if (loading) {
     return (
       <div className={styles.pageWrapper}>
+        {/* Background Blur Animation */}
         <div className={landingStyles.backgroundOverlay}>
-          <div
-            className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}
-          ></div>
-          <div
-            className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}
-          ></div>
-          <div
-            className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}
-          ></div>
+          <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur1}`}></div>
+          <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
+          <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
         </div>
+
         <Navbar activeNav="OUR TRAINERS" />
-        <div
-          className={styles.trainersContainer}
-          style={{ paddingTop: "6.5rem" }}
-        >
-          <p style={{ color: "white", textAlign: "center" }}>
-            Loading trainers...
-          </p>
+
+        {/* Centered Loading Spinner */}
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p>Loading trainers...</p>
         </div>
       </div>
     );

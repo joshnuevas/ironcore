@@ -28,9 +28,6 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const MAX_ATTEMPTS = 5;
-
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -108,77 +105,63 @@ const Register = () => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setIsLoading(true);
 
-    // Soft rate-limit on front-end
-    if (failedAttempts >= MAX_ATTEMPTS) {
-      setError(
-        "Too many failed attempts. Please wait a few minutes and try again."
-      );
-      return;
-    }
-
-    const trimmedUsername = username.trim();
-    const trimmedEmail = email.trim();
-    const trimmedAnswer = securityAnswer.trim();
-    const trimmedCustomQuestion = customQuestion.trim();
-
-    if (!validateEmail(trimmedEmail)) {
+    if (!validateEmail(email)) {
       setError("Please enter a valid email address.");
+      setIsLoading(false);
       return;
     }
 
-    if (!trimmedUsername || !trimmedEmail || !password || !confirmPassword) {
+    if (!username || !email || !password || !confirmPassword) {
       setError("Please fill in all fields.");
-      return;
-    }
-
-    if (trimmedUsername.length < 3) {
-      setError("Username must be at least 3 characters long.");
+      setIsLoading(false);
       return;
     }
 
     const finalQuestion =
-      securityQuestion === "custom" ? trimmedCustomQuestion : securityQuestion;
+      securityQuestion === "custom" ? customQuestion.trim() : securityQuestion;
 
     if (!finalQuestion) {
       setError("Please provide a security question.");
+      setIsLoading(false);
       return;
     }
 
-    if (!trimmedAnswer) {
+    if (!securityAnswer.trim()) {
       setError("Please provide an answer to your security question.");
+      setIsLoading(false);
       return;
     }
 
     if (passwordStrength.score < 3) {
       setError("Password is too weak. Please meet at least 3 requirements.");
+      setIsLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
+      setIsLoading(false);
       return;
     }
-
-    setIsLoading(true);
 
     try {
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: trimmedUsername,
-          email: trimmedEmail,
+          username,
+          email,
           password,
           securityQuestion: finalQuestion,
-          securityAnswer: trimmedAnswer,
+          securityAnswer,
         }),
       });
 
-      const rawMessage = await response.text().catch(() => "");
+      const message = await response.text();
 
       if (response.ok) {
-        setFailedAttempts(0);
         setSuccess("Account created successfully!");
         setUsername("");
         setEmail("");
@@ -188,16 +171,11 @@ const Register = () => {
         setCustomQuestion("");
         setSecurityAnswer("");
 
-        // Short delay then redirect to login
         setTimeout(() => navigate("/login"), 1500);
       } else {
-        console.warn("Registration error from server:", rawMessage);
-        // Generic error to avoid leaking if email already exists or other internals
-        setFailedAttempts((prev) => prev + 1);
-        setError("Registration failed. Please check your details and try again.");
+        setError(message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      console.error("Registration error:", err);
       setError("Unable to connect to the server.");
     } finally {
       setIsLoading(false);
@@ -218,9 +196,7 @@ const Register = () => {
           </div>
 
           <div className={styles.heroContent}>
-            <h2 className={styles.heroTitle}>
-              Start Your Transformation Today
-            </h2>
+            <h2 className={styles.heroTitle}>Start Your Transformation Today</h2>
             <p className={styles.heroDescription}>
               Create your account and unlock access to premium fitness classes,
               expert trainers, and personalized workout plans designed to help
@@ -238,17 +214,17 @@ const Register = () => {
                 <p>Monitor your fitness journey with detailed analytics</p>
               </div>
             </div>
+
             <div className={styles.featureItem}>
               <div className={styles.featureIcon}>
                 <Users size={24} />
               </div>
               <div className={styles.featureText}>
                 <h3>Expert Trainers</h3>
-                <p>
-                  Work with certified professionals dedicated to your success
-                </p>
+                <p>Work with certified professionals dedicated to your success</p>
               </div>
             </div>
+
             <div className={styles.featureItem}>
               <div className={styles.featureIcon}>
                 <Award size={24} />
@@ -520,7 +496,9 @@ const Register = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
                   className={styles.passwordToggle}
                 >
                   {showConfirmPassword ? (

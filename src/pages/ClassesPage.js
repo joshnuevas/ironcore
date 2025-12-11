@@ -64,6 +64,19 @@ const ClassesPage = () => {
     });
   };
 
+  // 🔁 SAME LOADING PATTERN AS ATTENDANCE PAGE
+  if (loading) {
+    return (
+      <div className={styles.classesContainer}>
+        <Navbar activeNav="CLASSES" />
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p>Loading classes...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.classesContainer}>
       {/* Background animation */}
@@ -83,12 +96,11 @@ const ClassesPage = () => {
           </p>
         </div>
 
-        {loading && <p className={styles.statusText}>Loading classes...</p>}
-        {error && !loading && (
+        {error && (
           <p className={styles.statusTextError}>Failed to load classes: {error}</p>
         )}
 
-        {!loading && !error && (
+        {!error && (
           <div className={styles.classesGrid}>
             {classes.map((classItem, index) => (
               <div
@@ -96,7 +108,9 @@ const ClassesPage = () => {
                 className={styles.classCard}
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
-                <div className={`${styles.classImageContainer} ${classItem.gradientClass}`}>
+                <div
+                  className={`${styles.classImageContainer} ${classItem.gradientClass}`}
+                >
                   <div className={styles.imageOverlay}></div>
                   <img
                     src={classItem.image}
@@ -107,7 +121,9 @@ const ClassesPage = () => {
 
                 <div className={styles.classContent}>
                   <h3 className={styles.classTitle}>{classItem.title}</h3>
-                  <p className={styles.classDescription}>{classItem.description}</p>
+                  <p className={styles.classDescription}>
+                    {classItem.description}
+                  </p>
 
                   <button
                     className={`${styles.joinButton} ${classItem.gradientClass}`}
@@ -119,7 +135,7 @@ const ClassesPage = () => {
               </div>
             ))}
 
-            {classes.length === 0 && !loading && !error && (
+            {classes.length === 0 && (
               <p className={styles.statusText}>No classes available.</p>
             )}
           </div>
