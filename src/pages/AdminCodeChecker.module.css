@@ -412,6 +412,22 @@
   letter-spacing: 0.5px;
 }
 
+/* extra spacing below labels for TIME REMAINING / STATUS pills */
+.detailItem > div .badge {
+  margin-top: 0.4rem;
+}
+
+.detailItem > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;   /* centers content vertically */
+  gap: 0.35rem;              /* spacing between label and badge */
+}
+
+.detailItem {
+  padding: 0.25rem 0; /* adds breathing room top & bottom */
+}
+
 .successBadge {
   background: rgba(34, 197, 94, 0.2);
   color: #22c55e;
@@ -647,15 +663,16 @@
 /* Modal Actions */
 .modalActions {
   display: flex;
-  justify-content: center;   /* centers horizontally */
-  align-items: center;       /* centers vertically (if multi-line) */
-  gap: 1rem;                 /* spacing between the two buttons */
+  justify-content: space-between; /* stretch across the modal */
+  align-items: stretch;
+  gap: 0.9rem;                    /* spacing between the buttons */
   margin-top: 1.2rem;
 }
 
 .modalCancelButton,
 .modalConfirmButton {
-  padding: 0.85rem 1.6rem;
+  flex: 1;                    /* 🔥 make both buttons equal-width */
+  padding: 0.85rem 0;         /* vertical padding only */
   border-radius: 0.75rem;
   font-size: 0.9rem;
   font-weight: 700;
@@ -665,6 +682,7 @@
   outline: none;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  text-align: center;         /* center label inside */
 }
 
 /* Cancel = similar to Reset */
@@ -754,7 +772,7 @@
 
 .cancelMembershipButton:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 16px 32px rgba(249, 115, 22, 0.7);
+  box-shadow: 0 10px 22px rgba(249, 115, 22, 0.28);
 }
 
 .cancelMembershipButton:disabled {

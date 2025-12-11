@@ -413,9 +413,7 @@ const AdminCodeChecker = ({ onLogout }) => {
                           <Package className={styles.detailIcon} />
                           <div>
                             <span className={styles.detailLabel}>Class</span>
-                            <span className={styles.detailValue}>
-                              {result.className}
-                            </span>
+                            <span className={styles.detailValue}>{result.className}</span>
                           </div>
                         </div>
                         <div className={styles.detailItem}>
@@ -435,12 +433,8 @@ const AdminCodeChecker = ({ onLogout }) => {
                         <div className={styles.detailItem}>
                           <Package className={styles.detailIcon} />
                           <div>
-                            <span className={styles.detailLabel}>
-                              Membership
-                            </span>
-                            <span className={styles.detailValue}>
-                              {result.membershipType}
-                            </span>
+                            <span className={styles.detailLabel}>Membership</span>
+                            <span className={styles.detailValue}>{result.membershipType}</span>
                           </div>
                         </div>
 
@@ -448,9 +442,7 @@ const AdminCodeChecker = ({ onLogout }) => {
                           <div className={styles.detailItem}>
                             <Clock className={styles.detailIcon} />
                             <div>
-                              <span className={styles.detailLabel}>
-                                Activated On
-                              </span>
+                              <span className={styles.detailLabel}>Activated On</span>
                               <span className={styles.detailValue}>
                                 {formatDate(result.membershipActivatedDate)}
                               </span>
@@ -458,67 +450,67 @@ const AdminCodeChecker = ({ onLogout }) => {
                           </div>
                         )}
 
-                        {result.membershipExpiryDate && (
+                        {/* If NOT cancelled → show Expires On + Time Remaining */}
+                        {!isCancelled && result.membershipExpiryDate && (
                           <>
                             <div className={styles.detailItem}>
                               <Calendar className={styles.detailIcon} />
                               <div>
-                                <span className={styles.detailLabel}>
-                                  Expires On
-                                </span>
+                                <span className={styles.detailLabel}>Expires On</span>
                                 <span className={styles.detailValue}>
                                   {formatDate(result.membershipExpiryDate)}
                                 </span>
                               </div>
                             </div>
 
-                            {!isCancelled && (
-                              <div className={styles.detailItem}>
-                                <div>
-                                  <span className={styles.detailLabel}>
-                                    Time Remaining
-                                  </span>
-                                  <span
-                                    className={`${styles.badge} ${
-                                      getDaysRemaining(
-                                        result.membershipExpiryDate
-                                      ) > 7
-                                        ? styles.successBadge
-                                        : getDaysRemaining(
-                                            result.membershipExpiryDate
-                                          ) > 0
-                                        ? styles.warningBadge
-                                        : styles.expiredBadge
-                                    }`}
-                                  >
-                                    {getDaysRemaining(
-                                      result.membershipExpiryDate
-                                    ) > 0
-                                      ? `${getDaysRemaining(
-                                          result.membershipExpiryDate
-                                        )} days left`
-                                      : "EXPIRED"}
-                                  </span>
-                                </div>
+                            <div className={styles.detailItem}>
+                              <div>
+                                <span className={styles.detailLabel}>Time Remaining</span>
+                                <span
+                                  className={`${styles.badge} ${
+                                    getDaysRemaining(result.membershipExpiryDate) > 7
+                                      ? styles.successBadge
+                                      : getDaysRemaining(result.membershipExpiryDate) > 0
+                                      ? styles.warningBadge
+                                      : styles.expiredBadge
+                                  }`}
+                                >
+                                  {getDaysRemaining(result.membershipExpiryDate) > 0
+                                    ? `${getDaysRemaining(result.membershipExpiryDate)} days left`
+                                    : "EXPIRED"}
+                                </span>
                               </div>
-                            )}
+                            </div>
                           </>
+                        )}
+
+                        {/* If CANCELLED → show Cancelled On instead of Expires On */}
+                        {isCancelled && (
+                          <div className={styles.detailItem}>
+                            <Calendar className={styles.detailIcon} />
+                            <div>
+                              <span className={styles.detailLabel}>Cancelled On</span>
+                              <span className={styles.detailValue}>
+                                {formatDate(result.cancellationDate || result.paymentDate)}
+                              </span>
+                            </div>
+                          </div>
                         )}
                       </>
                     )}
 
+                    {/* Amount Paid – only when not cancelled */}
                     {!isCancelled && (
                       <div className={styles.detailItem}>
                         <CreditCard className={styles.detailIcon} />
                         <div>
                           <span className={styles.detailLabel}>Amount Paid</span>
-                          <span className={styles.detailValue}>
-                            ₱{result.totalAmount}
-                          </span>
+                          <span className={styles.detailValue}>₱{result.totalAmount}</span>
                         </div>
                       </div>
                     )}
                   </div>
+
 
                   {/* Payment Info */}
                   {!(isMembershipResult && isCancelled) && (

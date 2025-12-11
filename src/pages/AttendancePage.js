@@ -248,15 +248,9 @@ const AttendancePage = () => {
             )}
           </div>
 
-          {/* Global Error */}
-          {error && (
-            <div
-              className={`${styles.errorBanner} ${
-                error.includes("No active membership found")
-                  ? styles.noMembershipError
-                  : ""
-              }`}
-            >
+          {/* Global Error (except "No active membership found") */}
+          {error && !error.includes("No active membership found") && (
+            <div className={styles.errorBanner}>
               <AlertCircle size={20} />
               <div>
                 <strong>{error}</strong>
@@ -522,59 +516,81 @@ const AttendancePage = () => {
                   </span>
                 )}
               </h2>
-              <div className={styles.attendanceList}>
-                {attendanceData.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    <Calendar className={styles.emptyIcon} />
-                    <p>No attendance records for current subscription</p>
-                    <p className={styles.emptySubtext}>
-                      {error
-                        ? "Please ensure you have an active membership."
-                        : "Your attendance will appear here once the admin marks your check-ins."}
-                    </p>
+
+              {/* If there is NO ACTIVE MEMBERSHIP → show special card here */}
+              {error && error.includes("No active membership found") ? (
+                <div className={styles.noMembershipCard}>
+                  <div className={styles.noMembershipIconWrapper}>
+                    <AlertCircle className={styles.noMembershipIcon} />
                   </div>
-                ) : (
-                  attendanceData.map((session) => (
-                    <div key={session.id} className={styles.attendanceItem}>
-                      <div className={styles.sessionDate}>
-                        <Calendar className={styles.dateIcon} />
-                        <span>{formatDate(session.date)}</span>
-                      </div>
-                      <div className={styles.sessionInfo}>
-                        <span className={styles.className}>{session.className}</span>
-                        <span className={styles.duration}>{session.duration}</span>
-                        {session.checkInTime && (
-                          <span className={styles.checkInTime}>
-                            Check-in:{" "}
-                            {new Date(session.checkInTime).toLocaleTimeString(
-                              "en-US",
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </span>
-                        )}
-                        {session.notes && (
-                          <span className={styles.notes}>
-                            Note: {session.notes}
-                          </span>
-                        )}
-                      </div>
-                      <div className={styles.sessionStatus}>
-                        {getStatusIcon(session.status)}
-                        <span
-                          className={`${styles.statusText} ${
-                            styles[session.status]
-                          }`}
-                        >
-                          {session.status === "attended" ? "Attended" : "Absent"}
-                        </span>
-                      </div>
+                  <div className={styles.noMembershipContent}>
+                    <h3 className={styles.noMembershipTitle}>No Active Membership Found</h3>
+                    <p className={styles.noMembershipText}>
+                      There is currently no active membership linked to your account.
+                      Purchase or renew a membership plan to start tracking your
+                      attendance and unlock full subscription insights.
+                    </p>
+                    <button
+                      className={styles.noMembershipButton}
+                      onClick={() => (window.location.href = "/membership")}
+                    >
+                      Browse Membership Plans
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.attendanceList}>
+                  {attendanceData.length === 0 ? (
+                    <div className={styles.emptyState}>
+                      <Calendar className={styles.emptyIcon} />
+                      <p>No attendance records for current subscription</p>
+                      <p className={styles.emptySubtext}>
+                        {error
+                          ? "Please ensure you have an active membership."
+                          : "Your attendance will appear here once the admin marks your check-ins."}
+                      </p>
                     </div>
-                  ))
-                )}
-              </div>
+                  ) : (
+                    attendanceData.map((session) => (
+                      <div key={session.id} className={styles.attendanceItem}>
+                        <div className={styles.sessionDate}>
+                          <Calendar className={styles.dateIcon} />
+                          <span>{formatDate(session.date)}</span>
+                        </div>
+                        <div className={styles.sessionInfo}>
+                          <span className={styles.className}>{session.className}</span>
+                          <span className={styles.duration}>{session.duration}</span>
+                          {session.checkInTime && (
+                            <span className={styles.checkInTime}>
+                              Check-in:{" "}
+                              {new Date(session.checkInTime).toLocaleTimeString(
+                                "en-US",
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </span>
+                          )}
+                          {session.notes && (
+                            <span className={styles.notes}>Note: {session.notes}</span>
+                          )}
+                        </div>
+                        <div className={styles.sessionStatus}>
+                          {getStatusIcon(session.status)}
+                          <span
+                            className={`${styles.statusText} ${
+                              styles[session.status]
+                            }`}
+                          >
+                            {session.status === "attended" ? "Attended" : "Absent"}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           )}
 

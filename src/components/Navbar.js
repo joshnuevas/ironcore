@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { Dumbbell, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -6,18 +7,22 @@ import styles from "./Navbar.module.css";
 
 const Navbar = ({ activeNav = "HOME" }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [username, setUsername] = useState("");    // ✅ from backend, not localStorage
+  const [username, setUsername] = useState(""); // from backend, not localStorage
   const navigate = useNavigate();
 
   const loginRole = localStorage.getItem("loginRole");
-  const isAdminMode = loginRole === "admin";
 
-  // ✅ Load current user for display only
+  // Admin mode = user role is admin OR page explicitly says activeNav="ADMIN"
+  const isAdminMode =
+    (loginRole && loginRole.toLowerCase() === "admin") ||
+    activeNav === "ADMIN";
+
+  // Load current user for display
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
         const token = localStorage.getItem("token");
-        if (!token) return; // not logged in / on login page
+        if (!token) return;
 
         const res = await axios.get("http://localhost:8080/api/users/me", {
           withCredentials: true,
@@ -31,16 +36,15 @@ const Navbar = ({ activeNav = "HOME" }) => {
         }
       } catch (err) {
         console.error("Failed to load user for navbar:", err);
-        // optional: setUsername("");  // keep it blank on error
       }
     };
 
     fetchCurrentUser();
   }, []);
 
-  // Define nav items based on current role
+  // For admins → no middle nav items
   const navItems = isAdminMode
-    ? [] // Admin mode has no nav items
+    ? []
     : ["HOME", "ABOUT US", "OUR TRAINERS", "CLASSES", "MEMBERSHIP", "ATTENDANCE"];
 
   const handleNavClick = (item) => {
@@ -69,6 +73,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
   };
 
   const handleProfileClick = () => {
+    // You can route admins to a different profile page if needed
     navigate("/profile");
   };
 
@@ -102,6 +107,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
     <>
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
+          {/* Logo */}
           <div
             className={styles.logoSection}
             onClick={handleLogoClick}
@@ -115,6 +121,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
             </span>
           </div>
 
+          {/* Center nav links (hidden for admins) */}
           <div className={styles.navLinks}>
             {navItems.map((item) => (
               <button
@@ -129,6 +136,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
             ))}
           </div>
 
+          {/* Right side: profile + logout (shown for everyone) */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <button
               onClick={handleProfileClick}

@@ -439,68 +439,69 @@ const ClassTransactionPage = ({ onLogout }) => {
           onClick={handleCloseScheduleConflictModal}
         >
           <div
-            className={styles.modalContent}
+            className={styles.scheduleConflictModal}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Icon + Title + Subtitle – same vibe as membership modal */}
+            <div className={styles.conflictIconWrapper}>
+              <AlertCircle className={styles.conflictIcon} />
+            </div>
+
+            <h2 className={styles.conflictTitle}>Schedule Conflict Found</h2>
+            <p className={styles.conflictSubtitle}>
+              You already have a class booked at this time.
+            </p>
+
+            {/* Details card like membership info box */}
+            <div className={styles.conflictDetails}>
+              <div className={styles.conflictInfoBox}>
+                <div className={styles.conflictRow}>
+                  <span className={styles.conflictLabel}>Class:</span>
+                  <span className={styles.conflictValueHighlight}>
+                    {scheduleConflictInfo.className}
+                  </span>
+                </div>
+                <div className={styles.conflictRow}>
+                  <span className={styles.conflictLabel}>Date:</span>
+                  <span className={styles.conflictValue}>
+                    {formatDate(scheduleConflictInfo.scheduleDate)}
+                  </span>
+                </div>
+                <div className={styles.conflictRow}>
+                  <span className={styles.conflictLabel}>Time:</span>
+                  <span className={styles.conflictValue}>
+                    {scheduleConflictInfo.scheduleDay},{" "}
+                    {scheduleConflictInfo.scheduleTime}
+                  </span>
+                </div>
+                <div className={styles.conflictRow}>
+                  <span className={styles.conflictLabel}>Code:</span>
+                  <span className={styles.conflictCode}>
+                    {scheduleConflictInfo.transactionCode}
+                  </span>
+                </div>
+              </div>
+
+              {/* Yellow warning bar (same feel as membership) */}
+              <div className={styles.conflictWarning}>
+                <p>
+                  You can book another class once this time slot is free or choose a
+                  different schedule.
+                </p>
+              </div>
+            </div>
+
+            {/* Got it button – same as membership compact button */}
             <button
-              className={styles.closeButton}
               onClick={handleCloseScheduleConflictModal}
-            >
-              ×
-            </button>
-
-            <div className={styles.warningHeader}>
-              <AlertCircle className={styles.warningIcon} size={48} />
-              <h2 className={styles.modalTitle}>Schedule Conflict Found</h2>
-              <p className={styles.modalSubtitle}>
-                You already have a class booked at this time.
-              </p>
-            </div>
-
-            <div className={styles.modalDetails}>
-              <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Class:</span>
-                <span className={styles.detailValue}>
-                  {scheduleConflictInfo.className}
-                </span>
-              </div>
-              <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Date:</span>
-                <span className={styles.detailValue}>
-                  {formatDate(scheduleConflictInfo.scheduleDate)}
-                </span>
-              </div>
-              <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Time:</span>
-                <span className={styles.detailValue}>
-                  {scheduleConflictInfo.scheduleDay},{" "}
-                  {scheduleConflictInfo.scheduleTime}
-                </span>
-              </div>
-              <div className={styles.detailRow}>
-                <span className={styles.detailLabel}>Code:</span>
-                <span className={styles.detailValue}>
-                  {scheduleConflictInfo.transactionCode}
-                </span>
-              </div>
-            </div>
-
-            <div className={styles.warningNote}>
-              <p>
-                You can book another class once this time slot is free or choose
-                a different schedule.
-              </p>
-            </div>
-
-            <button
-              onClick={handleCloseScheduleConflictModal}
-              className={styles.okButton}
+              className={styles.conflictButton}
             >
               Got it
             </button>
           </div>
         </div>
       )}
+
 
       {/* 🔁 Duplicate Enrollment Warning Modal (same class) */}
       {showDuplicateModal && duplicateEnrollmentInfo && (
