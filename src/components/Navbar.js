@@ -1,14 +1,16 @@
 // src/components/Navbar.jsx
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Dumbbell, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import styles from "./Navbar.module.css";
 
 const Navbar = ({ activeNav = "HOME" }) => {
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [username, setUsername] = useState(""); // from backend, not localStorage
   const navigate = useNavigate();
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [username, setUsername] = useState("");
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   const loginRole = localStorage.getItem("loginRole");
 
@@ -17,35 +19,59 @@ const Navbar = ({ activeNav = "HOME" }) => {
     (loginRole && loginRole.toLowerCase() === "admin") ||
     activeNav === "ADMIN";
 
-  // Load current user for display
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+  // For admins → no middle nav items
+  const navItems = useMemo(
+    () =>
+      isAdminMode
+        ? []
+        : [
+            "HOME",
+            "ABOUT US",
+            "OUR TRAINERS",
+            "CLASSES",
+            "MEMBERSHIP",
+            "ATTENDANCE",
+          ],
+    [isAdminMode]
+  );
 
+  // Load current user for display (cookie/session-based auth, same as your Login page)
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchCurrentUser = async () => {
+      setIsLoadingUser(true);
+      try {
         const res = await axios.get("http://localhost:8080/api/users/me", {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          withCredentials: true, // ✅ important for cookie-based auth
         });
 
-        if (res.data?.username) {
-          setUsername(res.data.username);
-        }
+        if (!isMounted) return;
+
+        // Use whatever your backend returns; prefer username, then name/fullName as fallback
+        const displayName =
+          res.data?.username ||
+          res.data?.name ||
+          res.data?.fullName ||
+          res.data?.firstName ||
+          "";
+
+        setUsername(displayName);
       } catch (err) {
+        // If user isn't logged in (401), keep fallback label
         console.error("Failed to load user for navbar:", err);
+        if (isMounted) setUsername("");
+      } finally {
+        if (isMounted) setIsLoadingUser(false);
       }
     };
 
     fetchCurrentUser();
-  }, []);
 
-  // For admins → no middle nav items
-  const navItems = isAdminMode
-    ? []
-    : ["HOME", "ABOUT US", "OUR TRAINERS", "CLASSES", "MEMBERSHIP", "ATTENDANCE"];
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleNavClick = (item) => {
     switch (item) {
@@ -73,35 +99,47 @@ const Navbar = ({ activeNav = "HOME" }) => {
   };
 
   const handleProfileClick = () => {
-    // You can route admins to a different profile page if needed
     navigate("/profile");
   };
 
   const handleLogoClick = () => {
-    if (isAdminMode) {
-      navigate("/admin");
-    } else {
-      navigate("/landing");
-    }
+    navigate(isAdminMode ? "/admin" : "/landing");
   };
 
   const handleLogout = () => {
     setShowLogoutModal(true);
   };
 
-  const confirmLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("username");
-    localStorage.removeItem("email");
-    localStorage.removeItem("loginRole");
-    setShowLogoutModal(false);
-    navigate("/login");
+  const confirmLogout = async () => {
+    try {
+      // If you have a logout endpoint, call it so the cookie/session is cleared server-side too
+      // (safe even if you haven't implemented it yet)
+      await axios.post(
+        "http://localhost:8080/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+    } catch (err) {
+      // ignore, still proceed with client cleanup
+      console.warn("Logout endpoint failed or not implemented:", err);
+    } finally {
+      // Keep these if you still use them elsewhere
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("username");
+      localStorage.removeItem("email");
+      localStorage.removeItem("loginRole");
+
+      setShowLogoutModal(false);
+      navigate("/login");
+    }
   };
 
   const cancelLogout = () => {
     setShowLogoutModal(false);
   };
+
+  const profileLabel = isLoadingUser ? "Profile" : username || "Profile";
 
   return (
     <>
@@ -130,6 +168,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
                 className={`${styles.navLink} ${
                   activeNav === item ? styles.navLinkActive : ""
                 }`}
+                type="button"
               >
                 {item}
               </button>
@@ -144,12 +183,18 @@ const Navbar = ({ activeNav = "HOME" }) => {
                 activeNav === "PROFILE" ? styles.profileButtonActive : ""
               }`}
               title="View Profile"
+              type="button"
+              disabled={isLoadingUser}
             >
               <User size={18} />
-              <span>{username || "Profile"}</span>
+              <span>{profileLabel}</span>
             </button>
 
-            <button onClick={handleLogout} className={styles.logoutButton}>
+            <button
+              onClick={handleLogout}
+              className={styles.logoutButton}
+              type="button"
+            >
               LOGOUT
             </button>
           </div>
@@ -163,10 +208,18 @@ const Navbar = ({ activeNav = "HOME" }) => {
             <h2>Confirm Logout</h2>
             <p>Are you sure you want to logout?</p>
             <div className={styles.modalButtons}>
-              <button onClick={confirmLogout} className={styles.modalConfirm}>
+              <button
+                onClick={confirmLogout}
+                className={styles.modalConfirm}
+                type="button"
+              >
                 Logout
               </button>
-              <button onClick={cancelLogout} className={styles.modalCancel}>
+              <button
+                onClick={cancelLogout}
+                className={styles.modalCancel}
+                type="button"
+              >
                 Cancel
               </button>
             </div>
