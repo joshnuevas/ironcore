@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Calendar,
   Clock,
@@ -13,7 +13,9 @@ import {
 import styles from "./AdminScheduleViewer.module.css";
 import axios from "axios";
 
-// Helper function to generate time options (every 30 minutes)
+/** ===== Helpers ===== */
+
+// Generate time options every 30 minutes
 const generateTimeOptions = () => {
   const times = [];
   for (let hour = 0; hour < 24; hour++) {
@@ -27,7 +29,7 @@ const generateTimeOptions = () => {
   return times;
 };
 
-// Helper function to parse time slot
+// Parse "9:00 AM - 10:00 AM"
 const parseTimeSlot = (timeSlot) => {
   const parts = timeSlot?.split(" - ") || [];
   return {
@@ -36,11 +38,10 @@ const parseTimeSlot = (timeSlot) => {
   };
 };
 
-// Helper function to format date string for display
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return dateString; // fallback if invalid
+  if (isNaN(date.getTime())) return dateString;
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -48,12 +49,65 @@ const formatDate = (dateString) => {
   });
 };
 
-// Helper for <input type="date" /> value
 const formatDateForInput = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return dateString; // assume already yyyy-MM-dd
   return date.toISOString().split("T")[0];
+};
+
+// "7:30 PM" -> minutes from midnight
+const toMinutes = (timeStr) => {
+  const m = timeStr?.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!m) return null;
+
+  let hour = parseInt(m[1], 10);
+  const minute = parseInt(m[2], 10);
+  const period = m[3].toUpperCase();
+
+  if (hour === 12) hour = 0;
+  if (period === "PM") hour += 12;
+
+  return hour * 60 + minute;
+};
+
+const validateMaxDuration = (start, end, maxMinutes = 180) => {
+  const s = toMinutes(start);
+  const e = toMinutes(end);
+
+  if (s == null || e == null) {
+    return { ok: false, msg: "Invalid time format." };
+  }
+
+  const diff = e - s;
+
+  if (diff <= 0) {
+    return {
+      ok: false,
+      msg: "End time must be AFTER start time (same-day only).",
+    };
+  }
+
+  if (diff > maxMinutes) {
+    return {
+      ok: false,
+      msg: `Schedule duration cannot exceed ${maxMinutes / 60} hours.`,
+    };
+  }
+
+  return { ok: true, msg: "" };
+};
+
+const filterEndOptions = (allTimes, startTime, maxMinutes = 180) => {
+  const s = toMinutes(startTime);
+  if (s == null) return allTimes;
+
+  return allTimes.filter((t) => {
+    const e = toMinutes(t);
+    if (e == null) return false;
+    const diff = e - s;
+    return diff > 0 && diff <= maxMinutes;
+  });
 };
 
 const AdminScheduleViewer = ({ onLogout }) => {
@@ -82,8 +136,20 @@ const AdminScheduleViewer = ({ onLogout }) => {
 
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
-  // 🔐 Today for date min (prevents picking past dates)
+  // Today (min for date inputs)
   const today = new Date().toISOString().split("T")[0];
+
+  const TIME_OPTIONS = useMemo(() => generateTimeOptions(), []);
+
+  const endOptionsAdd = useMemo(
+    () => filterEndOptions(TIME_OPTIONS, startTime, 180),
+    [TIME_OPTIONS, startTime]
+  );
+
+  const endOptionsEdit = useMemo(
+    () => filterEndOptions(TIME_OPTIONS, editStartTime, 180),
+    [TIME_OPTIONS, editStartTime]
+  );
 
   useEffect(() => {
     fetchData();
@@ -95,19 +161,14 @@ const AdminScheduleViewer = ({ onLogout }) => {
       setIsLoading(true);
       setSaveError(null);
 
-      const schedulesRes = await axios.get(
-        "http://localhost:8080/api/schedules",
-        { withCredentials: true }
-      );
+      const schedulesRes = await axios.get("http://localhost:8080/api/schedules", {
+        withCredentials: true,
+      });
 
-      // Group schedules by class name
       const grouped = schedulesRes.data.reduce((acc, schedule) => {
         const className = schedule.classEntity.name;
         if (!acc[className]) {
-          acc[className] = {
-            classId: schedule.classEntity.id,
-            schedules: [],
-          };
+          acc[className] = { classId: schedule.classEntity.id, schedules: [] };
         }
         acc[className].schedules.push(schedule);
         return acc;
@@ -115,12 +176,10 @@ const AdminScheduleViewer = ({ onLogout }) => {
 
       setSchedules(grouped);
 
-      // Fetch classes for "Add Schedule"
       try {
-        const classesRes = await axios.get(
-          "http://localhost:8080/api/classes",
-          { withCredentials: true }
-        );
+        const classesRes = await axios.get("http://localhost:8080/api/classes", {
+          withCredentials: true,
+        });
         setClasses(classesRes.data);
       } catch (classError) {
         console.error("Failed to fetch classes:", classError);
@@ -158,28 +217,50 @@ const AdminScheduleViewer = ({ onLogout }) => {
     setSaveError(null);
   };
 
+  // If start time changes, ensure end time stays valid (Edit)
+  useEffect(() => {
+    if (!editingId || !editStartTime) return;
+    const v = validateMaxDuration(editStartTime, editEndTime, 180);
+    if (!v.ok) {
+      // Auto-adjust end time to first valid option, if possible
+      const validEnds = filterEndOptions(TIME_OPTIONS, editStartTime, 180);
+      if (validEnds.length > 0) setEditEndTime(validEnds[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editStartTime, editingId]);
+
+  // If start time changes, ensure end time stays valid (Add)
+  useEffect(() => {
+    const v = validateMaxDuration(startTime, endTime, 180);
+    if (!v.ok) {
+      const validEnds = filterEndOptions(TIME_OPTIONS, startTime, 180);
+      if (validEnds.length > 0) setEndTime(validEnds[0]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startTime]);
+
   const handleSave = async (scheduleId) => {
     try {
       setSaveError(null);
 
-      const timeSlot = `${editStartTime} - ${editEndTime}`;
-
-      if (
-        !editForm.day ||
-        !editStartTime ||
-        !editEndTime ||
-        !editForm.date ||
-        !editForm.maxParticipants
-      ) {
+      if (!editForm.day || !editStartTime || !editEndTime || !editForm.date || !editForm.maxParticipants) {
         setSaveError("All fields are required.");
         return;
       }
+
+      const timeCheck = validateMaxDuration(editStartTime, editEndTime, 180);
+      if (!timeCheck.ok) {
+        setSaveError(timeCheck.msg);
+        return;
+      }
+
+      const timeSlot = `${editStartTime} - ${editEndTime}`;
 
       const response = await axios.put(
         `http://localhost:8080/api/schedules/${scheduleId}`,
         {
           day: editForm.day,
-          timeSlot: timeSlot,
+          timeSlot,
           date: editForm.date,
           maxParticipants: editForm.maxParticipants,
         },
@@ -189,9 +270,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
       setSchedules((prevSchedules) => {
         const newSchedules = { ...prevSchedules };
         Object.keys(newSchedules).forEach((className) => {
-          const idx = newSchedules[className].schedules.findIndex(
-            (s) => s.id === scheduleId
-          );
+          const idx = newSchedules[className].schedules.findIndex((s) => s.id === scheduleId);
           if (idx !== -1) {
             newSchedules[className].schedules[idx] = response.data;
           }
@@ -205,10 +284,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
       setEditEndTime("");
     } catch (error) {
       console.error("Failed to save schedule:", error);
-      setSaveError(
-        error.response?.data?.message ||
-          "Failed to save changes. Please try again."
-      );
+      setSaveError(error.response?.data?.message || "Failed to save changes. Please try again.");
     }
   };
 
@@ -216,12 +292,15 @@ const AdminScheduleViewer = ({ onLogout }) => {
     setAddingToClass({ name: className, id: classId });
 
     setStartTime("9:00 AM");
-    setEndTime("10:00 AM");
+
+    // set endTime to first valid end option (<= 3 hours)
+    const validEnds = filterEndOptions(TIME_OPTIONS, "9:00 AM", 180);
+    setEndTime(validEnds[0] || "10:00 AM");
 
     setNewScheduleForm({
       day: "Monday",
       timeSlot: "",
-      date: today, // default to today
+      date: today,
       maxParticipants: 15,
     });
 
@@ -247,27 +326,31 @@ const AdminScheduleViewer = ({ onLogout }) => {
     try {
       setSaveError(null);
 
-      const timeSlot = `${startTime} - ${endTime}`;
-
       if (!startTime || !endTime || !newScheduleForm.date) {
         setSaveError("Time and date are required.");
         return;
       }
+
+      const timeCheck = validateMaxDuration(startTime, endTime, 180);
+      if (!timeCheck.ok) {
+        setSaveError(timeCheck.msg);
+        return;
+      }
+
+      const timeSlot = `${startTime} - ${endTime}`;
 
       const response = await axios.post(
         "http://localhost:8080/api/schedules",
         {
           classId: addingToClass.id,
           day: newScheduleForm.day,
-          timeSlot: timeSlot,
+          timeSlot,
           date: newScheduleForm.date,
           maxParticipants: newScheduleForm.maxParticipants,
         },
         {
           withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         }
       );
 
@@ -276,23 +359,16 @@ const AdminScheduleViewer = ({ onLogout }) => {
         const className = addingToClass.name;
 
         if (!newSchedules[className]) {
-          newSchedules[className] = {
-            classId: addingToClass.id,
-            schedules: [],
-          };
+          newSchedules[className] = { classId: addingToClass.id, schedules: [] };
         }
 
-        const exists = newSchedules[className].schedules.some(
-          (s) => s.id === response.data.id
-        );
-
+        const exists = newSchedules[className].schedules.some((s) => s.id === response.data.id);
         if (!exists) {
           newSchedules[className] = {
             ...newSchedules[className],
             schedules: [...newSchedules[className].schedules, response.data],
           };
         }
-
         return newSchedules;
       });
 
@@ -324,18 +400,15 @@ const AdminScheduleViewer = ({ onLogout }) => {
     try {
       await axios.delete(`http://localhost:8080/api/schedules/${scheduleId}`, {
         withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       setSchedules((prevSchedules) => {
         const newSchedules = { ...prevSchedules };
         Object.keys(newSchedules).forEach((className) => {
-          newSchedules[className].schedules =
-            newSchedules[className].schedules.filter(
-              (s) => s.id !== scheduleId
-            );
+          newSchedules[className].schedules = newSchedules[className].schedules.filter(
+            (s) => s.id !== scheduleId
+          );
           if (newSchedules[className].schedules.length === 0) {
             delete newSchedules[className];
           }
@@ -347,22 +420,12 @@ const AdminScheduleViewer = ({ onLogout }) => {
     } catch (error) {
       console.error("Failed to delete schedule:", error);
 
-      if (
-        error.response?.status === 409 &&
-        error.response?.data?.error === "SCHEDULE_HAS_ENROLLMENTS"
-      ) {
-        setSaveError(
-          error.response.data.message ||
-            "Cannot delete this schedule because there are active enrollments."
-        );
+      if (error.response?.status === 409 && error.response?.data?.error === "SCHEDULE_HAS_ENROLLMENTS") {
+        setSaveError(error.response.data.message || "Cannot delete this schedule because there are active enrollments.");
       } else if (error.response?.status === 403) {
-        setSaveError(
-          "Authentication error. Please refresh the page and try again."
-        );
+        setSaveError("Authentication error. Please refresh the page and try again.");
       } else {
-        setSaveError(
-          error.response?.data?.message || "Failed to delete schedule."
-        );
+        setSaveError(error.response?.data?.message || "Failed to delete schedule.");
       }
 
       setTimeout(() => setSaveError(null), 3000);
@@ -390,10 +453,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
-          <button
-            onClick={() => (window.location.href = "/admin")}
-            className={styles.backButton}
-          >
+          <button onClick={() => (window.location.href = "/admin")} className={styles.backButton}>
             <ArrowLeft className={styles.backIcon} />
             <span>Back to Admin Dashboard</span>
           </button>
@@ -418,13 +478,10 @@ const AdminScheduleViewer = ({ onLogout }) => {
                     <h2 className={styles.className}>{className}</h2>
                     <div className={styles.classHeaderActions}>
                       <span className={styles.scheduleCount}>
-                        {classData.schedules.length} schedule
-                        {classData.schedules.length !== 1 ? "s" : ""}
+                        {classData.schedules.length} schedule{classData.schedules.length !== 1 ? "s" : ""}
                       </span>
                       <button
-                        onClick={() =>
-                          handleOpenAddModal(className, classData.classId)
-                        }
+                        onClick={() => handleOpenAddModal(className, classData.classId)}
                         className={styles.addScheduleBtn}
                         title="Add new schedule"
                       >
@@ -437,9 +494,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
                     {classData.schedules.map((schedule) => (
                       <div
                         key={schedule.id}
-                        className={`${styles.scheduleItem} ${
-                          editingId === schedule.id ? styles.editing : ""
-                        }`}
+                        className={`${styles.scheduleItem} ${editingId === schedule.id ? styles.editing : ""}`}
                       >
                         {editingId === schedule.id ? (
                           <div className={styles.editFormContainer}>
@@ -448,12 +503,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
                                 <label>Day:</label>
                                 <select
                                   value={editForm.day}
-                                  onChange={(e) =>
-                                    setEditForm({
-                                      ...editForm,
-                                      day: e.target.value,
-                                    })
-                                  }
+                                  onChange={(e) => setEditForm({ ...editForm, day: e.target.value })}
                                   className={styles.editSelect}
                                 >
                                   <option value="Monday">Monday</option>
@@ -470,12 +520,10 @@ const AdminScheduleViewer = ({ onLogout }) => {
                                 <label>Start:</label>
                                 <select
                                   value={editStartTime}
-                                  onChange={(e) =>
-                                    setEditStartTime(e.target.value)
-                                  }
+                                  onChange={(e) => setEditStartTime(e.target.value)}
                                   className={styles.editSelect}
                                 >
-                                  {generateTimeOptions().map((time) => (
+                                  {TIME_OPTIONS.map((time) => (
                                     <option key={time} value={time}>
                                       {time}
                                     </option>
@@ -487,12 +535,10 @@ const AdminScheduleViewer = ({ onLogout }) => {
                                 <label>End:</label>
                                 <select
                                   value={editEndTime}
-                                  onChange={(e) =>
-                                    setEditEndTime(e.target.value)
-                                  }
+                                  onChange={(e) => setEditEndTime(e.target.value)}
                                   className={styles.editSelect}
                                 >
-                                  {generateTimeOptions().map((time) => (
+                                  {endOptionsEdit.map((time) => (
                                     <option key={time} value={time}>
                                       {time}
                                     </option>
@@ -505,13 +551,8 @@ const AdminScheduleViewer = ({ onLogout }) => {
                                 <input
                                   type="date"
                                   value={formatDateForInput(editForm.date)}
-                                  onChange={(e) =>
-                                    setEditForm({
-                                      ...editForm,
-                                      date: e.target.value,
-                                    })
-                                  }
-                                  min={today} // ⛔ block past dates
+                                  onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                                  min={today}
                                   className={styles.editInput}
                                 />
                               </div>
@@ -525,33 +566,20 @@ const AdminScheduleViewer = ({ onLogout }) => {
                                   onChange={(e) =>
                                     setEditForm({
                                       ...editForm,
-                                      maxParticipants: parseInt(
-                                        e.target.value || "1",
-                                        10
-                                      ),
+                                      maxParticipants: parseInt(e.target.value || "1", 10),
                                     })
                                   }
                                   className={styles.editInput}
                                 />
                               </div>
 
-                              {saveError && (
-                                <div className={styles.errorMessage}>
-                                  {saveError}
-                                </div>
-                              )}
+                              {saveError && <div className={styles.errorMessage}>{saveError}</div>}
 
                               <div className={styles.editActions}>
-                                <button
-                                  onClick={() => handleSave(schedule.id)}
-                                  className={styles.saveBtn}
-                                >
+                                <button onClick={() => handleSave(schedule.id)} className={styles.saveBtn}>
                                   <Save size={16} /> Save
                                 </button>
-                                <button
-                                  onClick={handleCancelEdit}
-                                  className={styles.cancelBtn}
-                                >
+                                <button onClick={handleCancelEdit} className={styles.cancelBtn}>
                                   <X size={16} /> Cancel
                                 </button>
                               </div>
@@ -559,22 +587,12 @@ const AdminScheduleViewer = ({ onLogout }) => {
                           </div>
                         ) : deleteConfirm === schedule.id ? (
                           <div className={styles.deleteConfirmContainer}>
-                            <p className={styles.deleteConfirmText}>
-                              Delete this schedule?
-                            </p>
+                            <p className={styles.deleteConfirmText}>Delete this schedule?</p>
                             <div className={styles.deleteConfirmActions}>
-                              <button
-                                onClick={() =>
-                                  handleConfirmDelete(schedule.id)
-                                }
-                                className={styles.confirmDeleteBtn}
-                              >
+                              <button onClick={() => handleConfirmDelete(schedule.id)} className={styles.confirmDeleteBtn}>
                                 Yes, Delete
                               </button>
-                              <button
-                                onClick={() => setDeleteConfirm(null)}
-                                className={styles.cancelDeleteBtn}
-                              >
+                              <button onClick={() => setDeleteConfirm(null)} className={styles.cancelDeleteBtn}>
                                 Cancel
                               </button>
                             </div>
@@ -593,20 +611,13 @@ const AdminScheduleViewer = ({ onLogout }) => {
                               <div className={styles.infoRow}>
                                 <Users className={styles.infoIcon} />
                                 <span>
-                                  {schedule.enrolledCount} /{" "}
-                                  {schedule.maxParticipants} enrolled
+                                  {schedule.enrolledCount} / {schedule.maxParticipants} enrolled
                                 </span>
                               </div>
-                              <div className={styles.dateInfo}>
-                                Next: {formatDate(schedule.date)}
-                              </div>
+                              <div className={styles.dateInfo}>Next: {formatDate(schedule.date)}</div>
                             </div>
                             <div className={styles.scheduleActions}>
-                              <button
-                                onClick={() => handleEdit(schedule)}
-                                className={styles.editButton}
-                                title="Edit schedule"
-                              >
+                              <button onClick={() => handleEdit(schedule)} className={styles.editButton} title="Edit schedule">
                                 <Edit size={18} />
                               </button>
                               <button
@@ -633,16 +644,10 @@ const AdminScheduleViewer = ({ onLogout }) => {
       {/* Add Schedule Modal */}
       {showAddModal && (
         <div className={styles.modalOverlay} onClick={handleCloseAddModal}>
-          <div
-            className={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>Add Schedule to {addingToClass?.name}</h2>
-              <button
-                onClick={handleCloseAddModal}
-                className={styles.modalCloseBtn}
-              >
+              <button onClick={handleCloseAddModal} className={styles.modalCloseBtn}>
                 <X size={24} />
               </button>
             </div>
@@ -652,12 +657,7 @@ const AdminScheduleViewer = ({ onLogout }) => {
                 <label>Day</label>
                 <select
                   value={newScheduleForm.day}
-                  onChange={(e) =>
-                    setNewScheduleForm({
-                      ...newScheduleForm,
-                      day: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setNewScheduleForm({ ...newScheduleForm, day: e.target.value })}
                   className={styles.formSelect}
                 >
                   <option value="Monday">Monday</option>
@@ -672,12 +672,8 @@ const AdminScheduleViewer = ({ onLogout }) => {
 
               <div className={styles.formGroup}>
                 <label>Start Time</label>
-                <select
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className={styles.formSelect}
-                >
-                  {generateTimeOptions().map((time) => (
+                <select value={startTime} onChange={(e) => setStartTime(e.target.value)} className={styles.formSelect}>
+                  {TIME_OPTIONS.map((time) => (
                     <option key={time} value={time}>
                       {time}
                     </option>
@@ -686,13 +682,9 @@ const AdminScheduleViewer = ({ onLogout }) => {
               </div>
 
               <div className={styles.formGroup}>
-                <label>End Time</label>
-                <select
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className={styles.formSelect}
-                >
-                  {generateTimeOptions().map((time) => (
+                <label>End Time (max 3 hrs)</label>
+                <select value={endTime} onChange={(e) => setEndTime(e.target.value)} className={styles.formSelect}>
+                  {endOptionsAdd.map((time) => (
                     <option key={time} value={time}>
                       {time}
                     </option>
@@ -705,13 +697,8 @@ const AdminScheduleViewer = ({ onLogout }) => {
                 <input
                   type="date"
                   value={newScheduleForm.date}
-                  onChange={(e) =>
-                    setNewScheduleForm({
-                      ...newScheduleForm,
-                      date: e.target.value,
-                    })
-                  }
-                  min={today} // ⛔ block past dates
+                  onChange={(e) => setNewScheduleForm({ ...newScheduleForm, date: e.target.value })}
+                  min={today}
                   className={styles.formInput}
                 />
               </div>
@@ -725,32 +712,21 @@ const AdminScheduleViewer = ({ onLogout }) => {
                   onChange={(e) =>
                     setNewScheduleForm({
                       ...newScheduleForm,
-                      maxParticipants: parseInt(
-                        e.target.value || "1",
-                        10
-                      ),
+                      maxParticipants: parseInt(e.target.value || "1", 10),
                     })
                   }
                   className={styles.formInput}
                 />
               </div>
 
-              {saveError && (
-                <div className={styles.errorMessage}>{saveError}</div>
-              )}
+              {saveError && <div className={styles.errorMessage}>{saveError}</div>}
             </div>
 
             <div className={styles.modalFooter}>
-              <button
-                onClick={handleAddSchedule}
-                className={styles.modalAddBtn}
-              >
+              <button onClick={handleAddSchedule} className={styles.modalAddBtn}>
                 <Plus size={18} /> Add Schedule
               </button>
-              <button
-                onClick={handleCloseAddModal}
-                className={styles.modalCancelBtn}
-              >
+              <button onClick={handleCloseAddModal} className={styles.modalCancelBtn}>
                 Cancel
               </button>
             </div>
