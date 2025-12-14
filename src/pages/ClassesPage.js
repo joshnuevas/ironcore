@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import styles from "./ClassesPage.module.css";
 import landingStyles from "./LandingPage.module.css";
 
@@ -68,7 +67,6 @@ const ClassesPage = () => {
   if (loading) {
     return (
       <div className={styles.classesContainer}>
-        <Navbar activeNav="CLASSES" />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p>Loading classes...</p>
@@ -85,8 +83,6 @@ const ClassesPage = () => {
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
       </div>
-
-      <Navbar activeNav="CLASSES" />
 
       <div className={styles.content}>
         <div className={styles.header}>

@@ -13,7 +13,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import styles from "./AdminCodeChecker.module.css";
-import Navbar from "../components/Navbar";
 import axios from "axios";
 
 const AdminCodeChecker = ({ onLogout }) => {
@@ -168,8 +167,6 @@ const AdminCodeChecker = ({ onLogout }) => {
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`} />
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`} />
       </div>
-
-      <Navbar activeNav="ADMIN" onLogout={onLogout} />
 
       {/* =========================
           Confirmation Modal (Check Code)

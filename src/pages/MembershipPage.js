@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Check, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import styles from "./MembershipPage.module.css";
 import landingStyles from "./LandingPage.module.css";
 import axios from "axios";
@@ -207,8 +206,6 @@ const MembershipPage = () => {
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur2}`}></div>
         <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
       </div>
-
-      <Navbar activeNav="MEMBERSHIP" />
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>

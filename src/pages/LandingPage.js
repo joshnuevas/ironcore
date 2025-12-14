@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
 import styles from "./LandingPage.module.css";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -281,7 +280,6 @@ const LandingPage = () => {
 
   return (
     <div className={styles.landingContainer}>
-      <Navbar activeNav="HOME" />
 
       {/* Animated background elements */}
       <div className={styles.backgroundOverlay}>

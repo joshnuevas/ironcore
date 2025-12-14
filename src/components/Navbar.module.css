@@ -86,18 +86,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(31, 41, 55, 0.5);
-  animation: slideDown 0.6s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  padding-bottom: 17px;
 }
 
 .navContainer {
@@ -474,4 +463,16 @@
   background: #c53030;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(229, 62, 62, 0.4);
+}
+
+/* FORCE TRUE VERTICAL CENTERING – NO STRUCTURE CHANGES */
+.navbar {
+  height: 96px;                /* keep your tall navbar */
+  padding: 0 !important;       /* kill fake spacing */
+}
+
+.navContainer {
+  height: 100%;
+  display: flex;
+  align-items: center;         /* 🔥 THIS is the vertical middle */
 }

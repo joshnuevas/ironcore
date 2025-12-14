@@ -1,7 +1,6 @@
 import React from "react";
 import { MapPin, Mail, Phone, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import styles from "./ContactPage.module.css";
 import landingStyles from "./LandingPage.module.css";
 
@@ -18,7 +17,6 @@ const ContactPage = () => {
       </div>
 
       {/* ✅ Reuse Navbar with logout + username built-in */}
-      <Navbar activeNav="CONTACT" />
 
       {/* ✅ Page content */}
       <div className={styles.contentWrapper}>

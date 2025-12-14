@@ -9,9 +9,9 @@ import {
   Dumbbell,
   Star,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import styles from "./ClassDetailsPage.module.css";
 import axios from "axios";
+import Navbar from "../components/Navbar";
 
 const ClassDetailsPage = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -90,7 +90,6 @@ const ClassDetailsPage = ({ onLogout }) => {
   if (loadingClass) {
     return (
       <div className={styles.detailsContainer}>
-        <Navbar activeNav="CLASSES" onLogout={onLogout} />
         <div className={styles.contentSection}>
           <div className={styles.contentContainer}>
             <p className={styles.loadingText}>Loading class details...</p>
@@ -103,7 +102,6 @@ const ClassDetailsPage = ({ onLogout }) => {
   if (classError || !classData) {
     return (
       <div className={styles.detailsContainer}>
-        <Navbar activeNav="CLASSES" onLogout={onLogout} />
         <div className={styles.contentSection}>
           <div className={styles.contentContainer}>
             <p className={styles.loadingText}>

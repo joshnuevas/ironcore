@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Check, AlertCircle } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import styles from "./TransactionPage.module.css";
 import axios from "axios";
+import Navbar from "../components/Navbar";
 
 const TransactionPage = ({ onLogout }) => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -234,7 +234,6 @@ const TransactionPage = ({ onLogout }) => {
   if (userLoading) {
     return (
       <div className={styles.transactionContainer}>
-        <Navbar activeNav="MEMBERSHIP" onLogout={onLogout} />
         <div className={styles.contentSection}>
           <div className={styles.contentContainer}>
             <div className={styles.loadingState}>

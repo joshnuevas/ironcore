@@ -8,7 +8,6 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import landingStyles from "./LandingPage.module.css";
 import styles from "./BookTrainer.module.css";
 import { useNavigate, useParams } from "react-router-dom";
@@ -52,7 +51,6 @@ const BookTrainer = () => {
   if (loading) {
     return (
       <div className={styles.pageWrapper}>
-        <Navbar activeNav="OUR TRAINERS" username={username} />
 
         <div className={landingStyles.backgroundOverlay}>
           <div
@@ -79,7 +77,6 @@ const BookTrainer = () => {
   if (error || !trainer) {
     return (
       <div className={styles.pageWrapper}>
-        <Navbar activeNav="OUR TRAINERS" username={username} />
 
         <div className={landingStyles.backgroundOverlay}>
           <div
@@ -125,7 +122,6 @@ const BookTrainer = () => {
   return (
     <div className={styles.pageWrapper}>
       {/* Navbar */}
-      <Navbar activeNav="OUR TRAINERS" username={username} />
 
       {/* Background animation */}
       <div className={landingStyles.backgroundOverlay}>

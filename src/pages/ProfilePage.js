@@ -14,7 +14,6 @@ import {
   X as XIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
 import styles from "./ProfilePage.module.css";
 
 const ProfilePage = () => {
@@ -379,7 +378,6 @@ const ProfilePage = () => {
   if (loading) {
     return (
       <div className={styles.container}>
-        <Navbar activeNav="PROFILE" />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p className={styles.loadingText}>Loading profile...</p>
@@ -390,7 +388,6 @@ const ProfilePage = () => {
 
   return (
     <div className={styles.container}>
-      <Navbar activeNav="PROFILE" />
 
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>

@@ -9,7 +9,6 @@ import {
   RefreshCw,
   AlertCircle,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import styles from "./AdminLandingPage.module.css";
 import axios from "axios";
 
@@ -131,8 +130,6 @@ const AdminLandingPage = () => {
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
-
-      <Navbar activeNav="ADMIN" />
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>

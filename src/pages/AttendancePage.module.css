@@ -1,12 +1,24 @@
-/* Page Container */
+/* =========================================================
+   GLOBAL HEIGHT FIX (important)
+   This makes 100% heights work reliably in React apps.
+========================================================= */
+:global(html, body, #root) {
+  height: 100%;
+}
+
+/* =========================================================
+   PAGE WRAPPER
+========================================================= */
 .pageContainer {
-  min-height: 100vh;
+  min-height: 100%;
   background: linear-gradient(to bottom right, #111827, #1f2937, #000000);
   position: relative;
   overflow: hidden;
 }
 
-/* Animated Background */
+/* =========================================================
+   BACKGROUND ANIMATION
+========================================================= */
 .backgroundOverlay {
   position: absolute;
   inset: 0;
@@ -47,7 +59,8 @@
 }
 
 @keyframes gentleFloat {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0);
     opacity: 0.08;
   }
@@ -57,20 +70,26 @@
   }
 }
 
-/* Content Section */
+/* =========================================================
+   CONTENT LAYOUT ✅ MATCH MEMBERSHIP FEEL
+========================================================= */
 .contentSection {
+  min-height: 100vh;
+  padding-top: 6rem;      /* ✅ SAME AS MEMBERSHIP */
+  padding-bottom: 4rem;
   position: relative;
   z-index: 10;
-  padding: 6rem 2rem 4rem;
-  min-height: 100vh;
 }
 
 .contentContainer {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 2rem;
 }
 
-/* Header Section */
+/* =========================================================
+   HEADER
+========================================================= */
 .headerSection {
   text-align: center;
   margin-bottom: 3rem;
@@ -89,15 +108,14 @@
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 4rem;        /* ✅ SAME AS MEMBERSHIP */
   font-weight: 900;
-  color: white;
-  margin: 0 0 1rem;
   letter-spacing: -0.05em;
-  background: linear-gradient(to right, white, #f97316);
+  line-height: 1;         /* ✅ IMPORTANT */
+  margin-bottom: 1rem;    /* ✅ SAME */
+  background: linear-gradient(to right, #ffffff, #f97316);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .subtitle {
@@ -107,7 +125,9 @@
   font-weight: 300;
 }
 
-/* Loading */
+/* =========================================================
+   LOADING
+========================================================= */
 .loadingContainer {
   display: flex;
   flex-direction: column;
@@ -128,10 +148,14 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Error Banner */
+/* =========================================================
+   ERROR BANNER + RENEW BUTTON
+========================================================= */
 .errorBanner {
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
@@ -141,9 +165,126 @@
   margin-bottom: 2rem;
   text-align: center;
   backdrop-filter: blur(20px);
+
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.75rem;
 }
 
-/* Insights Section */
+.renewButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+  padding: 0.5rem 1rem;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.renewButton:hover {
+  background: #ea580c;
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+   MEMBERSHIP BADGE
+========================================================= */
+.membershipHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.membershipBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  backdrop-filter: blur(10px);
+}
+
+.daysRemaining {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Badge variants used by getMembershipBadgeColor() */
+.badgeBasic {
+  background: linear-gradient(135deg, #6b7280, #9ca3af);
+  color: white;
+}
+
+.badgePremium {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: white;
+}
+
+.badgeElite {
+  background: linear-gradient(135deg, #10b981, #34d399);
+  color: white;
+}
+
+.badgeUnlimited {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  color: white;
+}
+
+.badgeSilver {
+  background: linear-gradient(135deg, #9ca3af, #d1d5db);
+  color: #1f2937;
+}
+
+.badgeGold {
+  background: linear-gradient(135deg, #f59e0b, #fcd34d);
+  color: #1f2937;
+}
+
+.badgePlatinum {
+  background: linear-gradient(135deg, #e5e7eb, #f9fafb);
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+}
+
+/* =========================================================
+   HISTORY BUTTON
+========================================================= */
+.historyButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #f97316;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.historyButton:hover {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: rgba(249, 115, 22, 0.5);
+  transform: translateY(-2px);
+}
+
+/* =========================================================
+   INSIGHTS
+========================================================= */
 .insightsSection {
   margin-bottom: 3rem;
   animation: fadeInUp 0.8s ease-out 0.2s both;
@@ -237,7 +378,9 @@
   margin: 0;
 }
 
-/* Feedback Card */
+/* =========================================================
+   FEEDBACK CARD + PROGRESS
+========================================================= */
 .feedbackCard {
   background: rgba(17, 24, 39, 0.6);
   backdrop-filter: blur(20px);
@@ -247,22 +390,22 @@
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 }
 
-.feedbackCard.excellent {
+.excellent {
   border-color: rgba(34, 197, 94, 0.4);
   background: linear-gradient(135deg, rgba(17, 24, 39, 0.6), rgba(22, 163, 74, 0.1));
 }
 
-.feedbackCard.good {
+.good {
   border-color: rgba(249, 115, 22, 0.4);
   background: linear-gradient(135deg, rgba(17, 24, 39, 0.6), rgba(249, 115, 22, 0.1));
 }
 
-.feedbackCard.average {
+.average {
   border-color: rgba(234, 179, 8, 0.4);
   background: linear-gradient(135deg, rgba(17, 24, 39, 0.6), rgba(234, 179, 8, 0.1));
 }
 
-.feedbackCard.needs-improvement {
+.needs-improvement {
   border-color: rgba(239, 68, 68, 0.4);
   background: linear-gradient(135deg, rgba(17, 24, 39, 0.6), rgba(239, 68, 68, 0.1));
 }
@@ -294,6 +437,32 @@
   line-height: 1.6;
 }
 
+.metricsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metric label {
+  font-size: 0.875rem;
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+.metric span {
+  font-size: 0.875rem;
+  color: #f3f4f6;
+  font-weight: 600;
+  text-align: right;
+}
+
 .progressBar {
   width: 100%;
   height: 8px;
@@ -310,13 +479,29 @@
   transition: width 0.8s ease;
 }
 
-.progressLabel {
-  font-size: 0.875rem;
-  color: #9ca3af;
-  text-align: center;
+.subscriptionProgress {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* History Section */
+.progressLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #e5e7eb;
+}
+
+.progressNote {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #d1d5db;
+}
+
+/* =========================================================
+   HISTORY SECTION
+========================================================= */
 .historySection {
   margin-bottom: 3rem;
   animation: fadeInUp 0.8s ease-out 0.4s both;
@@ -419,9 +604,7 @@
 }
 
 .statusAttended,
-.statusAbsent,
-.statusMissed,
-.statusRest {
+.statusAbsent {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
@@ -438,17 +621,10 @@
   border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
-.statusAbsent,
-.statusMissed {
+.statusAbsent {
   background: rgba(239, 68, 68, 0.2);
   color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-.statusRest {
-  background: rgba(156, 163, 175, 0.2);
-  color: #9ca3af;
-  border: 1px solid rgba(156, 163, 175, 0.3);
 }
 
 .statusText {
@@ -456,20 +632,17 @@
   min-width: 80px;
 }
 
-.statusText.attended {
+.attended {
   color: #22c55e;
 }
 
-.statusText.absent,
-.statusText.missed {
+.absent {
   color: #ef4444;
 }
 
-.statusText.rest {
-  color: #9ca3af;
-}
-
-/* Empty State */
+/* =========================================================
+   EMPTY STATE
+========================================================= */
 .emptyState {
   text-align: center;
   padding: 3rem 2rem;
@@ -489,91 +662,9 @@
   margin-top: 0.5rem;
 }
 
-/* Membership Badge */
-.membershipHeader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.membershipBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  backdrop-filter: blur(10px);
-}
-
-.badgeBasic {
-  background: linear-gradient(135deg, #6b7280, #9ca3af);
-  color: white;
-}
-
-.badgePremium {
-  background: linear-gradient(135deg, #f59e0b, #fbbf24);
-  color: white;
-}
-
-.badgeElite {
-  background: linear-gradient(135deg, #10b981, #34d399);
-  color: white;
-}
-
-.badgeUnlimited {
-  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-  color: white;
-}
-
-.badgeSilver {
-  background: linear-gradient(135deg, #9ca3af, #d1d5db);
-  color: #1f2937;
-}
-
-.badgeGold {
-  background: linear-gradient(135deg, #f59e0b, #fcd34d);
-  color: #1f2937;
-}
-
-.badgePlatinum {
-  background: linear-gradient(135deg, #e5e7eb, #f9fafb);
-  color: #1f2937;
-  border: 1px solid #d1d5db;
-}
-
-.daysRemaining {
-  margin-left: auto;
-  font-size: 0.75rem;
-  opacity: 0.9;
-}
-
-/* History Button */
-.historyButton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: rgba(249, 115, 22, 0.1);
-  border: 1px solid rgba(249, 115, 22, 0.3);
-  color: #f97316;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.historyButton:hover {
-  background: rgba(249, 115, 22, 0.2);
-  border-color: rgba(249, 115, 22, 0.5);
-  transform: translateY(-2px);
-}
-
-/* History Modal */
+/* =========================================================
+   MEMBERSHIP HISTORY MODAL
+========================================================= */
 .historyModal {
   background: rgba(17, 24, 39, 0.95);
   backdrop-filter: blur(20px);
@@ -619,31 +710,6 @@
 }
 
 .historyItem {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.historyItem:hover {
-  border-color: rgba(249, 115, 22, 0.3);
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.activeMembership {
-  border-color: rgba(249, 115, 22, 0.5) !important;
-  background: rgba(249, 115, 22, 0.05) !important;
-}
-
-.historyBadge {
-  margin-bottom: 0.5rem;
-}
-
-/* History Modal (keep your existing .historyModal & .historyHeader) */
-
-/* Card base */
-.historyItem {
   position: relative;
   overflow: hidden;
   border-radius: 1.25rem;
@@ -679,7 +745,6 @@
   opacity: 0.4;
 }
 
-/* Accent variations */
 .historyItemCurrent {
   border-color: rgba(34, 197, 94, 0.6);
 }
@@ -693,14 +758,12 @@
   background: radial-gradient(circle at bottom right, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.9));
 }
 
-/* Top row: chip + title/dates */
 .historyTopRow {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* Status chip */
 .statusChip {
   padding: 0.3rem 0.9rem;
   border-radius: 999px;
@@ -733,7 +796,6 @@
   gap: 0.15rem;
 }
 
-/* Membership title + dates */
 .historyMembershipType {
   font-size: 1.05rem;
   font-weight: 700;
@@ -745,7 +807,6 @@
   color: #9ca3af;
 }
 
-/* Stats row inside card */
 .historyStatsRow {
   display: flex;
   flex-wrap: wrap;
@@ -775,190 +836,93 @@
   color: #e5e7eb;
 }
 
-/* Mobile tweaks */
-@media (max-width: 640px) {
-  .historyItem {
-    padding: 1.1rem 1.1rem;
-  }
-
-  .historyTopRow {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .historyStatsRow {
-    gap: 0.5rem;
-  }
+/* =========================================================
+   NO MEMBERSHIP CARD (KEEP YOUR BUTTON EXACTLY)
+========================================================= */
+.noMembershipError {
+  animation: fadeInUp 0.8s ease-out;
 }
 
-.activeTag {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
-  padding: 0.25rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+.noMembershipCard {
+  margin: 1.5rem auto 0;
+  padding: 2rem 2.5rem;
+  border-radius: 1.75rem;
+  max-width: 720px;
+  background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), rgba(15, 23, 42, 0.98));
+  border: 1px solid rgba(249, 115, 22, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.75);
 }
 
-.expiredTag {
-  background: rgba(239, 68, 68, 0.18);              /* soft red background */
-  color: #fecaca;                                   /* light red text */
-  padding: 0.25rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid rgba(239, 68, 68, 0.6);         /* stronger red border */
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.noMembershipIconWrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(249, 115, 22, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f97316;
+  font-size: 1.6rem;
+  background: rgba(249, 115, 22, 0.08);
 }
 
-
-.futureTag {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  padding: 0.25rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+.noMembershipIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #f97316;
 }
 
-.historyContent h4 {
-  font-size: 1.1rem;
+.noMembershipContent {
+  width: 100%;
+}
+
+.noMembershipTitle {
+  font-size: 1.3rem;
   font-weight: 700;
   color: white;
-  margin: 0.5rem 0 0.25rem;
+  margin: 0;
 }
 
-.historyContent p {
-  font-size: 0.9rem;
-  color: #d1d5db;
-  margin: 0 0 0.5rem;
-}
-
-.historyStats {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: #9ca3af;
-}
-
-/* Enhanced Metrics Grid */
-.metricsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.metric {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.metric label {
-  font-size: 0.875rem;
-  color: #e5e7eb;
-  font-weight: 500;
-}
-
-.metric span {
-  font-size: 0.875rem;
-  color: #f3f4f6;
-  font-weight: 600;
-  text-align: right;
-}
-
-/* Subscription Progress */
-.subscriptionProgress {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.progressLabels {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: #e5e7eb;
-}
-
-.progressNote {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #d1d5db;
-}
-
-/* Target Comparison */
-.targetComparison {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.targetComparison h4 {
+.noMembershipText {
   font-size: 1rem;
-  color: #e5e7eb;
-  margin: 0 0 1rem;
-  font-weight: 600;
-}
-
-.comparisonGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-}
-
-.comparisonItem {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.comparisonLabel {
-  font-size: 0.75rem;
   color: #d1d5db;
+  max-width: 550px;
+  margin: 0 auto;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* ✅ YOUR ORIGINAL BUTTON (UNCHANGED) */
+.noMembershipButton {
+  margin-top: 0.4rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(to right, #f97316, #ef4444);
+  color: white;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 500;
-}
-
-.comparisonValue {
-  font-size: 1.5rem;
-  color: white;
-  font-weight: 700;
-}
-
-/* Renew Button */
-.renewButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-left: 1rem;
-  padding: 0.5rem 1rem;
-  background: #f97316;
-  color: white;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+  transition: 0.25s ease;
+  margin-bottom: 0.5rem;
 }
 
-.renewButton:hover {
-  background: #ea580c;
+.noMembershipButton:hover {
   transform: translateY(-2px);
+  background: linear-gradient(90deg, #f97316, #fb923c);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.25);
 }
 
-/* Tips Section */
+/* =========================================================
+   TIPS
+========================================================= */
 .tipsSection {
   animation: fadeInUp 0.8s ease-out 0.6s both;
 }
@@ -1006,116 +970,17 @@
   font-size: 0.9rem;
 }
 
-.noMembershipError {
-  animation: fadeInUp 0.8s ease-out;
-}
-
-/* One-time pop-in animation for the "No active membership" error */
-@keyframes errorPop {
-  0% {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.95);
-    box-shadow: 0 0 0 rgba(249, 115, 22, 0);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(0) scale(1.02);
-    box-shadow: 0 15px 35px rgba(249, 115, 22, 0.35);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
-  }
-}
-
-.noMembershipCard {
-  margin: 1.5rem auto 0;
-  padding: 2rem 2.5rem;
-  border-radius: 1.75rem;
-  max-width: 720px;
-  background: radial-gradient(
-      circle at top left,
-      rgba(249, 115, 22, 0.18),
-      rgba(15, 23, 42, 0.98)
-  );
-  border: 1px solid rgba(249, 115, 22, 0.5);
-  display: flex;
-  flex-direction: column;         /* ⬅️ stack vertically */
-  align-items: center;            /* ⬅️ center icon + text + button */
-  text-align: center;             /* ⬅️ center text */
-  gap: 1.25rem;
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.75);
-  animation: fadeInUp 0.6s ease-out;
-}
-
-.noMembershipIconWrapper {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 2px solid rgba(249, 115, 22, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #f97316;
-  font-size: 1.6rem;
-  background: rgba(249, 115, 22, 0.08);
-}
-
-.noMembershipTitle {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: white;
-  margin: 0;
-}
-
-.noMembershipText {
-  font-size: 1rem;
-  color: #d1d5db;
-  max-width: 550px;                 /* ⬅️ keeps text from stretching too wide */
-  margin: 0 auto;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
-}
-
-.noMembershipButton {
-  margin-top: 0.4rem;
-  padding: 0.75rem 1.75rem;
-  border-radius: 999px;
-  border: none;
-  background: linear-gradient(to right, #f97316, #ef4444);
-  color: white;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
-  transition: 0.25s ease;
-  margin-bottom: 0.5rem;
-}
-
-.noMembershipButton:hover {
-  transform: translateY(-2px);
-  background: linear-gradient(90deg, #f97316, #fb923c); /* softer orange */
-  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.25); /* subtle glow */
-}
-
-@media (max-width: 640px) {
-  .noMembershipCard {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .noMembershipButton {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* Responsive Design */
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 @media (max-width: 768px) {
   .contentSection {
-    padding: 5rem 1rem 2rem;
+    padding-top: 6.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .contentContainer {
+    padding: 0 1rem;
   }
 
   .title {
@@ -1148,23 +1013,34 @@
     width: 25rem;
     height: 25rem;
   }
-  
-  .metricsGrid {
-    grid-template-columns: 1fr;
-  }
-  
+
   .membershipBadge {
     flex-direction: column;
     gap: 0.25rem;
     text-align: center;
   }
-  
+
   .daysRemaining {
     margin-left: 0;
   }
 
   .membershipHeader {
     align-items: stretch;
+  }
+}
+
+@media (max-width: 640px) {
+  .historyTopRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .historyStatsRow {
+    gap: 0.5rem;
+  }
+
+  .noMembershipButton {
+    width: 100%;
   }
 }
 

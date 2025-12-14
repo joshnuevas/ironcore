@@ -1,61 +1,65 @@
 // src/components/Navbar.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Dumbbell, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import styles from "./Navbar.module.css";
 
+const API_BASE = "http://localhost:8080";
+
 const Navbar = ({ activeNav = "HOME" }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("Profile");
   const [role, setRole] = useState(null); // "ADMIN" | "USER" | null
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
-  // Fetch current user (cookie/session auth)
-  useEffect(() => {
-    let isMounted = true;
+  // ✅ MODE = based on current route, not role
+  const isAdminMode =
+    location.pathname.startsWith("/admin") || activeNav === "ADMIN";
 
-    const fetchCurrentUser = async () => {
+  useEffect(() => {
+    let mounted = true;
+
+    const loadMe = async () => {
       setIsLoadingUser(true);
       try {
-        const res = await axios.get("http://localhost:8080/api/users/me", {
-          withCredentials: true,
+        const res = await axios.get(`${API_BASE}/api/users/me`, {
+          withCredentials: true, // cookie/session
         });
 
-        if (!isMounted) return;
+        if (!mounted) return;
 
         const displayName =
           res.data?.username ||
           res.data?.name ||
           res.data?.fullName ||
           res.data?.firstName ||
-          "";
+          "Profile";
+
+        const isAdmin =
+          res.data?.isAdmin === true ||
+          String(res.data?.role || "").toUpperCase() === "ADMIN";
 
         setUsername(displayName);
-        setRole(res.data?.role || "USER"); // adjust key if backend uses "userRole"
-      } catch (err) {
-        // not logged in / expired session
-        if (!isMounted) return;
-        setUsername("");
+        setRole(isAdmin ? "ADMIN" : "USER");
+      } catch {
+        if (!mounted) return;
+        setUsername("Profile");
         setRole(null);
       } finally {
-        if (isMounted) setIsLoadingUser(false);
+        if (mounted) setIsLoadingUser(false);
       }
     };
 
-    fetchCurrentUser();
-
+    loadMe();
     return () => {
-      isMounted = false;
+      mounted = false;
     };
-  }, []);
+  }, [location.pathname]);
 
-  // Admin mode (trust backend role, or if page explicitly says ADMIN)
-  const isAdminMode = role === "ADMIN" || activeNav === "ADMIN";
-
-  // For admins → no middle nav items
   const navItems = useMemo(
     () =>
       isAdminMode
@@ -71,41 +75,36 @@ const Navbar = ({ activeNav = "HOME" }) => {
     [isAdminMode]
   );
 
+  const go = (path) => navigate(path);
+
   const handleNavClick = (item) => {
     switch (item) {
       case "HOME":
-        navigate("/landing");
-        break;
+        return go("/landing");
       case "ABOUT US":
-        navigate("/about");
-        break;
+        return go("/about");
       case "OUR TRAINERS":
-        navigate("/trainers");
-        break;
+        return go("/trainers");
       case "CLASSES":
-        navigate("/classes");
-        break;
+        return go("/classes");
       case "MEMBERSHIP":
-        navigate("/membership");
-        break;
+        return go("/membership");
       case "ATTENDANCE":
-        navigate("/attendance");
-        break;
+        return go("/attendance");
       default:
-        break;
+        return;
     }
   };
 
+  // ✅ Profile follows current MODE (route), not role
   const handleProfileClick = () => {
-    // Optional: if not logged in, send to login
-    if (!role) return navigate("/login");
-    navigate("/profile");
+    if (!role) return go("/login");
+    return go(isAdminMode ? "/admin/profile" : "/profile");
   };
 
   const handleLogoClick = () => {
-    // If admin, go admin dashboard. If not logged in, go landing/login as you prefer.
-    if (isAdminMode) return navigate("/admin");
-    navigate("/landing");
+    if (!role) return go("/login");
+    return go(isAdminMode ? "/admin" : "/landing");
   };
 
   const handleLogout = () => setShowLogoutModal(true);
@@ -113,20 +112,18 @@ const Navbar = ({ activeNav = "HOME" }) => {
 
   const confirmLogout = async () => {
     try {
-      // clear server session/cookie
       await axios.post(
-        "http://localhost:8080/api/auth/logout",
+        `${API_BASE}/api/auth/logout`,
         {},
         { withCredentials: true }
       );
     } catch (err) {
-      // still proceed with navigation
-      console.warn("Logout endpoint failed or not implemented:", err);
+      console.warn("Logout failed or endpoint missing:", err);
     } finally {
       setShowLogoutModal(false);
-      setUsername("");
+      setUsername("Profile");
       setRole(null);
-      navigate("/login");
+      go("/login");
     }
   };
 
@@ -136,7 +133,6 @@ const Navbar = ({ activeNav = "HOME" }) => {
     <>
       <nav className={styles.navbar}>
         <div className={styles.navContainer}>
-          {/* Logo */}
           <div
             className={styles.logoSection}
             onClick={handleLogoClick}
@@ -150,7 +146,6 @@ const Navbar = ({ activeNav = "HOME" }) => {
             </span>
           </div>
 
-          {/* Center nav links (hidden for admins) */}
           <div className={styles.navLinks}>
             {navItems.map((item) => (
               <button
@@ -166,14 +161,12 @@ const Navbar = ({ activeNav = "HOME" }) => {
             ))}
           </div>
 
-          {/* Right side: profile + logout */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <button
               onClick={handleProfileClick}
               className={`${styles.profileButton} ${
                 activeNav === "PROFILE" ? styles.profileButtonActive : ""
               }`}
-              title="View Profile"
               type="button"
               disabled={isLoadingUser}
             >
@@ -192,7 +185,6 @@ const Navbar = ({ activeNav = "HOME" }) => {
         </div>
       </nav>
 
-      {/* Logout Confirmation Modal */}
       {showLogoutModal && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>

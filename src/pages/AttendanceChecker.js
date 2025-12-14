@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, UserCheck, Clock, Search, CheckCircle, XCircle, Plus, ArrowLeft, History, X, AlertTriangle, Info } from "lucide-react";
-import Navbar from "../components/Navbar";
 import styles from "./AttendanceChecker.module.css";
 import axios from "axios";
 
@@ -412,7 +411,6 @@ const AttendanceChecker = () => {
 
   return (
     <div className={styles.attendanceContainer}>
-      <Navbar activeNav="ADMIN" />
 
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>

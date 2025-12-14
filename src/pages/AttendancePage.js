@@ -12,7 +12,6 @@ import {
   History as HistoryIcon,
   RefreshCw,
 } from "lucide-react";
-import Navbar from "../components/Navbar";
 import styles from "./AttendancePage.module.css";
 import axios from "axios";
 
@@ -185,7 +184,6 @@ const AttendancePage = () => {
   if (isLoading) {
     return (
       <div className={styles.pageContainer}>
-        <Navbar activeNav="ATTENDANCE" />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p>Loading your attendance insights...</p>
@@ -201,8 +199,6 @@ const AttendancePage = () => {
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
-
-      <Navbar activeNav="ATTENDANCE" />
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>

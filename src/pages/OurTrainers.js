@@ -1,7 +1,6 @@
 // src/pages/OurTrainers.js
 
 import React, { useEffect, useState } from "react";
-import Navbar from "../components/Navbar"; // ✅ Reuse Navbar component
 import landingStyles from "./LandingPage.module.css"; // For animated background
 import styles from "./OurTrainers.module.css";
 import { useNavigate } from "react-router-dom";
@@ -45,8 +44,6 @@ const OurTrainers = () => {
           <div className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}></div>
         </div>
 
-        <Navbar activeNav="OUR TRAINERS" />
-
         {/* Centered Loading Spinner */}
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
@@ -70,7 +67,6 @@ const OurTrainers = () => {
             className={`${landingStyles.bgBlur} ${landingStyles.bgBlur3}`}
           ></div>
         </div>
-        <Navbar activeNav="OUR TRAINERS" />
         <div
           className={styles.trainersContainer}
           style={{ paddingTop: "6.5rem" }}
@@ -97,7 +93,6 @@ const OurTrainers = () => {
       </div>
 
       {/* 🔹 Reused Navbar */}
-      <Navbar activeNav="OUR TRAINERS" />
 
       {/* 🔹 Trainers Section */}
       <div

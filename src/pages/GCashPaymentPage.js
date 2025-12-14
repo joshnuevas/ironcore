@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Shield, Clock } from "lucide-react";
-import Navbar from "../components/Navbar";
 import styles from "./GCashPaymentPage.module.css";
 import axios from "axios";
 
@@ -124,8 +123,6 @@ const GCashPaymentPage = ({ onLogout }) => {
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
-
-      <Navbar activeNav="CLASSES" onLogout={onLogout} />
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>

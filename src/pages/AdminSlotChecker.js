@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Users, TrendingUp, AlertCircle, CheckCircle, Edit2, Eye, X, ArrowLeft } from "lucide-react";
 import styles from "./AdminSlotChecker.module.css";
-import Navbar from "../components/Navbar";
 import axios from "axios";
 
 const AdminSlotChecker = ({ onLogout }) => {
@@ -200,7 +199,6 @@ const AdminSlotChecker = ({ onLogout }) => {
   if (isLoading) {
     return (
       <div className={styles.pageContainer}>
-        <Navbar activeNav="ADMIN" onLogout={onLogout} />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p>Loading slot information...</p>
@@ -222,8 +220,6 @@ const AdminSlotChecker = ({ onLogout }) => {
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
-
-      <Navbar activeNav="ADMIN" onLogout={onLogout} />
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>

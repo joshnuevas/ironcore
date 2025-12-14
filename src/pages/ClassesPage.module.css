@@ -125,7 +125,7 @@
 .content {
   position: relative;
   z-index: 10;
-  padding-top: 8rem;
+  padding-top: 6.5rem; /* ✅ match OurTrainers */
   padding-bottom: 4rem;
   padding-left: 2rem;
   padding-right: 2rem;
@@ -136,7 +136,7 @@
 /* Header */
 .header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3.5rem; /* ✅ same as trainers */
   animation: fadeInUp 1s ease-out;
 }
 
@@ -152,22 +152,19 @@
 }
 
 .title {
-  font-size: 4rem;
+  font-size: 2.75rem; /* ✅ same as OurTrainers */
   font-weight: 900;
-  color: white;
-  letter-spacing: -0.05em;
-  margin-bottom: 1rem;
   background: linear-gradient(to right, white, #f97316);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  font-size: 1.25rem;
+  font-size: 1rem;     /* ✅ same as OurTrainers */
   color: #9ca3af;
   letter-spacing: 0.05em;
-  font-weight: 300;
 }
 
 /* Classes Grid */

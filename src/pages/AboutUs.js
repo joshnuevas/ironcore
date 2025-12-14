@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Award, TrendingUp, Target, Users, Heart, Shield } from "lucide-react";
-import Navbar from "../components/Navbar"; // ✅ Reuse shared Navbar
 import styles from "./AboutUs.module.css";
 import { useNavigate } from "react-router-dom";
 
@@ -60,7 +59,6 @@ const AboutUs = () => {
   return (
     <div className={styles.aboutContainer}>
       {/* ✅ Reusable Navbar */}
-      <Navbar activeNav="ABOUT US" username={username} onLogout={handleLogout} />
 
       {/* Animated background */}
       <div className={styles.backgroundOverlay}>

@@ -11,7 +11,6 @@ import {
   Trash2,
 } from "lucide-react";
 import styles from "./AdminScheduleViewer.module.css";
-import Navbar from "../components/Navbar";
 import axios from "axios";
 
 // Helper function to generate time options (every 30 minutes)
@@ -373,7 +372,6 @@ const AdminScheduleViewer = ({ onLogout }) => {
   if (isLoading) {
     return (
       <div className={styles.pageContainer}>
-        <Navbar activeNav="ADMIN" onLogout={onLogout} />
         <div className={styles.loadingContainer}>
           <div className={styles.spinner}></div>
           <p>Loading schedules...</p>
@@ -389,8 +387,6 @@ const AdminScheduleViewer = ({ onLogout }) => {
         <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
         <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
       </div>
-
-      <Navbar activeNav="ADMIN" onLogout={onLogout} />
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
