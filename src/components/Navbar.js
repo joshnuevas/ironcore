@@ -10,14 +10,50 @@ const Navbar = ({ activeNav = "HOME" }) => {
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [username, setUsername] = useState("");
+  const [role, setRole] = useState(null); // "ADMIN" | "USER" | null
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
-  const loginRole = localStorage.getItem("loginRole");
+  // Fetch current user (cookie/session auth)
+  useEffect(() => {
+    let isMounted = true;
 
-  // Admin mode = user role is admin OR page explicitly says activeNav="ADMIN"
-  const isAdminMode =
-    (loginRole && loginRole.toLowerCase() === "admin") ||
-    activeNav === "ADMIN";
+    const fetchCurrentUser = async () => {
+      setIsLoadingUser(true);
+      try {
+        const res = await axios.get("http://localhost:8080/api/users/me", {
+          withCredentials: true,
+        });
+
+        if (!isMounted) return;
+
+        const displayName =
+          res.data?.username ||
+          res.data?.name ||
+          res.data?.fullName ||
+          res.data?.firstName ||
+          "";
+
+        setUsername(displayName);
+        setRole(res.data?.role || "USER"); // adjust key if backend uses "userRole"
+      } catch (err) {
+        // not logged in / expired session
+        if (!isMounted) return;
+        setUsername("");
+        setRole(null);
+      } finally {
+        if (isMounted) setIsLoadingUser(false);
+      }
+    };
+
+    fetchCurrentUser();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Admin mode (trust backend role, or if page explicitly says ADMIN)
+  const isAdminMode = role === "ADMIN" || activeNav === "ADMIN";
 
   // For admins → no middle nav items
   const navItems = useMemo(
@@ -34,44 +70,6 @@ const Navbar = ({ activeNav = "HOME" }) => {
           ],
     [isAdminMode]
   );
-
-  // Load current user for display (cookie/session-based auth, same as your Login page)
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchCurrentUser = async () => {
-      setIsLoadingUser(true);
-      try {
-        const res = await axios.get("http://localhost:8080/api/users/me", {
-          withCredentials: true, // ✅ important for cookie-based auth
-        });
-
-        if (!isMounted) return;
-
-        // Use whatever your backend returns; prefer username, then name/fullName as fallback
-        const displayName =
-          res.data?.username ||
-          res.data?.name ||
-          res.data?.fullName ||
-          res.data?.firstName ||
-          "";
-
-        setUsername(displayName);
-      } catch (err) {
-        // If user isn't logged in (401), keep fallback label
-        console.error("Failed to load user for navbar:", err);
-        if (isMounted) setUsername("");
-      } finally {
-        if (isMounted) setIsLoadingUser(false);
-      }
-    };
-
-    fetchCurrentUser();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const handleNavClick = (item) => {
     switch (item) {
@@ -99,44 +97,37 @@ const Navbar = ({ activeNav = "HOME" }) => {
   };
 
   const handleProfileClick = () => {
+    // Optional: if not logged in, send to login
+    if (!role) return navigate("/login");
     navigate("/profile");
   };
 
   const handleLogoClick = () => {
-    navigate(isAdminMode ? "/admin" : "/landing");
+    // If admin, go admin dashboard. If not logged in, go landing/login as you prefer.
+    if (isAdminMode) return navigate("/admin");
+    navigate("/landing");
   };
 
-  const handleLogout = () => {
-    setShowLogoutModal(true);
-  };
+  const handleLogout = () => setShowLogoutModal(true);
+  const cancelLogout = () => setShowLogoutModal(false);
 
   const confirmLogout = async () => {
     try {
-      // If you have a logout endpoint, call it so the cookie/session is cleared server-side too
-      // (safe even if you haven't implemented it yet)
+      // clear server session/cookie
       await axios.post(
         "http://localhost:8080/api/auth/logout",
         {},
         { withCredentials: true }
       );
     } catch (err) {
-      // ignore, still proceed with client cleanup
+      // still proceed with navigation
       console.warn("Logout endpoint failed or not implemented:", err);
     } finally {
-      // Keep these if you still use them elsewhere
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("username");
-      localStorage.removeItem("email");
-      localStorage.removeItem("loginRole");
-
       setShowLogoutModal(false);
+      setUsername("");
+      setRole(null);
       navigate("/login");
     }
-  };
-
-  const cancelLogout = () => {
-    setShowLogoutModal(false);
   };
 
   const profileLabel = isLoadingUser ? "Profile" : username || "Profile";
@@ -175,7 +166,7 @@ const Navbar = ({ activeNav = "HOME" }) => {
             ))}
           </div>
 
-          {/* Right side: profile + logout (shown for everyone) */}
+          {/* Right side: profile + logout */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
             <button
               onClick={handleProfileClick}

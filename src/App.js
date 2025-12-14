@@ -1,3 +1,4 @@
+// src/App.js
 import React from "react";
 import {
   BrowserRouter as Router,
@@ -18,30 +19,31 @@ import ClassesPage from "./pages/ClassesPage";
 import TransactionPage from "./pages/TransactionPage";
 import BookTrainer from "./pages/BookTrainer";
 import ProfilePage from "./pages/ProfilePage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import GCashPaymentPage from "./pages/GCashPaymentPage";
 import ClassTransactionPage from "./pages/ClassTransactionPage";
 import ClassDetailsPage from "./pages/ClassDetailsPage";
+import AttendanceChecker from "./pages/AttendanceChecker";
+import AttendancePage from "./pages/AttendancePage";
+
 import AdminLandingPage from "./pages/AdminLandingPage";
 import AdminCodeChecker from "./pages/AdminCodeChecker";
 import AdminScheduleViewer from "./pages/AdminScheduleViewer";
 import AdminSlotChecker from "./pages/AdminSlotChecker";
-import AttendanceChecker from "./pages/AttendanceChecker";
-import AttendancePage from "./pages/AttendancePage";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 
 function App() {
   return (
     <Router>
       <Routes>
         {/* Public routes */}
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* Protected routes */}
+        {/* Protected user routes */}
         <Route
           path="/landing"
           element={
@@ -167,55 +169,40 @@ function App() {
           }
         />
 
-  
-
-        {/* Admin routes */}
+        {/* ✅ Admin routes (LOCK EVERYTHING UNDER /admin/*) */}
         <Route
-          path="/admin"
+          path="/admin/*"
           element={
             <ProtectedAdminRoute>
-              <AdminLandingPage />
+              <AdminRoutes />
             </ProtectedAdminRoute>
           }
         />
 
-        <Route
-          path="/admin/code-checker"
-          element={
-            <ProtectedAdminRoute>
-              <AdminCodeChecker />
-            </ProtectedAdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin/schedule-viewer"
-          element={
-            <ProtectedAdminRoute>
-              <AdminScheduleViewer />
-            </ProtectedAdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin/slot-checker"
-          element={
-            <ProtectedAdminRoute>
-              <AdminSlotChecker />
-            </ProtectedAdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin/attendance-checker"
-          element={
-            <ProtectedAdminRoute>
-              <AttendanceChecker />
-            </ProtectedAdminRoute>
-          }
-        />
+        {/* Optional: catch-all */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
+  );
+}
+
+/**
+ * All admin-only pages live here.
+ * Because this entire component is wrapped in ProtectedAdminRoute,
+ * users can never access ANY /admin/... page unless they are admin.
+ */
+function AdminRoutes() {
+  return (
+    <Routes>
+      <Route index element={<AdminLandingPage />} />
+      <Route path="code-checker" element={<AdminCodeChecker />} />
+      <Route path="schedule-viewer" element={<AdminScheduleViewer />} />
+      <Route path="slot-checker" element={<AdminSlotChecker />} />
+      <Route path="attendance-checker" element={<AttendanceChecker />} />
+
+      {/* Safety fallback: unknown /admin/... goes back to /admin */}
+      <Route path="*" element={<Navigate to="/admin" replace />} />
+    </Routes>
   );
 }
 
