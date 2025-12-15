@@ -9,7 +9,7 @@ import {
   Award,
   CheckCircle,
   AlertCircle,
-  Bot, // AI assistant icon
+  Shield,
 } from "lucide-react";
 
 const LandingPage = () => {
@@ -46,23 +46,17 @@ const LandingPage = () => {
 
           if (!isPaid || !notCompleted) return false;
 
-          // ⭐ NEW: Check expiration for memberships
+          // ⭐ Check expiration for memberships
           if (t.membershipType && t.membershipExpiryDate) {
             const expiryDate = new Date(t.membershipExpiryDate);
-            if (expiryDate < now) {
-              return false; // Hide expired memberships
-            }
+            if (expiryDate < now) return false;
           }
 
-          // ⭐ NEW: Check expiration for scheduled classes
+          // ⭐ Check expiration for scheduled classes
           if (t.scheduleDate && t.scheduleTime) {
-            // Combine date and time for accurate comparison
             const scheduleDateTimeStr = `${t.scheduleDate} ${t.scheduleTime}`;
             const scheduleDateTime = new Date(scheduleDateTimeStr);
-
-            if (scheduleDateTime < now) {
-              return false; // Hide past classes
-            }
+            if (scheduleDateTime < now) return false;
           }
 
           return true;
@@ -70,22 +64,13 @@ const LandingPage = () => {
 
         // ⭐ Split into activated and unactivated
         const activated = allTransactions.filter((t) => {
-          // For memberships and membership-included classes
-          if (t.membershipType) {
-            return t.membershipActivatedDate !== null;
-          }
-          // For regular class enrollments (always show as activated)
-          if (t.className && t.scheduleDay) {
-            return true;
-          }
+          if (t.membershipType) return t.membershipActivatedDate !== null;
+          if (t.className && t.scheduleDay) return true;
           return false;
         });
 
         const unactivated = allTransactions.filter((t) => {
-          // Only memberships and membership-included classes can be unactivated
-          if (t.membershipType && t.membershipActivatedDate === null) {
-            return true;
-          }
+          if (t.membershipType && t.membershipActivatedDate === null) return true;
           return false;
         });
 
@@ -105,8 +90,8 @@ const LandingPage = () => {
     navigate("/contact");
   };
 
-  const handleAiAssistant = () => {
-    navigate("/ai-assistant");
+  const handleGoToAdminPage = () => {
+    navigate("/admin");
   };
 
   const formatDate = (dateString) => {
@@ -162,7 +147,7 @@ const LandingPage = () => {
           {transaction.className || transaction.membershipType}
         </h3>
 
-        {/* Class Details - Only for classes with schedule */}
+        {/* Class Details */}
         {transaction.className && transaction.scheduleDay && (
           <div className={styles.cardDetails}>
             <div className={styles.detailRow}>
@@ -246,9 +231,7 @@ const LandingPage = () => {
         >
           <CreditCard size={16} />
           <span className={styles.codeLabel}>Code:</span>
-          <span className={styles.codeValue}>
-            {transaction.transactionCode}
-          </span>
+          <span className={styles.codeValue}>{transaction.transactionCode}</span>
         </div>
       </div>
 
@@ -280,7 +263,6 @@ const LandingPage = () => {
 
   return (
     <div className={styles.landingContainer}>
-
       {/* Animated background elements */}
       <div className={styles.backgroundOverlay}>
         <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
@@ -303,9 +285,23 @@ const LandingPage = () => {
             <span className={styles.quoteSub}>Stay Humble</span>
           </h1>
 
-          <button onClick={handleContact} className={styles.contactButton}>
-            CONTACT
-          </button>
+          {/* ✅ aligned buttons */}
+          <div className={styles.heroButtons}>
+            <button onClick={handleContact} className={styles.contactButton}>
+              CONTACT
+            </button>
+
+            {currentUser?.isAdmin === true && (
+              <button
+                onClick={handleGoToAdminPage}
+                className={styles.adminButton}
+                type="button"
+              >
+                <Shield size={18} />
+                GO TO ADMIN
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -315,9 +311,7 @@ const LandingPage = () => {
           <div className={styles.activeCodesContainer}>
             <div className={styles.sectionHeader}>
               <h2
-                className={`${styles.sectionTitle} ${
-                  styles.sectionTitlePending
-                }`}
+                className={`${styles.sectionTitle} ${styles.sectionTitlePending}`}
               >
                 ⏳ Pending Activation
               </h2>
@@ -342,8 +336,7 @@ const LandingPage = () => {
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>✅ Your Active Codes</h2>
               <p className={styles.sectionSubtitle}>
-                Show these codes at the gym to access your classes and
-                memberships
+                Show these codes at the gym to access your classes and memberships
               </p>
             </div>
 
@@ -365,14 +358,11 @@ const LandingPage = () => {
               <div className={styles.noCodesIcon}>📋</div>
               <h3 className={styles.noCodesTitle}>No Active Codes Yet</h3>
               <p className={styles.noCodesText}>
-                Enroll in a class or get a membership to see your active codes
-                here
+                Enroll in a class or get a membership to see your active codes here
               </p>
             </div>
           </div>
         )}
-
-   
     </div>
   );
 };

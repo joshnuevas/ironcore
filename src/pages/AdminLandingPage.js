@@ -14,6 +14,7 @@ import axios from "axios";
 
 const AdminLandingPage = () => {
   const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     activeSchedules: 0,
     totalMembers: 0,
@@ -36,28 +37,26 @@ const AdminLandingPage = () => {
       const response = await axios.get(
         "http://localhost:8080/api/admin/stats",
         {
-          withCredentials: true, // send cookies (if any)
+          withCredentials: true,
           headers: token
-            ? {
-                Authorization: `Bearer ${token}`, // send JWT
-              }
+            ? { Authorization: `Bearer ${token}` }
             : {},
         }
       );
 
-      setStats(response.data || {
-        activeSchedules: 0,
-        totalMembers: 0,
-        availableSlots: 0,
-      });
-    } catch (error) {
-      console.error("Failed to fetch admin stats:", error);
+      setStats(
+        response.data || {
+          activeSchedules: 0,
+          totalMembers: 0,
+          availableSlots: 0,
+        }
+      );
+    } catch (err) {
+      console.error("Failed to fetch admin stats:", err);
 
-      if (error.response && error.response.status === 401) {
+      if (err.response?.status === 401) {
         setError("Your session has expired. Please log in again.");
-        // Optional: redirect to login after a delay
-        // setTimeout(() => navigate("/login"), 2000);
-      } else if (error.response && error.response.status === 403) {
+      } else if (err.response?.status === 403) {
         setError("You do not have permission to view admin statistics.");
       } else {
         setError("Failed to load dashboard statistics. Please try again.");
@@ -75,6 +74,11 @@ const AdminLandingPage = () => {
 
   const handleRefresh = () => {
     fetchStats();
+  };
+
+  // ✅ NEW: Go to user landing page
+  const handleGoToUserPage = () => {
+    navigate("/landing");
   };
 
   const adminCards = [
@@ -125,23 +129,33 @@ const AdminLandingPage = () => {
 
   return (
     <div className={styles.pageContainer}>
+      {/* Background */}
       <div className={styles.backgroundOverlay}>
-        <div className={`${styles.bgBlur} ${styles.bgBlur1}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur2}`}></div>
-        <div className={`${styles.bgBlur} ${styles.bgBlur3}`}></div>
+        <div className={`${styles.bgBlur} ${styles.bgBlur1}`} />
+        <div className={`${styles.bgBlur} ${styles.bgBlur2}`} />
+        <div className={`${styles.bgBlur} ${styles.bgBlur3}`} />
       </div>
 
       <div className={styles.contentSection}>
         <div className={styles.contentContainer}>
-          {/* Header Section */}
+          {/* Header */}
           <div className={styles.headerSection}>
             <h1 className={styles.title}>ADMIN DASHBOARD</h1>
             <p className={styles.subtitle}>
               Manage your gym operations with powerful administrative tools
             </p>
+
+            {/* ✅ Go to User Page Button */}
+            <button
+              onClick={handleGoToUserPage}
+              className={styles.goToUserBtn}
+              type="button"
+            >
+              Go to User Page
+            </button>
           </div>
 
-          {/* Error Banner */}
+          {/* Error */}
           {error && (
             <div className={styles.errorBanner}>
               <AlertCircle size={18} />
@@ -152,7 +166,7 @@ const AdminLandingPage = () => {
             </div>
           )}
 
-          {/* Stats Grid */}
+          {/* Stats */}
           <div className={styles.statsSection}>
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
@@ -205,12 +219,12 @@ const AdminLandingPage = () => {
             </div>
           </div>
 
-          {/* Admin Tools Grid */}
+          {/* Tools */}
           <div className={styles.toolsSection}>
             <h2 className={styles.sectionTitle}>Administrative Tools</h2>
             <div className={styles.cardsGrid}>
               {adminCards.map((card) => {
-                const IconComponent = card.icon;
+                const Icon = card.icon;
                 return (
                   <div
                     key={card.id}
@@ -218,7 +232,7 @@ const AdminLandingPage = () => {
                     onClick={() => handleCardClick(card.path)}
                   >
                     <div className={styles.cardIconWrapper}>
-                      <IconComponent className={styles.cardIcon} />
+                      <Icon className={styles.cardIcon} />
                     </div>
                     <h3 className={styles.cardTitle}>{card.title}</h3>
                     <p className={styles.cardDescription}>
@@ -234,15 +248,13 @@ const AdminLandingPage = () => {
             </div>
           </div>
 
-          {/* Info Box */}
+          {/* Info */}
           <div className={styles.infoSection}>
             <div className={styles.infoBox}>
               <div className={styles.infoIcon}>💡</div>
               <div className={styles.infoContent}>
-                <strong>Pro Tip:</strong> All administrative actions are
-                logged and monitored for security purposes. If you need
-                additional permissions, please contact the system
-                administrator.
+                <strong>Pro Tip:</strong> All administrative actions are logged
+                and monitored for security purposes.
               </div>
             </div>
           </div>
