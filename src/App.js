@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -37,8 +37,38 @@ import AdminSlotChecker from "./pages/AdminSlotChecker";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 
+// ✅ token tamper utilities
+import { hasTokenChanged, clearToken } from "./utils/tokenStorage";
+
 function AppLayout() {
   const { pathname } = useLocation();
+
+  // ✅ Auto-logout if token is edited/tampered in localStorage
+  useEffect(() => {
+    const logoutNow = () => {
+      clearToken();
+      localStorage.removeItem("loginRole");
+      window.location.href = "/login";
+    };
+
+    const check = () => {
+      if (hasTokenChanged()) {
+        logoutNow();
+      }
+    };
+
+    // check immediately and then every 1s
+    check();
+    const interval = setInterval(check, 1000);
+
+    // also check when user returns to the tab
+    document.addEventListener("visibilitychange", check);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, []);
 
   const activeNav = useMemo(() => {
     if (pathname.startsWith("/about")) return "ABOUT US";
@@ -55,7 +85,13 @@ function AppLayout() {
   return (
     <>
       <Navbar activeNav={activeNav} />
-      <div style={{ paddingTop: "90px", minHeight: "100vh", background: "transparent" }}>
+      <div
+        style={{
+          paddingTop: "90px",
+          minHeight: "100vh",
+          background: "transparent",
+        }}
+      >
         <Outlet />
       </div>
     </>
